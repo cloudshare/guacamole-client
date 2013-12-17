@@ -1,1 +1,1 @@
-angular.module('index', ['ngRoute']);
+angular.module('index', ['ngRoute', 'pascalprecht.translate']);

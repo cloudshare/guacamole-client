@@ -111,6 +111,7 @@
                             <jsSourceFiles>
                                 <jsSourceFile>lib/jquery.js</jsSourceFile>
                                 <jsSourceFile>lib/angular.js</jsSourceFile>
+                                <jsSourceFile>lib/angular-module-shim.js</jsSourceFile>
                             </jsSourceFiles>
 
                             <jsSourceIncludes>
