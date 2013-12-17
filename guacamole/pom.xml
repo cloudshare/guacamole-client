@@ -84,6 +84,54 @@
                     
                 </configuration>
             </plugin>
+            
+            <!-- JS/CSS Minification Plugin -->
+            <plugin>
+                <groupId>com.samaxes.maven</groupId>
+                <artifactId>minify-maven-plugin</artifactId>
+                <version>1.6.1</version>
+                <executions>
+                    <execution>
+                        <id>default-minify</id>
+                        <configuration>
+                            <charset>UTF-8</charset>
+
+                            <cssSourceDir>/new/styles/</cssSourceDir>
+                            <cssTargetDir>/new/</cssTargetDir>
+                            <cssFinalFile>guacamole.css</cssFinalFile>
+
+                            <cssSourceIncludes>
+                                <cssSourceInclude>**/*.css</cssSourceInclude>
+                            </cssSourceIncludes>
+
+                            <jsSourceDir>/new/scripts/</jsSourceDir>
+                            <jsTargetDir>/new/</jsTargetDir>
+                            <jsFinalFile>guacamole.js</jsFinalFile>
+                            
+                            <jsSourceFiles>
+                                <jsSourceFile>lib/jquery.js</jsSourceFile>
+                                <jsSourceFile>lib/angular.js</jsSourceFile>
+                            </jsSourceFiles>
+
+                            <jsSourceIncludes>
+                                <jsSourceInclude>lib/plugins/*.js</jsSourceInclude>
+                                <jsSourceInclude>app/**/*.js</jsSourceInclude>
+                            </jsSourceIncludes>
+
+                            <!-- Do not minify and include tests -->
+                            <jsSourceExcludes>
+                                <jsSourceExclude>**/*.test.js</jsSourceExclude>
+                            </jsSourceExcludes>
+                            <jsEngine>CLOSURE</jsEngine>
+                            
+                            <skipMinify>true</skipMinify>
+                        </configuration>
+                        <goals>
+                            <goal>minify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
         </plugins>
     </build>
