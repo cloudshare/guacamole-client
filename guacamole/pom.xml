@@ -96,7 +96,7 @@
                         <configuration>
                             <charset>UTF-8</charset>
 
-                            <cssSourceDir>/new/styles/</cssSourceDir>
+                            <cssSourceDir>/new/</cssSourceDir>
                             <cssTargetDir>/new/</cssTargetDir>
                             <cssFinalFile>guacamole.css</cssFinalFile>
 
@@ -104,7 +104,7 @@
                                 <cssSourceInclude>**/*.css</cssSourceInclude>
                             </cssSourceIncludes>
 
-                            <jsSourceDir>/new/scripts/</jsSourceDir>
+                            <jsSourceDir>/new/</jsSourceDir>
                             <jsTargetDir>/new/</jsTargetDir>
                             <jsFinalFile>guacamole.js</jsFinalFile>
                             
