@@ -1,5 +1,24 @@
 {
     "login": {
-        "loginError": "Invalid Login"
+        "loginError" : "Invalid Login",
+        "username"   : "Username",
+        "password"   : "Password",
+        "login"      : "Login"
+    },
+    
+    "home": {
+        "manage"                  : "Manage",
+        "logout"                  : "Logout",
+        "recentConnections"       : "Recent Connections",
+        "noRecentConnections"     : "No recent Connections.",
+        "allConnections"          : "All Connections",
+        "clipboard"               : "Clipboard",
+        "clipboardDescription"    : "Text copied/cut within Guacamole will appear here. Changes to the text will affect the remote clipboard, and will be pastable within the remote desktop. Use the textbox below as an interface between the client and server clipboards.",
+        "settings"                : "Settings",
+        "autoFitDisplay"          : "Auto-fit display to browser window",
+        "autoFitDescription"      : "If checked, remote displays are automatically scaled to exactly fit within the browser window. If unchecked, remote displays are always shown at their natural resolution, even if doing so causes the display to extend beyond the bounds of the window.",
+        "disableSound"            : "Disable Sound",
+        "disableSoundDescription" : "If on a device or network where bandwidth usage must be kept to a minimum, you may wish to check this box and disable sound. This can also be necessary if a device doesn't actually support sound, but claims to, resulting in wasted bandwidth.",
+        "disableSoundNote"        : "Changing this setting will only affect future connections."
     }
 }

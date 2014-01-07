@@ -30,11 +30,11 @@ THE SOFTWARE.
                 <div class="login-form login-fields">
                     <table>
                         <tr>
-                            <th>Username</th>
+                            <th ng-bind="'login.username' | translate"></th>
                             <td><input ng-model="username" type="text" name="username" autofocus="autofocus" class="username"/></td>
                         </tr>
                         <tr>
-                            <th>Password</th>
+                            <th ng-bind="'login.password' | translate"></th>
                             <td><input ng-model="password" type="password" name="password" class="password"/></td>
                         </tr>
                     </table>
@@ -43,7 +43,7 @@ THE SOFTWARE.
                 </div>
 
                 <div class="buttons">
-                    <input type="submit" ng-click="login()" name="login" class="login" value="Login"/>
+                    <button ng-click="login()" name="login" class="login" ng-bind="'login.login' | translate"/>
                 </div>
         </div>
 

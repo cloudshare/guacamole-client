@@ -1,23 +1,73 @@
 <!--
-Copyright 2013 Glyptodon LLC.
+   Copyright (C) 2013 Glyptodon LLC
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+   THE SOFTWARE.
 -->
 
-{{connectionGroups}}
+<div class="connection-list-ui">
+
+    <div class="logout-panel">
+        <button class="manage">{{'home.manage' | translate}}</button>
+        <button class="logout">{{'home.logout' | translate}}</button>
+    </div>
+
+    <h2>{{'home.recentConnections' | translate}}</h2>
+    <div class="recent-connections">
+        <p class="no-recent">{{'home.noRecentConnections' | translate}}</p>
+    </div>
+
+    <h2>{{'home.allConnections' | translate}}</h2>
+    <div class="all-connections">
+    </div>
+
+    <h2>{{'home.clipboard' | translate}}</h2>
+    <div class="clipboardDiv">
+        <p>{{'home.clipboardDescription' | translate}}</p>
+        <textarea rows="10" cols="40" class="clipboard"></textarea>
+    </div>
+
+    <h2>{{'home.settings' | translate}}</h2>
+    <div class="settings">
+
+        <dl>
+            <!-- Auto-fit display -->
+            <dt>
+                <input type="checkbox" class="auto-fit"/>
+                {{'home.autoFitDisplay' | translate}}
+            </dt>
+            <dd>
+                <p>{{'home.autoFitDisplay' | translate}}</p>
+            </dd>
+
+            <!-- Enable/disable sound -->
+            <dt>
+                <input type="checkbox" class="disable-sound"/>
+                {{'home.disableSound' | translate}}
+            </dt>
+            <dd>
+                <p>{{'home.disableSoundDescription' | translate}}</p>
+                <p>
+                    <strong>{{'home.disableSoundNote' | translate}}</strong>
+                </p>
+            </dd>
+        </dl>
+
+    </div>
+
+</div>
