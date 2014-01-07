@@ -20,30 +20,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
-<div id="login-ui">
-    <div id="login-dialog-middle">
+<div class="login-ui" ng-class="{error: loginError}" >
+    <div class="login-dialog-middle">
 
-        <div id="login-dialog">
+        <div class="login-dialog">
 
-            <p ng-class="{error: loginError}" id="login-error">Invalid Login</p>
+            <p class="login-error" ng-bind="'loginError' | translate"></p>
 
-                <div id="login-fields" ng-class="{error: loginError}" class="login-form">
+                <div class="login-form login-fields">
                     <table>
                         <tr>
                             <th>Username</th>
-                            <td><input ng-model="username" type="text" name="username" autofocus="autofocus" id="username"/></td>
+                            <td><input ng-model="username" type="text" name="username" autofocus="autofocus" class="username"/></td>
                         </tr>
                         <tr>
                             <th>Password</th>
-                            <td><input ng-model="password" type="password" name="password" id="password"/></td>
+                            <td><input ng-model="password" type="password" name="password" class="password"/></td>
                         </tr>
                     </table>
 
                     <img class="logo" src="../images/guac-mono-192.png" alt=""/>
                 </div>
 
-                <div id="buttons">
-                    <input type="submit" ng-click="login()" name="login" id="login" value="Login"/>
+                <div class="buttons">
+                    <input type="submit" ng-click="login()" name="login" class="login" value="Login"/>
                 </div>
         </div>
 
