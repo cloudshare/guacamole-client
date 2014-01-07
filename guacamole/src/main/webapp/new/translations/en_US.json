@@ -1,4 +1,8 @@
 {
+    "index": {
+        "title" : "Guacamole 0.8.3"
+    },
+    
     "login": {
         "loginError" : "Invalid Login",
         "username"   : "Username",
