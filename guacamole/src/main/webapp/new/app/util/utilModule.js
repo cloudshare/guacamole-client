@@ -20,4 +20,4 @@
  * THE SOFTWARE.
  */
 
-angular.module('util', []);
+angular.module('util', ['ngCookies']);
