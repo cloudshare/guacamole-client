@@ -19,4 +19,49 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
-MANAGE!
+
+<div class="logout-panel">
+    <button class="back">{{'manage.back' | translate}}</button>
+    <button class="logout">{{'manage.logout' | translate}}</button>
+</div>
+
+<h2>{{'manage.administration' | translate}}</h2>
+<div class="settings section">
+
+    <h3 class="require-manage-users">{{'manage.users' | translate}}</h3>
+    <div class="require-manage-users users">
+
+        <p>{{'manage.usersDescription' | translate}}</p>
+
+        <div class="user-add-form">
+            <input type="text" class="name username" placeholder="Username"/>
+            <button class="add-user">{{'manage.addUser' | translate}}</button>
+        </div>
+
+        <div class="user-list">
+        </div>
+
+        <div class="user-list-buttons">
+        </div>
+
+    </div>
+
+    <h3 class="require-manage-connections">{{'manage.connections' | translate}}</h3>
+    <div class="require-manage-connections connections">
+
+        <p>{{'manage.connectionsDescription' | translate}}</p>
+
+        <div class="connection-add-form">
+            <button class="add-connection">{{'manage.newConnection' | translate}}</button>
+            <button class="add-connection-group">{{'manage.newGroup' | translate}}</button>
+        </div>
+
+        <div class="connection-list">
+        </div>
+
+        <div class="connection-list-buttons">
+        </div>
+
+    </div>
+
+</div>

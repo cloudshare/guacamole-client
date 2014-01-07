@@ -494,14 +494,14 @@ div.section {
     font-size: 0.75em;
 }
 
-#connections input.name,
-#users input.name {
+.connections input.name,
+.users input.name {
     max-width: 80%;
     width: 20em;
 }
 
-#connection-list,
-#user-list {
+.connection-list,
+.user-list {
     border: 1px solid rgba(0, 0, 0, 0.25);
     min-height: 20em;
     -moz-border-radius: 0.2em;
@@ -510,30 +510,18 @@ div.section {
     border-radius: 0.2em;
 }
 
-#connections #add-connection,
-#connections #add-connection-group,
-#users #add-user {
+.connections .add-connection,
+.connections .add-connection-group,
+.users .add-user {
     font-size: 0.8em;
 }
 
-#connection-add-form,
-#user-add-form {
+.connection-add-form,
+.user-add-form {
     margin-bottom: 0.5em;
 }
 
-body:not(.manage-connections) .require-manage-connections,
-body:not(.manage-users) .require-manage-users {
-    display: none;
-}
-
-body:not(.add-connections) #add-connection,
-body:not(.add-connection-groups) #add-connection-group,
-body:not(.add-users) #user-add-form {
-    display: none;
-    display: none;
-}
-
-div#logout-panel {
+div.logout-panel {
     padding: 0.45em;
     text-align: right;
     float: right;
@@ -609,7 +597,7 @@ div#logout-panel {
     margin: 1em;
 }
 
-button#logout {
+button.logout {
 
     background-image: url('../images/action-icons/guac-logout.png');
     background-repeat: no-repeat;

@@ -20,5 +20,18 @@
         "disableSound"            : "Disable Sound",
         "disableSoundDescription" : "If on a device or network where bandwidth usage must be kept to a minimum, you may wish to check this box and disable sound. This can also be necessary if a device doesn't actually support sound, but claims to, resulting in wasted bandwidth.",
         "disableSoundNote"        : "Changing this setting will only affect future connections."
+    },
+            
+    "manage": {
+        "back"                   : "Back",
+        "logout"                 : "Logout",
+        "administration"         : "Administration",
+        "users"                  : "Users",
+        "usersDescription"       : "Click or tap on a user below to manage that user. Depending on your access level, users can be added and deleted, and their passwords can be changed.",
+        "addUser"                : "Add User",
+        "connections"            : "Connections",
+        "connectionsDescription" : "Click or tap on a connection below to manage that connection. Depending on your access level, connections can be added and deleted, and their properties (protocol, hostname, port, etc.) can be changed.",
+        "newConnection"          : "New Connection",
+        "newGroup"               : "New Group"
     }
 }
