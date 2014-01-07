@@ -439,42 +439,29 @@ div.section {
  * Groups
  */
 
-.group > .children {
+.group .children {
     margin-left: 13px;
     padding-left: 6px;
-    display: none;
-}
- 
-.group.expanded > .children {
-    display: block;
     border-left: 1px dotted rgba(0, 0, 0, 0.25);
 }
 
-.group > .caption .icon.type {
-    display: none;
-}
-
-.group.balancer > .caption .icon.type {
-    display: inline-block;
-    background-image: url('../images/protocol-icons/guac-monitor.png');
-}
-
-.group > .caption .icon.group {
+.caption .icon.group {
     opacity: 0.75;
     background-image: url('../images/group-icons/guac-closed.png');
 }
 
-.group.expanded > .caption .icon.group {
+.caption .icon.group.expanded {
     background-image: url('../images/group-icons/guac-open.png');
 }
 
-.group.empty > .caption .icon.group {
+.caption .icon.group.empty {
     opacity: 0.25;
     background-image: url('../images/group-icons/guac-open.png');
 }
 
-.group.empty.balancer > .caption .icon.group {
-    display: none;
+.caption .icon.group.balancer {
+    background-image: url('../images/protocol-icons/guac-monitor.png');
+    opacity: 0.5;
 }
 
 /*

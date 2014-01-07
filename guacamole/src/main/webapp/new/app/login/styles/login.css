@@ -300,13 +300,6 @@ div.recent-connections div.connection {
     background: #CDA;
 }
 
-.group,
-.connection .name {
-    color: black;
-    font-weight: normal;
-    padding: 0.1em;
-}
-
 .connection .thumbnail {
     margin: 0.5em;
 }
@@ -317,17 +310,8 @@ div.recent-connections div.connection {
     max-width: 75%;
 }
 
-div.all-connections .connection {
-    display: block;
-    text-align: left;
-}
-
 div.recent-connections .connection .thumbnail {
     display: block;
-}
-
-div.all-connections .connection {
-    padding: 0.1em;
 }
 
 div.recent-connections .protocol {

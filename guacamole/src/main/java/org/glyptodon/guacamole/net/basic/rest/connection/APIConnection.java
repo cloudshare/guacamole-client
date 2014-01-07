@@ -28,6 +28,7 @@ import java.util.Map;
 import org.glyptodon.guacamole.GuacamoleException;
 import org.glyptodon.guacamole.net.auth.Connection;
 import org.glyptodon.guacamole.net.auth.ConnectionRecord;
+import org.glyptodon.guacamole.protocol.GuacamoleConfiguration;
 
 /**
  * A simple connection to expose through the REST endpoints.
@@ -50,6 +51,11 @@ public class APIConnection {
      * The identifier of the parent connection group for this connection.
      */
     private String parentIdentifier;
+
+    /**
+     * The protocol of this connection.
+     */
+    private String protocol;
     
     /**
      * The history records associated with this connection.
@@ -78,6 +84,14 @@ public class APIConnection {
         this.identifier = connection.getIdentifier();
         this.parentIdentifier = connection.getParentIdentifier();
         this.history = connection.getHistory();
+        
+        GuacamoleConfiguration configuration = connection.getConfiguration();
+        
+        this.protocol = configuration.getProtocol();
+        
+        for(String key: configuration.getParameterNames()) {
+            this.parameters.put(key, configuration.getParameter(key));
+        }
     }
 
     /**
@@ -149,6 +163,22 @@ public class APIConnection {
      */
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    /**
+     * Returns the protocol for this connection.
+     * @return The protocol for this connection.
+     */
+    public String getProtocol() {
+        return protocol;
+    }
+
+    /**
+     * Sets the protocol for this connection.
+     * @param protocol protocol for this connection.
+     */
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
     
 }
