@@ -25,16 +25,16 @@ THE SOFTWARE.
 
         <div class="login-dialog">
 
-            <p class="login-error" ng-bind="'login.loginError' | translate"></p>
+            <p class="login-error">{{'login.loginError' | translate}}</p>
 
                 <div class="login-form login-fields">
                     <table>
                         <tr>
-                            <th ng-bind="'login.username' | translate"></th>
+                            <th>{{'login.username' | translate}}</th>
                             <td><input ng-model="username" type="text" name="username" autofocus="autofocus" class="username"/></td>
                         </tr>
                         <tr>
-                            <th ng-bind="'login.password' | translate"></th>
+                            <th>{{'login.password' | translate}}</th>
                             <td><input ng-model="password" type="password" name="password" class="password"/></td>
                         </tr>
                     </table>
@@ -43,7 +43,7 @@ THE SOFTWARE.
                 </div>
 
                 <div class="buttons">
-                    <button ng-click="login()" name="login" class="login" ng-bind="'login.login' | translate"/>
+                    <button ng-click="login()" name="login" class="login">{{'login.login' | translate}}</button>
                 </div>
         </div>
 
