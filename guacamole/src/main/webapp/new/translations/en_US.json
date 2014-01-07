@@ -1,3 +1,5 @@
 {
-    "loginError": "Invalid Login"
+    "login": {
+        "loginError": "Invalid Login"
+    }
 }
