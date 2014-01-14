@@ -1,5 +1,5 @@
 
-/**
+/*!
  * Workaround to make defining and retrieving angular modules easier and more intuitive.
  * https://gist.github.com/hiddentao/7300694
  */
