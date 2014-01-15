@@ -24,29 +24,27 @@ angular.module('home').controller('homeController', ['$scope', 'connectionDAO', 
         
         connectionGroup.isConnection = false;
             
-        if(connectionGroup.type === "ORGANIZATIONAL") {
-            connectionGroup.expanded = false;
-            connectionGroup.items = [];
-            
-            // Get all connections in the ORGANIZATIONAL group and add them under this connection group
-            connectionDAO.getConnections(connectionGroup.identifier).success(function fetchConnections(connections) {
-                for(var i = 0; i < connections.length; i++) {
-                    connections[i].isConnection = true;
-                    connectionGroup.items.push(connections[i]);
-                }
-            });
-            
-            // Get all connection groups in the ORGANIZATIONAL group and repeat
-            connectionGroupDAO.getConnectionGroups(connectionGroup.identifier).success(function fetchConnectionGroups(connectionGroups) {
-                for(var i = 0; i < connectionGroups.length; i++) {
-                    addToAllConnections(connectionGroups[i], connectionGroup);
-                }
-            });
-        } else {
-            connectionGroup.balancer = true;
-        }
+        connectionGroup.balancer = connectionGroup.type !== "ORGANIZATIONAL";
+        connectionGroup.expanded = false;
+        connectionGroup.items = [];
+
+        // Get all connections in the ORGANIZATIONAL group and add them under this connection group
+        connectionDAO.getConnections(connectionGroup.identifier).success(function fetchConnections(connections) {
+            for(var i = 0; i < connections.length; i++) {
+                connections[i].isConnection = true;
+                connectionGroup.items.push(connections[i]);
+            }
+        });
+
+        // Get all connection groups in the ORGANIZATIONAL group and repeat
+        connectionGroupDAO.getConnectionGroups(connectionGroup.identifier).success(function fetchConnectionGroups(connectionGroups) {
+            for(var i = 0; i < connectionGroups.length; i++) {
+                addToAllConnections(connectionGroups[i], connectionGroup);
+            }
+        });
     }
     
+    // Get the root connection groups and begin building out the tree
     connectionGroupDAO.getConnectionGroups().success(function fetchRootConnectionGroups(connectionGroups) {
         for(var i = 0; i < connectionGroups.length; i++) {
             addToAllConnections(connectionGroups[i], $scope);
@@ -62,6 +60,27 @@ angular.module('home').controller('homeController', ['$scope', 'connectionDAO', 
         });
     });
     
+    /**
+     * Connect to the given connection.
+     * 
+     * @param {object} connection
+     */
+    $scope.openConnection = function openConnection(connection) {
+        $location.path("/connect/connection/" + connection.identifier);
+    };
     
+    /**
+     * Connect to the given balancing connection group.
+     * 
+     * @param {object} group
+     */
+    $scope.openConnectionGroup = function openConnectionGroup(group) {
+        if(group.balancer) {
+            $location.path("/connect/connectionGroup/" + group.identifier);
+        }
+    };
     
+    $scope.toggleExpanded = function toggleExpanded(connectionGroup) {
+        connectionGroup.expanded = !connectionGroup.expanded;
+    };
 }]);
