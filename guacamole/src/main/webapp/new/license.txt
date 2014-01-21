@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,21 +19,3 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-angular.module('index').factory('authenticationInterceptor', ['$location', '$q', 
-        function authenticationInterceptor($location, $q) {
-            
-    return {
-        'response': function(response) {
-            return response || $q.when(response);
-        },
-
-        'responseError': function(rejection) {
-            // Do not redirect failed login requests to the login page.
-            if (rejection.status === 401 && rejection.config.url.search('/api/login') === -1) {
-                $location.path('/login');
-            }
-            return $q.reject(rejection);
-        }
-    };
-}]);

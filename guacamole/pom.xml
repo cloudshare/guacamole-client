@@ -92,7 +92,7 @@
                 <version>1.6.1</version>
                 <executions>
                     <execution>
-                        <id>default-minify</id>
+                        <id>default-cli</id>
                         <configuration>
                             <charset>UTF-8</charset>
 
@@ -100,6 +100,10 @@
                             <cssTargetDir>/new/</cssTargetDir>
                             <cssFinalFile>guacamole.css</cssFinalFile>
 
+                            <cssSourceFiles>
+                                <cssSourceFile>license.txt</cssSourceFile>
+                            </cssSourceFiles>
+                            
                             <cssSourceIncludes>
                                 <cssSourceInclude>**/*.css</cssSourceInclude>
                             </cssSourceIncludes>
@@ -112,10 +116,14 @@
                                 <jsSourceFile>lib/jquery.js</jsSourceFile>
                                 <jsSourceFile>lib/angular.js</jsSourceFile>
                                 <jsSourceFile>lib/angular-module-shim.js</jsSourceFile>
+                                <jsSourceFile>lib/plugins/angular-cookies.min.js</jsSourceFile>
+                                <jsSourceFile>lib/plugins/angular-route.js</jsSourceFile>
+                                <jsSourceFile>lib/plugins/angular-translate.js</jsSourceFile>
+                                <jsSourceFile>lib/plugins/angular-translate-loader-static-files.min.js</jsSourceFile>
+                                <jsSourceFile>license.txt</jsSourceFile>
                             </jsSourceFiles>
 
                             <jsSourceIncludes>
-                                <jsSourceInclude>lib/plugins/*.js</jsSourceInclude>
                                 <jsSourceInclude>app/**/*.js</jsSourceInclude>
                             </jsSourceIncludes>
 
