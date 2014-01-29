@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 
-angular.module('home').controller('connectionGroupRouteController', ['$scope', '$route', '$routeParams', '$http', '$compile',
-        function connectionGroupRouteController($scope, $route, $routeParams, $http, $compile) {
-}]);
+/**
+ * A module for code relating to users.
+ */
+angular.module('user', []);

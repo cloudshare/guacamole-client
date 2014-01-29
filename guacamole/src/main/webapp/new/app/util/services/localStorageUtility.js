@@ -20,6 +20,10 @@
  * THE SOFTWARE.
  */
 
+/**
+ * A service for handling storage and retrieval of values on localStorage.
+ * If local storage is not available, cookies will be used as a fallback.
+ */
 angular.module('util').factory('localStorageUtility', ['$cookieStore', 
         function localStorageUtility($cookieStore) {
         
@@ -38,28 +42,56 @@ angular.module('util').factory('localStorageUtility', ['$cookieStore',
         localStorageEnabled = false;
     }
     
+    var getFunc, setFunc;
+    
     if(localStorageEnabled) {
         
         // Just a passthrough to localStorage
-        service.get = function get(key) {
+        getFunc = function getFromLocalStorage(key) {
             return window.localStorage.getItem(key);
         };
 
-        service.set = function set(key, value) {
+        setFunc = function setOnLocalStorage(key, value) {
             return window.localStorage.setItem(key, value);
         };
     }
     else {
         
         // Store the values as cookies
-        service.get = function getValueFromCookie(key) {
+        getFunc = function getValueFromCookie(key) {
             return $cookieStore.get(COOKIE_PREFIX + key);
         };
         
-        service.set = function setValueOnCookie(key, value) {
+        setFunc = function setValueOnCookie(key, value) {
             return $cookieStore.put(COOKIE_PREFIX + key, value);
         }
     }
+    
+    /**
+     * Gets a value from the persistent local store.
+     * 
+     * @param {string} key The key to use as an index into the map.
+     *                          
+     * @returns {string} The value, if found.
+     */
+    service.get = getFunc;
+    
+    /**
+     * Sets a value on the persistent local store.
+     * 
+     * @param {string} key The key to use as an index into the map.
+     * @param {string} value The value to store in the map.
+     */
+    service.set = setFunc;
+    
+    /**
+     * Clear a value from the persistent local store.
+     * 
+     * @param {string} key The key to clear from the map.
+     */
+    service.clear = function clear(key) {
+        return service.set(key, undefined);
+    };
     
     return service;
 }]);

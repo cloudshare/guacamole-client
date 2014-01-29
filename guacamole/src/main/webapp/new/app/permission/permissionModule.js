@@ -21,13 +21,6 @@
  */
 
 /**
- * The configuration block for setting up everything having to do with i18n.
+ * A module for code relating to permissions.
  */
-angular.module('index').config(['$translateProvider', function($translateProvider) {
-    $translateProvider.preferredLanguage('en_US');
-
-    $translateProvider.useStaticFilesLoader({
-        prefix: 'translations/',
-        suffix: '.json'
-    });
-}]);
+angular.module('permission', []);

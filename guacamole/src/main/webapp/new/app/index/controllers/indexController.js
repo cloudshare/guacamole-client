@@ -20,8 +20,26 @@
  * THE SOFTWARE.
  */
 
-angular.module('index').controller('indexController', ['$scope', 'authenticationService', 
-        function indexController($scope, authenticationService) {
+/**
+ * The controller for the root of the application.
+ */
+angular.module('index').controller('indexController', ['$scope', 'permissionDAO', 'permissionCheckService', 'localStorageUtility',
+        function indexController($scope, permissionDAO, permissionCheckService, localStorageUtility) {
     
+    // Put some useful variables in the top level scope
+    $scope.currentUserID = localStorageUtility.get('userID');
+    $scope.currentUserIsAdmin = false;
+    $scope.currentUserHasAdmin = false;
+    $scope.currentUserPermissions = null;
     
+    permissionDAO.getPermissions($scope.currentUserID).success(function fetchCurrentUserPermissions(permissions) {
+        $scope.currentUserPermissions = permissions;
+        
+        // Will be true if the user is an admin
+        $scope.currentUserIsAdmin = permissionCheckService.checkPermission($scope.currentUserPermissions, "SYSTEM", undefined, "ADMINISTER");
+        
+        // Will be true if the user is an admin or has admin access to any object               
+        $scope.currentUserHasAdmin = $scope.currentUserIsAdmin || 
+                permissionCheckService.checkPermission($scope.currentUserPermissions, undefined, undefined, "ADMINISTER");
+    });
 }]);

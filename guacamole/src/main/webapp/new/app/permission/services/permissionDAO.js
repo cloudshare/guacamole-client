@@ -21,13 +21,24 @@
  */
 
 /**
- * The configuration block for setting up everything having to do with i18n.
+ * The DAO for permission operations agains the REST API.
  */
-angular.module('index').config(['$translateProvider', function($translateProvider) {
-    $translateProvider.preferredLanguage('en_US');
-
-    $translateProvider.useStaticFilesLoader({
-        prefix: 'translations/',
-        suffix: '.json'
-    });
+angular.module('permission').factory('permissionDAO', ['$http', 'localStorageUtility',
+        function permissionDAO($http, localStorageUtility) {
+            
+    var service = {};
+    
+    /**
+     * Makes a request to the REST API to get the list of permissions for a given user,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {string} userID The ID of the user to retrieve the permissions for.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.getPermissions = function getPermissions(userID) {
+        return $http.get("../api/permission/" + userID + "/?token=" + localStorageUtility.get('authToken'));
+    };
+    
+    return service;
 }]);

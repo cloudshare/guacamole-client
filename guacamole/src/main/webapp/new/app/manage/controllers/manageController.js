@@ -20,6 +20,9 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The controller for the administration page.
+ */
 angular.module('manage').controller('manageController', ['$scope', function manageController($scope) {
     
 }]);

@@ -20,5 +20,8 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The module for the administration functionality.
+ */
 angular.module('manage', []);
 

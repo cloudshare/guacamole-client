@@ -21,18 +21,23 @@
 -->
 
 <script type="text/ng-template" id="nestedGroup.html">
-    <div ng-click="openConnection(item)" class="connection" ng-show="item.isConnection">
-        <div class="caption">
-            <div class="protocol">
-                <div class="icon type" ng-class="item.protocol"></div>
+    <div class="connection" ng-show="item.isConnection">
+        <a class="ng-href="#/client/c/{{item.identifier}}">
+            <div class="caption">
+                <div class="protocol">
+                    <div class="icon type" ng-class="item.protocol"></div>
+                </div>
+                <span class="name">{{item.name}}</span>
             </div>
-            <span class="name">{{item.name}}</span>
-        </div>
+        </a>
     </div>
     <div" class="group" ng-show="!item.isConnection">
         <div class="caption">
-            <div class="icon group type" ng-click="toggleExpanded(item)" ng-class="{expanded: item.expanded, empty: !item.balancer && !item.items.length, balancer: item.balancer}"></div>
-            <span ng-click="openConnectionGroup(item)" class="name">{{item.name}}</span>
+            <div class="icon group type" ng-click="toggleExpanded(item)" ng-class="{expanded: item.expanded, empty: !item.items.length, balancer: item.balancer && !item.items.length}"></div>
+            <span ng-click="openConnectionGroup(item)" class="name">
+                <a ng-show="item.balancer" ng-href="#/client/cg/{{item.identifier}}">{{item.name}}</a>
+                <span ng-show="!item.balancer">{{item.name}}</span>
+            </span>
         </div>
         <div class="children" ng-show="item.expanded">
             <div class="list-item" ng-repeat="item in item.items | orderBy : 'name'" ng-include="'nestedGroup.html'">
@@ -43,26 +48,30 @@
 <div class="connection-list-ui">
 
     <div class="logout-panel">
-        <button class="manage">{{'home.manage' | translate}}</button>
-        <button ng-click="logout()" class="logout">{{'home.logout' | translate}}</button>
+        <a class="manage button" ng-show="currentUserHasAdmin" href="#/manage">{{'home.manage' | translate}}</a>
+        <a class="logout button" href="#/login">{{'home.logout' | translate}}</a>
     </div>
 
+    <!-- The recent connections for this user -->
     <h2>{{'home.recentConnections' | translate}}</h2>
     <div class="recent-connections">
         <p class="no-recent">{{'home.noRecentConnections' | translate}}</p>
     </div>
 
+    <!-- All connections for this user -->
     <h2>{{'home.allConnections' | translate}}</h2>
     <div class="all-connections">
         <div class="list-item" ng-repeat="item in items | orderBy : 'name'" ng-include="'nestedGroup.html'"></div>
     </div>
 
+    <!-- The clipboard for this user -->
     <h2>{{'home.clipboard' | translate}}</h2>
     <div class="clipboardDiv">
         <p>{{'home.clipboardDescription' | translate}}</p>
         <textarea rows="10" cols="40" class="clipboard"></textarea>
     </div>
 
+    <!-- All the settings for this user -->
     <h2>{{'home.settings' | translate}}</h2>
     <div class="settings">
 

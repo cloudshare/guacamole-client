@@ -20,22 +20,15 @@
  * THE SOFTWARE.
  */
 
-angular.module('home').controller('homeController', ['$scope', 'connectionDAO', 'connectionGroupDAO', 'localStorageUtility', '$location',
-        function homeController($scope, connectionDAO, connectionGroupDAO, localStorageUtility, $location) {
-            
-    $scope.manage = function manage() {
-        $location.path("/manage");
-    };
+/**
+ * The controller for the home page.
+ */
+angular.module('home').controller('homeController', ['$scope', 'connectionDAO', 'connectionGroupDAO', 'permissionDAO',
+                                                     'permissionCheckService', 'localStorageUtility', '$location',
+        function homeController($scope, connectionDAO, connectionGroupDAO, permissionDAO, 
+                                permissionCheckService, localStorageUtility, $location) {
     
-    $scope.logout = function logout() {
-        
-        // Clear the auth token to log out the user
-        localStorageUtility.clear("authToken");
-        
-        // Redirect to login page
-        $location.path("/login");
-    };
-    
+    // All the connections and connection groups in root
     $scope.items = [];
     
     // Add all connections and balancing groups from this group to the all connection list
@@ -64,42 +57,27 @@ angular.module('home').controller('homeController', ['$scope', 'connectionDAO', 
         });
     }
     
-    // Get the root connection groups and begin building out the tree
+    // Get the root connection groups and begin building out the tree once we know the permissions
     connectionGroupDAO.getConnectionGroups().success(function fetchRootConnectionGroups(connectionGroups) {
         for(var i = 0; i < connectionGroups.length; i++) {
             addToAllConnections(connectionGroups[i], $scope);
         }
-        
+
         // Get all connections in the root group and add them under this connection group
         connectionDAO.getConnections().success(function fetchRootConnections(connections) {
             for(var i = 0; i < connections.length; i++) {
                 connections[i].isConnection = true;
                 $scope.items.push(connections[i]);
             }
-            
+
         });
     });
     
     /**
-     * Connect to the given connection.
+     * Toggle the open/closed status of the connectionGroup.
      * 
-     * @param {object} connection
+     * @param {object} connectionGroup The connection group to toggle.
      */
-    $scope.openConnection = function openConnection(connection) {
-        $location.path("/client/c/" + connection.identifier);
-    };
-    
-    /**
-     * Connect to the given balancing connection group.
-     * 
-     * @param {object} group
-     */
-    $scope.openConnectionGroup = function openConnectionGroup(group) {
-        if(group.balancer) {
-            $location.path("/client/cg/" + group.identifier);
-        }
-    };
-    
     $scope.toggleExpanded = function toggleExpanded(connectionGroup) {
         connectionGroup.expanded = !connectionGroup.expanded;
     };

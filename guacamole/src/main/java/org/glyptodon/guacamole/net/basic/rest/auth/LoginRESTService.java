@@ -108,7 +108,7 @@ public class LoginRESTService {
         
         tokenUserMap.put(authToken, userContext);
         
-        return new APIAuthToken(authToken);
+        return new APIAuthToken(authToken, username);
     }
     
 }

@@ -20,12 +20,35 @@
  * THE SOFTWARE.
  */
 
-angular.module('home').controller('connectionRouteController', ['$scope', '$route', '$routeParams', '$http', '$compile',
-        function connectionRouteController($scope, $route, $routeParams, $http, $compile) {
-    $route.current.templateUrl = '../client.xhtml?id=c%2F' + $routeParams.connectionID;
+/**
+ * The DAO for connection operations agains the REST API.
+ */
+angular.module('user').factory('userDAO', ['$http', 'localStorageUtility',
+        function userDAO($http, localStorageUtility) {
+            
+    var service = {};
     
-    $http.get($route.current.templateUrl).then(function (msg) {
-        $('#content').html($compile(msg.data)($scope));
-    });
+    /**
+     * Makes a request to the REST API to get the list of users,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.getUsers = function getUsers() {
+        return $http.get("../api/user?token=" + localStorageUtility.get('authToken'));
+    };
+    
+    /**
+     * Makes a request to the REST API to get the list of users,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {string} userID The ID of the user to retrieve.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.getUser = function getUser(userID) {
+        return $http.get("../api/user/" + userID + "/?token=" + localStorageUtility.get('authToken'));
+    };
+    
+    return service;
 }]);
-

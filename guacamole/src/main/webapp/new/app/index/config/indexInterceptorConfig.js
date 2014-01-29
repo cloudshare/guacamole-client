@@ -20,6 +20,9 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The config block for setting up the authentication interceptor.
+ */
 angular.module('index').config(['$httpProvider', 
         function indexInterceptorConfig($httpProvider) {
     $httpProvider.interceptors.push('authenticationInterceptor');

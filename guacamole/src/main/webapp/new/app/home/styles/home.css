@@ -20,14 +20,18 @@
  * THE SOFTWARE.
  */
 
-/**
- * The configuration block for setting up everything having to do with i18n.
- */
-angular.module('index').config(['$translateProvider', function($translateProvider) {
-    $translateProvider.preferredLanguage('en_US');
+.all-connections a {
+    text-decoration:none;
+    color: black;
+}
 
-    $translateProvider.useStaticFilesLoader({
-        prefix: 'translations/',
-        suffix: '.json'
-    });
-}]);
+.all-connections a:hover {
+    text-decoration:none;
+    color: black;
+}
+
+.all-connections a:visited {
+    text-decoration:none;
+    color: black;
+}
+

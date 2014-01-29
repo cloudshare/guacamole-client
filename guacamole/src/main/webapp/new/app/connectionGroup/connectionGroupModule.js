@@ -20,4 +20,7 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The module for code relating to connection groups.
+ */
 angular.module('connectionGroup', ['util']);

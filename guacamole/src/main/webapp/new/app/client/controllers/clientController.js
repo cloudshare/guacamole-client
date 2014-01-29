@@ -20,6 +20,9 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The controller for the page used to connect to a connection or balancing group.
+ */
 angular.module('home').controller('clientController', ['$scope', '$routeParams', 
         function clientController($scope, $routeParams) {
             

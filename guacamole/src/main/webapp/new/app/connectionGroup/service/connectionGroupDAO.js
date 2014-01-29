@@ -20,11 +20,24 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The DAO for connection group operations agains the REST API.
+ */
 angular.module('connectionGroup').factory('connectionGroupDAO', ['$http', 'localStorageUtility',
         function connectionGrouDAO($http, localStorageUtility) {
             
     var service = {};
     
+    /**
+     * Makes a request to the REST API to get the list of connection groups,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {string} parentID The parent ID for the connection group.
+     *                          If not passed in, it will query a list of the 
+     *                          connection groups in the root group.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
     service.getConnectionGroups = function getConnectionGroups(parentID) {
         
         var parentIDParam = "";

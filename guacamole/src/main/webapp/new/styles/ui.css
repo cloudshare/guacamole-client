@@ -56,7 +56,7 @@ textarea {
     overflow: auto;
 }
 
-input[type="submit"], button {
+input[type="submit"], button, a.button {
 
     background-color: #3C3C3C;
 
@@ -80,6 +80,29 @@ input[type="submit"], button {
     padding-left: 1em;
     min-width: 5em;
 
+}
+
+a.button.manage {
+    background-image: url('../images/action-icons/guac-config.png');
+    background-repeat: no-repeat;
+    background-size: 1em;
+    background-position: 0.5em 0.45em;
+
+    padding-left: 1.8em;
+}
+
+a.button {
+    text-decoration:none;
+}
+
+a.button:hover {
+    text-decoration:none;
+    color: white;
+}
+
+a.button:visited {
+    text-decoration:none;
+    color: white;
 }
 
 input[type="submit"]:hover, button:hover {
@@ -584,9 +607,20 @@ div.logout-panel {
     margin: 1em;
 }
 
-button.logout {
+button.logout, a.button.logout {
 
     background-image: url('../images/action-icons/guac-logout.png');
+    background-repeat: no-repeat;
+    background-size: 1em;
+    background-position: 0.5em 0.45em;
+
+    padding-left: 1.8em;
+
+}
+
+button.back, a.button.back {
+
+    background-image: url('../images/action-icons/guac-back.png');
     background-repeat: no-repeat;
     background-size: 1em;
     background-position: 0.5em 0.45em;

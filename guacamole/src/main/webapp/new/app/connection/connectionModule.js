@@ -20,4 +20,7 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The module for code relating to connections.
+ */
 angular.module('connection', ['util']);

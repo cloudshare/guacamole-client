@@ -23,12 +23,17 @@
 angular.module('login').controller('loginController', ['$scope', 'authenticationService', 'localStorageUtility', '$location',
         function loginController($scope, authenticationService, localStorageUtility, $location) {
             
+    // Clear the auth token and userID to log out the user
+    localStorageUtility.clear("authToken");
+    localStorageUtility.clear("userID");
+        
     $scope.loginError = false;
     
     $scope.login = function login() {
         authenticationService.login($scope.username, $scope.password)
             .success(function success(data, status, headers, config) {
                 localStorageUtility.set('authToken', data.authToken);
+                localStorageUtility.set('userID', data.userID);
                 $location.path('/');
             }).error(function error(data, status, headers, config) {
                 $scope.loginError = true;

@@ -20,6 +20,9 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The config block for setting up all the url routing.
+ */
 angular.module('index').config(['$routeProvider', '$locationProvider', 
         function indexRouteConfig($routeProvider, $locationProvider) {
             

@@ -20,4 +20,7 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The module for the root of the application.
+ */
 angular.module('index', ['ngRoute', 'pascalprecht.translate', 'home', 'manage', 'login', 'client']);

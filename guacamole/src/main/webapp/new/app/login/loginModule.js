@@ -20,4 +20,7 @@
  * THE SOFTWARE.
  */
 
+/**
+ * The module for the login functionality.
+ */
 angular.module('login', []);

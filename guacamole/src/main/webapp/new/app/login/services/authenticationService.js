@@ -20,10 +20,21 @@
  * THE SOFTWARE.
  */
 
+/**
+ * A service for authenticating a user against the REST API.
+ */
 angular.module('index').factory('authenticationService', ['$http', 
         function authenticationService($http) {
     var service = {};
     
+    /**
+     * Makes a request to authenticate a user using the login REST API endpoint, 
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {string} username The username to log in with.
+     * @param {string} password The password to log in with.
+     * @returns {promise} A promise for the HTTP call.
+     */
     service.login = function login(username, password) {
         return $http.post("../api/login?username=" + username +"&password=" + password);
     };
