@@ -86,7 +86,7 @@ angular.module('home').controller('homeController', ['$scope', 'connectionDAO', 
      * @param {object} connection
      */
     $scope.openConnection = function openConnection(connection) {
-        $location.path("/connect/connection/" + connection.identifier);
+        $location.path("/client/c/" + connection.identifier);
     };
     
     /**
@@ -96,7 +96,7 @@ angular.module('home').controller('homeController', ['$scope', 'connectionDAO', 
      */
     $scope.openConnectionGroup = function openConnectionGroup(group) {
         if(group.balancer) {
-            $location.path("/connect/connectionGroup/" + group.identifier);
+            $location.path("/client/cg/" + group.identifier);
         }
     };
     

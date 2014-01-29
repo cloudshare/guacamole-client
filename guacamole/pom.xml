@@ -63,26 +63,35 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <configuration>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            
+                            <!-- Filter webapp dir --> 
+                            <webResources>
+                                <resource>
+                                    <directory>src/main/webapp</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </webResources>
 
-                    <!-- Filter webapp dir --> 
-                    <webResources>
-                        <resource>
-                            <directory>src/main/webapp</directory>
-                            <filtering>true</filtering>
-                        </resource>
-                    </webResources>
-                    
-                    <!-- Add files from guacamole-common-js -->
-                    <overlays>
-                        <overlay>
-                            <groupId>org.glyptodon.guacamole</groupId>
-                            <artifactId>guacamole-common-js</artifactId>
-                            <type>zip</type>
-                        </overlay>
-                    </overlays>
-                    
-                </configuration>
+                            <!-- Add files from guacamole-common-js -->
+                            <overlays>
+                                <overlay>
+                                    <groupId>org.glyptodon.guacamole</groupId>
+                                    <artifactId>guacamole-common-js</artifactId>
+                                    <type>zip</type>
+                                </overlay>
+                            </overlays>
+
+                        </configuration>
+                        <goals>
+                            <goal>exploded</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             
             <!-- JS/CSS Minification Plugin -->
@@ -96,6 +105,8 @@
                         <configuration>
                             <charset>UTF-8</charset>
 
+                            <webappSourceDir>${project.build.directory}/${project.build.finalName}</webappSourceDir>
+
                             <cssSourceDir>/new/</cssSourceDir>
                             <cssTargetDir>/new/</cssTargetDir>
                             <cssFinalFile>guacamole.css</cssFinalFile>
@@ -105,7 +116,8 @@
                             </cssSourceFiles>
                             
                             <cssSourceIncludes>
-                                <cssSourceInclude>**/*.css</cssSourceInclude>
+                                <cssSourceInclude>app/**/*.css</cssSourceInclude>
+                                <cssSourceInclude>styles/**/*.css</cssSourceInclude>
                             </cssSourceIncludes>
 
                             <jsSourceDir>/new/</jsSourceDir>
@@ -121,6 +133,13 @@
                                 <jsSourceFile>lib/plugins/angular-translate.js</jsSourceFile>
                                 <jsSourceFile>lib/plugins/angular-translate-loader-static-files.min.js</jsSourceFile>
                                 <jsSourceFile>license.txt</jsSourceFile>
+                                <jsSourceFile>../scripts/lib/blob/blob.js</jsSourceFile>
+                                <jsSourceFile>../scripts/filesaver/filesaver.js</jsSourceFile>
+                                <jsSourceFile>../guacamole-common-js/all.js</jsSourceFile>
+                                <jsSourceFile>../scripts/session.js</jsSourceFile>
+                                <jsSourceFile>../scripts/history.js</jsSourceFile>
+                                <jsSourceFile>../scripts/guac-ui.js</jsSourceFile>
+                                <jsSourceFile>../scripts/client-ui.js</jsSourceFile>
                             </jsSourceFiles>
 
                             <jsSourceIncludes>

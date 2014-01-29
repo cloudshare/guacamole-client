@@ -20,4 +20,4 @@
  * THE SOFTWARE.
  */
 
-angular.module('index', ['ngRoute', 'pascalprecht.translate', 'home', 'manage', 'login', 'client']);
+angular.module('client', []);

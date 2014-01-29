@@ -466,7 +466,7 @@ GuacUI.Client.OnScreenKeyboard = function() {
     var keyboard_resize_interval = null;
 
     // On-screen keyboard
-    var keyboard = new Guacamole.OnScreenKeyboard("layouts/en-us-qwerty.xml");
+    var keyboard = new Guacamole.OnScreenKeyboard("../layouts/en-us-qwerty.xml");
     keyboard_container.appendChild(keyboard.getElement());
 
     var last_keyboard_width = 0;

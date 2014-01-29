@@ -39,13 +39,9 @@ angular.module('index').config(['$routeProvider', '$locationProvider',
             templateUrl: 'app/login/templates/login.html',
             controller: 'loginController'
         }).
-        when('/connect/connection/:connectionID', {
-            templateUrl: 'app/home/templates/blank.html',
-            controller: 'connectionRouteController'
-        }).
-        when('/connect/connectionGroup/:connectionGroupID', {
-            templateUrl: 'app/home/templates/blank.html',
-            controller: 'connectionGroupRouteController'
+        when('/client/:type/:id', {
+            templateUrl: 'app/client/templates/client.html',
+            controller: 'clientController'
         }).
         otherwise({
             redirectTo: '/'
