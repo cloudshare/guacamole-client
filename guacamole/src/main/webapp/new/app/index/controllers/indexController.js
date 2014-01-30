@@ -23,8 +23,13 @@
 /**
  * The controller for the root of the application.
  */
-angular.module('index').controller('indexController', ['$scope', 'permissionDAO', 'permissionCheckService', 'localStorageUtility',
-        function indexController($scope, permissionDAO, permissionCheckService, localStorageUtility) {
+angular.module('index').controller('indexController', ['$scope', '$injector',
+        function indexController($scope, $injector) {
+            
+    // Get the dependencies commonJS style
+    var permissionDAO           = $injector.get("permissionDAO");
+    var permissionCheckService  = $injector.get("permissionCheckService");
+    var localStorageUtility     = $injector.get("localStorageUtility");
     
     // Put some useful variables in the top level scope
     $scope.currentUserID = localStorageUtility.get('userID');

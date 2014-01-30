@@ -20,8 +20,13 @@
  * THE SOFTWARE.
  */
 
-angular.module('login').controller('loginController', ['$scope', 'authenticationService', 'localStorageUtility', '$location',
-        function loginController($scope, authenticationService, localStorageUtility, $location) {
+angular.module('login').controller('loginController', ['$scope', '$injector',
+        function loginController($scope, $injector) {
+            
+    // Get the dependencies commonJS style
+    var authenticationService   = $injector.get("authenticationService");
+    var localStorageUtility     = $injector.get("localStorageUtility");
+    var $location               = $injector.get("$location");
             
     // Clear the auth token and userID to log out the user
     localStorageUtility.clear("authToken");

@@ -23,10 +23,12 @@
 /**
  * The controller for the home page.
  */
-angular.module('home').controller('homeController', ['$scope', 'connectionDAO', 'connectionGroupDAO', 'permissionDAO',
-                                                     'permissionCheckService', 'localStorageUtility', '$location',
-        function homeController($scope, connectionDAO, connectionGroupDAO, permissionDAO, 
-                                permissionCheckService, localStorageUtility, $location) {
+angular.module('home').controller('homeController', ['$scope', '$injector',
+        function homeController($scope, $injector) {
+                                    
+    // Get the dependencies commonJS style
+    var connectionDAO       = $injector.get("connectionDAO");
+    var connectionGroupDAO  = $injector.get("connectionGroupDAO");
     
     // All the connections and connection groups in root
     $scope.items = [];
