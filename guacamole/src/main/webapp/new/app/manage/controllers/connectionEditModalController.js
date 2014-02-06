@@ -21,37 +21,21 @@
  */
 
 /**
- * The controller for the home page.
+ * The controller for the connection edit modal.
  */
-angular.module('home').controller('homeController', ['$scope', '$injector',
-        function homeController($scope, $injector) {
-                                    
-    // Get the dependencies commonJS style
-    var connectionGroupService = $injector.get("connectionGroupService");
-    
-    // All the connections and connection groups in root
-    $scope.connectionsAndGroups = [];
-    
-    connectionGroupService.getAllGroupsAndConnections($scope.connectionsAndGroups);
+angular.module('manage').controller('connectionEditModalController', ['$scope', '$injector', 
+        function connectionEditModalController($scope, $injector) {
+            
+    var connectionEditModal = $injector.get('connectionEditModal');
     
     /**
-     * Toggle the open/closed status of the connectionGroup.
-     * 
-     * @param {object} connectionGroup The connection group to toggle.
+     * Close the modal.
      */
-    $scope.toggleExpanded = function toggleExpanded(connectionGroup) {
-        connectionGroup.expanded = !connectionGroup.expanded;
-    };
-    
-    
-    
-    /**
-     * Open a modal to edit this connection.
-     * 
-     * @param {object} connection The connection to edit.
-     */
-    $scope.editConnection = function editConnection(connection) {
-        
+    $scope.close = function close() {
+        connectionEditModal.deactivate();
     };
     
 }]);
+
+
+

@@ -23,8 +23,47 @@
 /**
  * The controller for the administration page.
  */
-angular.module('manage').controller('manageController', ['$scope', function manageController($scope) {
+angular.module('manage').controller('manageController', ['$scope', '$injector', 
+        function manageController($scope, $injector) {
+            
+    // Get the dependencies commonJS style
+    var connectionGroupService  = $injector.get('connectionGroupService');
+    var connectionEditModal     = $injector.get('connectionEditModal');
     
+    // All the connections and connection groups in root
+    $scope.connectionsAndGroups = [];
+    
+    connectionGroupService.getAllGroupsAndConnections($scope.connectionsAndGroups);
+    
+    // Filter the items to only include ones that we have UPDATE for
+    if(!$scope.currentUserIsAdmin) {
+        connectionGroupService.filterConnectionsAndGroupByPermission(
+            $scope.connectionsAndGroups,
+            $scope.currentUserPermissions,
+            {
+                'CONNECTION':       'UPDATE',
+                'CONNECTION_GROUP': 'UPDATE'
+            }
+        );
+    }
+    
+    /**
+     * Toggle the open/closed status of the connectionGroup.
+     * 
+     * @param {object} connectionGroup The connection group to toggle.
+     */
+    $scope.toggleExpanded = function toggleExpanded(connectionGroup) {
+        connectionGroup.expanded = !connectionGroup.expanded;
+    };
+    
+    /**
+     * Open a modal to edit the connection
+     *  
+     * @param {object} connection The connection to edit.
+     */
+    $scope.editConnection = function editConnection(connection) {
+        connectionEditModal.activate({connection: connection});
+    };
 }]);
 
 

@@ -23,5 +23,5 @@
 /**
  * The module for the administration functionality.
  */
-angular.module('manage', []);
+angular.module('manage', ['btford.modal']);
 

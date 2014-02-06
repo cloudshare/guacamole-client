@@ -34,7 +34,7 @@ angular.module('index').controller('indexController', ['$scope', '$injector',
     // Put some useful variables in the top level scope
     $scope.currentUserID = localStorageUtility.get('userID');
     $scope.currentUserIsAdmin = false;
-    $scope.currentUserHasAdmin = false;
+    $scope.currentUserHasUpdate = false;
     $scope.currentUserPermissions = null;
     
     permissionDAO.getPermissions($scope.currentUserID).success(function fetchCurrentUserPermissions(permissions) {
@@ -43,8 +43,8 @@ angular.module('index').controller('indexController', ['$scope', '$injector',
         // Will be true if the user is an admin
         $scope.currentUserIsAdmin = permissionCheckService.checkPermission($scope.currentUserPermissions, "SYSTEM", undefined, "ADMINISTER");
         
-        // Will be true if the user is an admin or has admin access to any object               
-        $scope.currentUserHasAdmin = $scope.currentUserIsAdmin || 
-                permissionCheckService.checkPermission($scope.currentUserPermissions, undefined, undefined, "ADMINISTER");
+        // Will be true if the user is an admin or has update access to any object               
+        $scope.currentUserHasUpdate = $scope.currentUserIsAdmin || 
+                permissionCheckService.checkPermission($scope.currentUserPermissions, undefined, undefined, "UPDATE");
     });
 }]);

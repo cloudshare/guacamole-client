@@ -33,22 +33,26 @@
     </div>
     <div" class="group" ng-show="!item.isConnection">
         <div class="caption">
-            <div class="icon group type" ng-click="toggleExpanded(item)" ng-class="{expanded: item.expanded, empty: !item.items.length, balancer: item.balancer && !item.items.length}"></div>
+            <div class="icon group type" ng-click="toggleExpanded(item)" ng-class="{expanded: item.expanded, empty: !item.children.length, balancer: item.balancer && !item.children.length}"></div>
             <span ng-click="openConnectionGroup(item)" class="name">
                 <a ng-show="item.balancer" ng-href="#/client/cg/{{item.identifier}}">{{item.name}}</a>
                 <span ng-show="!item.balancer">{{item.name}}</span>
             </span>
         </div>
         <div class="children" ng-show="item.expanded">
-            <div class="list-item" ng-repeat="item in item.items | orderBy : 'name'" ng-include="'nestedGroup.html'">
+            <div class="list-item" ng-repeat="item in item.children | orderBy : 'name'" ng-include="'nestedGroup.html'">
         </div>
     </div>
+</script>
+
+<script type="text/ng-template" id="editableConnection">
+    
 </script>
 
 <div class="connection-list-ui">
 
     <div class="logout-panel">
-        <a class="manage button" ng-show="currentUserHasAdmin" href="#/manage">{{'home.manage' | translate}}</a>
+        <a class="manage button" ng-show="currentUserHasUpdate" href="#/manage">{{'home.manage' | translate}}</a>
         <a class="logout button" href="#/login">{{'home.logout' | translate}}</a>
     </div>
 
@@ -61,7 +65,7 @@
     <!-- All connections for this user -->
     <h2>{{'home.allConnections' | translate}}</h2>
     <div class="all-connections">
-        <div class="list-item" ng-repeat="item in items | orderBy : 'name'" ng-include="'nestedGroup.html'"></div>
+        <div class="list-item" ng-repeat="item in connectionsAndGroups | orderBy : 'name'" ng-include="'nestedGroup.html'"></div>
     </div>
 
     <!-- The clipboard for this user -->

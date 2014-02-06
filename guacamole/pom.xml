@@ -132,6 +132,7 @@
                                 <jsSourceFile>lib/plugins/angular-route.js</jsSourceFile>
                                 <jsSourceFile>lib/plugins/angular-translate.js</jsSourceFile>
                                 <jsSourceFile>lib/plugins/angular-translate-loader-static-files.min.js</jsSourceFile>
+                                <jsSourceFile>lib/plugins/modal.js</jsSourceFile>
                                 <jsSourceFile>license.txt</jsSourceFile>
                                 <jsSourceFile>../scripts/lib/blob/blob.js</jsSourceFile>
                                 <jsSourceFile>../scripts/filesaver/filesaver.js</jsSourceFile>

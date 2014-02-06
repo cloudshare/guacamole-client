@@ -23,4 +23,4 @@
 /**
  * The module for code relating to connection groups.
  */
-angular.module('connectionGroup', ['util']);
+angular.module('connectionGroup', ['util', 'connection']);

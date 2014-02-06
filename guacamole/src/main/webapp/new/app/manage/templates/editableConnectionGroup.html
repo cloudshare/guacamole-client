@@ -1,0 +1,182 @@
+<!--
+Copyright 2014 Glyptodon LLC.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+
+
+<div class="dialog-container">
+  <div class="dialog">
+    <div class="header">
+      <h2>{{connection.name}}</h2>
+    </div>
+
+    <div class="body">
+      <div class="form">
+        <div class="settings section">
+          <dl>
+            <dd>
+              <table class="fields section">
+                <tr>
+                  <th>{{'manage.edit.connection.name' | translate}}</th>
+
+                  <td><input type="text" /></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.location' | translate}}</th>
+
+                  <td>
+                    <div class="location">
+                      {{'manage.edit.connection.root' | translate}}
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.protocol' | translate}}</th>
+
+                  <td><select>
+                    <option value="rdp">
+                      {{'manage.edit.connection.rdp' | translate}}
+                    </option>
+
+                    <option value="vnc">
+                      {{'manage.edit.connection.vnc' | translate}}
+                    </option>
+
+                    <option value="ssh">
+                      {{'manage.edit.connection.ssh' | translate}}
+                    </option>
+                  </select></td>
+                </tr>
+              </table>
+            </dd>
+
+            <dd>
+              <table class="fields section">
+                <tr>
+                  <th>{{'manage.edit.connection.hostname' | translate}}</th>
+
+                  <td><input type="text" /></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.port' | translate}}</th>
+
+                  <td><input type="number" /></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.password' | translate}}</th>
+
+                  <td><input type="password" /></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.readOnly' | translate}}</th>
+
+                  <td><input type="checkbox" value="true" /></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.swapRedBlue' | translate}}</th>
+
+                  <td><input type="checkbox" value="true" /></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.cursor' | translate}}</th>
+
+                  <td><select>
+                    <option value="local">
+                      {{'manage.edit.connection.local' | translate}}
+                    </option>
+
+                    <option value="remote">
+                      {{'manage.edit.connection.remote' | translate}}
+                    </option>
+                  </select></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.colorDepth' | translate}}</th>
+
+                  <td><select>
+                    <option value="8">
+                      {{'manage.edit.connection.256color' | translate}}
+                    </option>
+
+                    <option value="16">
+                      {{'manage.edit.connection.tc16Bit' | translate}}
+                    </option>
+
+                    <option value="24">
+                      {{'manage.edit.connection.tc24Bit' | translate}}
+                    </option>
+
+                    <option value="32">
+                      {{'manage.edit.connection.tc32Bit' | translate}}
+                    </option>
+                  </select></td>
+                </tr>
+
+                <tr>
+                    <th>{{'manage.edit.connection.repeaterDestHost' | translate}}</th>
+
+                  <td><input type="text" /></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.repeaterDestPort' | translate}}</th>
+
+                  <td><input type="number" /></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.enableAudio' | translate}}</th>
+
+                  <td><input type="checkbox" value="true" /></td>
+                </tr>
+
+                <tr>
+                  <th>{{'manage.edit.connection.audioServerHistory' | translate}}</th>
+
+                  <td><input type="text" /></td>
+                </tr>
+              </table>
+            </dd>
+
+            <dt>{{'manage.edit.connection.usageHistory' | translate}}</dt>
+
+            <dd>
+              <p>{{'manage.edit.connection.connectionNotUsed' | translate}}</p>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button>{{'manage.edit.connection.save' | translate}}</button>
+      <button ng-click="close()">{{'manage.edit.connection.cancel' | translate}}</button>
+      <button class="danger">{{'manage.edit.connection.delete' | translate}}</button>
+    </div>
+  </div>
+</div>
