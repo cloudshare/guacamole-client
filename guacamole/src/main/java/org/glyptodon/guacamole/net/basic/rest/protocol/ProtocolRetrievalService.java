@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,12 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import org.glyptodon.guacamole.GuacamoleException;
 import org.glyptodon.guacamole.net.basic.ProtocolInfo;
-import org.glyptodon.guacamole.net.basic.ProtocolParameter;
-import org.glyptodon.guacamole.net.basic.ProtocolParameterOption;
 import org.glyptodon.guacamole.net.basic.xml.DocumentHandler;
 import org.glyptodon.guacamole.net.basic.xml.protocol.ProtocolTagHandler;
 import org.glyptodon.guacamole.properties.GuacamoleHome;

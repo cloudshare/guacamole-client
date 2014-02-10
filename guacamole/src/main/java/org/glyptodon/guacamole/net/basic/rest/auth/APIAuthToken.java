@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,13 +32,13 @@ public class APIAuthToken {
     /**
      * The auth token.
      */
-    private String authToken;
+    private final String authToken;
     
     
     /**
      * The user ID.
      */
-    private String userID;
+    private final String userID;
 
     /**
      * Get the auth token.

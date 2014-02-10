@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -117,6 +117,7 @@ public class APIConnection {
     public String getIdentifier() {
         return identifier;
     }
+
     /**
      * Sets the unique identifier for this connection.
      * @param identifier The unique identifier for this connection.
@@ -132,6 +133,7 @@ public class APIConnection {
     public String getParentIdentifier() {
         return parentIdentifier;
     }
+
     /**
      * Sets the parent connection group identifier for this connection.
      * @param parentIdentifier The parent connection group identifier 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,17 +43,17 @@ public class BasicTokenUserContextMap implements TokenUserContextMap {
     /**
      * Logger for this class.
      */
-    private static Logger logger = LoggerFactory.getLogger(BasicTokenUserContextMap.class);
+    private static final Logger logger = LoggerFactory.getLogger(BasicTokenUserContextMap.class);
     
     /**
      * The last time a user with a specific auth token accessed the API. 
      */
-    private Map<String, Long> lastAccessTimeMap = new HashMap<String, Long>();
+    private final Map<String, Long> lastAccessTimeMap = new HashMap<String, Long>();
     
     /**
      * Keeps track of the authToken to UserContext mapping.
      */
-    private Map<String, UserContext> userContextMap = new HashMap<String, UserContext>();
+    private final Map<String, UserContext> userContextMap = new HashMap<String, UserContext>();
     
     /**
      * The session timeout configuration for an API session, in milliseconds.
