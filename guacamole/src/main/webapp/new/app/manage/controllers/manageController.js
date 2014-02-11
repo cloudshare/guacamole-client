@@ -29,6 +29,7 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
     // Get the dependencies commonJS style
     var connectionGroupService  = $injector.get('connectionGroupService');
     var connectionEditModal     = $injector.get('connectionEditModal');
+    var protocolDAO             = $injector.get('protocolDAO');
     
     // All the connections and connection groups in root
     $scope.connectionsAndGroups = [];
@@ -47,6 +48,13 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
         );
     }
     
+    $scope.protocols = {};
+    
+    // Get the protocol information from the server and copy it into the scope
+    protocolDAO.getProtocols().success(function fetchProtocols(protocols) {
+        angular.extend($scope.protocols, protocols);
+    });
+    
     /**
      * Toggle the open/closed status of the connectionGroup.
      * 
@@ -62,7 +70,11 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
      * @param {object} connection The connection to edit.
      */
     $scope.editConnection = function editConnection(connection) {
-        connectionEditModal.activate({connection: connection});
+        connectionEditModal.activate(
+        {
+            connection : connection, 
+            protocols  : $scope.protocols
+        });
     };
 }]);
 

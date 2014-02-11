@@ -22,6 +22,7 @@
 
 package org.glyptodon.guacamole.net.basic.rest.user;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.glyptodon.guacamole.net.auth.User;
 
@@ -30,6 +31,7 @@ import org.glyptodon.guacamole.net.auth.User;
  * 
  * @author James Muehlner
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class APIUser {
     

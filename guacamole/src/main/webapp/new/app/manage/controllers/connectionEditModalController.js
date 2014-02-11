@@ -27,12 +27,37 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
         function connectionEditModalController($scope, $injector) {
             
     var connectionEditModal = $injector.get('connectionEditModal');
+    var connectionDAO       = $injector.get('connectionDAO');
+    
+    // Make a copy of the old connection so that we can copy over the changes when done
+    var oldConnection = $scope.connection;
+    
+    // Copy data into a new conection object in case the user doesn't want to save
+    $scope.connection = angular.copy($scope.connection);
+    
+    // Set it to VNC by default
+    if(!$scope.connection.protocol)
+        $scope.connection.protocol = "VNC";
     
     /**
      * Close the modal.
      */
     $scope.close = function close() {
         connectionEditModal.deactivate();
+    };
+    
+    /**
+     * Save the connection and close the modal.
+     */
+    $scope.save = function save() {
+        connectionDAO.saveConnection($scope.connection).success(function successfullyUpdatedConnection() {
+            
+            // Copy the data back to the original model
+            angular.extend(oldConnection, $scope.connection);
+            
+            // Close the modal
+            connectionEditModal.deactivate();
+        });
     };
     
 }]);

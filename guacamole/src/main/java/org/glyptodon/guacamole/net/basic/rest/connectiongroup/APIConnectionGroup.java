@@ -22,6 +22,7 @@
 
 package org.glyptodon.guacamole.net.basic.rest.connectiongroup;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.glyptodon.guacamole.net.auth.ConnectionGroup;
 import org.glyptodon.guacamole.net.auth.ConnectionGroup.Type;
 
@@ -30,6 +31,7 @@ import org.glyptodon.guacamole.net.auth.ConnectionGroup.Type;
  * 
  * @author James Muehlner
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class APIConnectionGroup {
 
     /**

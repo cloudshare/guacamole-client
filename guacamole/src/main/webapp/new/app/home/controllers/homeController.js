@@ -42,16 +42,4 @@ angular.module('home').controller('homeController', ['$scope', '$injector',
     $scope.toggleExpanded = function toggleExpanded(connectionGroup) {
         connectionGroup.expanded = !connectionGroup.expanded;
     };
-    
-    
-    
-    /**
-     * Open a modal to edit this connection.
-     * 
-     * @param {object} connection The connection to edit.
-     */
-    $scope.editConnection = function editConnection(connection) {
-        
-    };
-    
 }]);

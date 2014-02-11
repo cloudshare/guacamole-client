@@ -238,13 +238,20 @@ public class ConnectionRESTService {
         ConnectionGroup rootGroup = userContext.getRootConnectionGroup();
         Directory<String, Connection> connectionDirectory =
                 rootGroup.getConnectionDirectory();
+        
+        Connection connectionFromAuthProvider = connectionDirectory.get(connectionID);
 
         // Make sure the connection is there before trying to update
-        if(connectionDirectory.get(connectionID) == null)
+        if(connectionFromAuthProvider == null)
             throw new HTTPException(Status.NOT_FOUND, "No Connection found with the provided ID.");
+        
+        // Copy the information from this connection over to an object from the Auth Provider
+        APIConnectionWrapper wrappedConnection = new APIConnectionWrapper(connection);
+        connectionFromAuthProvider.setConfiguration(wrappedConnection.getConfiguration());
+        connectionFromAuthProvider.setName(wrappedConnection.getName());
 
         // Update the connection
-        connectionDirectory.update(new APIConnectionWrapper(connection));
+        connectionDirectory.update(connectionFromAuthProvider);
     }
     
     /**

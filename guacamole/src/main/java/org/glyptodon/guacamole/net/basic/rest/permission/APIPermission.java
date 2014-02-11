@@ -22,6 +22,7 @@
 
 package org.glyptodon.guacamole.net.basic.rest.permission;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.glyptodon.guacamole.net.auth.permission.ConnectionGroupPermission;
 import org.glyptodon.guacamole.net.auth.permission.ConnectionPermission;
@@ -35,6 +36,7 @@ import org.glyptodon.guacamole.net.auth.permission.UserPermission;
  * 
  * @author James Muehlner
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class APIPermission {
     

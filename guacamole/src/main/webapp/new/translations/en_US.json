@@ -44,31 +44,22 @@
                 "delete"            : "Delete",
                 "connectionNotUsed" : "This connection has not yet been used.",
                 "usageHistory"      : "Usage History:",
-                "audioServerHistory": "Audio server name:",
-                "enableAudio"       : "Enable audio:",
-                "repeaterDestPort"  : "Repeater destination port:",
-                "repeaterDestHost"  : "Repeater destination host:",
-                "tc32Bit"           : "True color (32-bit)",
-                "tc24Bit"           : "True color (24-bit)",
-                "tc16Bit"           : "True color (16-bit)",
-                "256color"          : "256 color",
-                "colorDepth"        : "Color depth:",
-                "remote"            : "Remote",
-                "local"             : "Local",
-                "cursor"            : "Cursor",
-                "swapRedBlue"       : "Swap red/blue components:",
-                "readOnly"          : "Read-only:",
-                "password"          : "Password:",
-                "port"              : "Port:",
-                "hostname"          : "Hostname:",
-                "vnc"               : "VNC",
-                "ssh"               : "SSH",
-                "rdp"               : "RDP",
                 "protocol"          : "Protocol:",
                 "root"              : "ROOT",
                 "location"          : "Location:",
                 "name"              : "Name:"
             }
+        }
+    },
+    "protocol": {
+        "vnc": {
+            "label": "VNC"
+        },
+        "rdp": {
+            "label": "RDP"
+        },
+        "ssh": {
+            "label": "SSH"
         }
     }
 }

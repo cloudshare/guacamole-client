@@ -25,6 +25,7 @@ package org.glyptodon.guacamole.net.basic.rest.connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.glyptodon.guacamole.GuacamoleException;
 import org.glyptodon.guacamole.net.auth.Connection;
 import org.glyptodon.guacamole.net.auth.ConnectionRecord;
@@ -35,6 +36,7 @@ import org.glyptodon.guacamole.protocol.GuacamoleConfiguration;
  * 
  * @author James Muehlner
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class APIConnection {
 
     /**

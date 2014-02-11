@@ -47,5 +47,26 @@ angular.module('connection').factory('connectionDAO', ['$http', 'localStorageUti
         return $http.get("../api/connection?token=" + localStorageUtility.get('authToken') + parentIDParam);
     };
     
+    /**
+     * Makes a request to the REST API to get the list of connections,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {string} parentID The parent ID for the connection.
+     *                          If not passed in, it will query a list of the 
+     *                          connections in the root group.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.saveConnection = function saveConnection(connection) {
+        
+        // This is a new connection
+        if(!connection.identifier) {
+           
+        } else {
+            return $http.post("../api/connection/" + connection.identifier + "?token=" + localStorageUtility.get('authToken'), connection);
+        }
+        
+    };
+    
     return service;
 }]);

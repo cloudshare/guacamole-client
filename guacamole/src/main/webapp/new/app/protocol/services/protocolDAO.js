@@ -21,7 +21,21 @@
  */
 
 /**
- * The module for the administration functionality.
+ * The DAO for protocol operations agains the REST API.
  */
-angular.module('manage', ['btford.modal', 'protocol', 'connectionGroup']);
-
+angular.module('protocol').factory('protocolDAO', ['$http', function protocolDAO($http) {
+            
+    var service = {};
+    
+    /**
+     * Makes a request to the REST API to get the list of protocols,
+     * returning a promise that can be used for processing the results of the call.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.getProtocols = function getProtocols() {
+        return $http.get("../api/protocol");
+    };
+    
+    return service;
+}]);

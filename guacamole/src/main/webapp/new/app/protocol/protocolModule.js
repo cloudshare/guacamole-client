@@ -21,7 +21,6 @@
  */
 
 /**
- * The module for the administration functionality.
+ * The module for the protocol functionality.
  */
-angular.module('manage', ['btford.modal', 'protocol', 'connectionGroup']);
-
+angular.module('protocol', []);
