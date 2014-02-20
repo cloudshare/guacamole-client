@@ -30,6 +30,6 @@ angular.module('index').factory('connectionEditModal', ['btfModal',
     return btfModal({
         controller: 'connectionEditModalController',
         controllerAs: 'modal',
-        templateUrl: 'app/manage/templates/editableConnectionGroup.html',
+        templateUrl: 'app/manage/templates/editableConnection.html',
     });
 }]);

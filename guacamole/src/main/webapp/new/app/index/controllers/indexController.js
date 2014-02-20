@@ -30,21 +30,29 @@ angular.module('index').controller('indexController', ['$scope', '$injector',
     var permissionDAO           = $injector.get("permissionDAO");
     var permissionCheckService  = $injector.get("permissionCheckService");
     var localStorageUtility     = $injector.get("localStorageUtility");
-    
+
     // Put some useful variables in the top level scope
-    $scope.currentUserID = localStorageUtility.get('userID');
+    $scope.currentUserID = null;
     $scope.currentUserIsAdmin = false;
     $scope.currentUserHasUpdate = false;
     $scope.currentUserPermissions = null;
     
-    permissionDAO.getPermissions($scope.currentUserID).success(function fetchCurrentUserPermissions(permissions) {
-        $scope.currentUserPermissions = permissions;
+    // Allow the permissions to be reloaded elsewhere if needed
+    $scope.loadBasicPermissions = function loadBasicPermissions() {
+        $scope.currentUserID = localStorageUtility.get('userID')
         
-        // Will be true if the user is an admin
-        $scope.currentUserIsAdmin = permissionCheckService.checkPermission($scope.currentUserPermissions, "SYSTEM", undefined, "ADMINISTER");
-        
-        // Will be true if the user is an admin or has update access to any object               
-        $scope.currentUserHasUpdate = $scope.currentUserIsAdmin || 
-                permissionCheckService.checkPermission($scope.currentUserPermissions, undefined, undefined, "UPDATE");
-    });
+        permissionDAO.getPermissions($scope.currentUserID).success(function fetchCurrentUserPermissions(permissions) {
+            $scope.currentUserPermissions = permissions;
+
+            // Will be true if the user is an admin
+            $scope.currentUserIsAdmin = permissionCheckService.checkPermission($scope.currentUserPermissions, "SYSTEM", undefined, "ADMINISTER");
+
+            // Will be true if the user is an admin or has update access to any object               
+            $scope.currentUserHasUpdate = $scope.currentUserIsAdmin || 
+                    permissionCheckService.checkPermission($scope.currentUserPermissions, undefined, undefined, "UPDATE");
+        });
+    };
+    
+    // Try to load them now
+    $scope.loadBasicPermissions();
 }]);

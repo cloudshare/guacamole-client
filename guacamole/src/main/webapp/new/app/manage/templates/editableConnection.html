@@ -61,7 +61,7 @@ THE SOFTWARE.
             <dd>
               <table class="fields section">
                 <tr ng-repeat="parameter in protocols[connection.protocol].parameters">
-                  <th>{{'protocol.' + connection.protocol + '.parameters.' + parameter.name + '.label' | translate}}</th>
+                  <th>{{'protocol.' + connection.protocol + '.parameters.' + parameter.name + '.label' | translate}}:</th>
 
                   <td ng-show="parameter.type === 'TEXT'">
                       <input type="text" ng-model="connection.parameters[parameter.name]"/>

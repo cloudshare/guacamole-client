@@ -53,13 +53,117 @@
     },
     "protocol": {
         "vnc": {
-            "label": "VNC"
+            "label": "VNC",
+            "parameters": {
+                "hostname"          : {"label": "Hostname"},
+                "port"              : {"label": "Port"},
+                "password"          : {"label": "Password"},
+                "read-only"         : {"label": "Read-only"},
+                "swap-red-blue"     : {"label": "Swap red/blue components"},
+                "cursor"            : {
+                    "label": "Cursor",
+                    "options": {
+                        "local"     : "Local",
+                        "remote"    : "Remote"
+                    }
+                },
+                "color-depth"       : {
+                    "label": "Color Depth",
+                    "options": {
+                        "8"    : "256 color",
+                        "16"    : "Low color (16-bit)",
+                        "24"    : "True color (24-bit)",
+                        "32"    : "True color (32-bit)"
+                    }
+                },
+                "dest-host"         : {"label": "Repeater destination host"},
+                "dest-port"         : {"label": "Repeater destination port"},
+                "enable-audio"      : {"label": "Enable audio"},
+                "audio-servername"  : {"label": "Audio server name"}
+            }
         },
         "rdp": {
-            "label": "RDP"
+            "label": "RDP",
+            "parameters": {
+                "hostname"          : {"label": "Hostname"},
+                "port"              : {"label": "Port"},
+                "username"          : {"label": "Username"},
+                "password"          : {"label": "Password"},
+                "domain"            : {"label": "Domain"},
+                "initial-program"   : {"label": "Initial Program"},
+                "width"             : {"label": "Width"},
+                "height"            : {"label": "Height"},
+                "color-depth"       : {
+                    "label": "Color Depth",
+                    "options": {
+                        "8"    : "256 color",
+                        "16"    : "Low color (16-bit)",
+                        "24"    : "True color (24-bit)",
+                        "32"    : "True color (32-bit)"
+                    }
+                },
+                "server-layout"     : {
+                    "label": "Keyboard layout",
+                    "options": {
+                        "empty"         : "(default)",
+                        "en-us-qwerty"  : "US English (Qwerty)",
+                        "fr-fr-azerty"  : "French (Azerty)",
+                        "de-de-qwertz"  : "German (Qwertz)",
+                        "failsafe"      : "Unicode"
+                    }
+                },
+                "console"           : {"label": "Administrator console"},
+                "console-audio"     : {"label": "Support audio in console"},
+                "disable-audio"     : {"label": "Disable audio"},
+                "enable-printing"   : {"label": "Enable printing"},
+                "enable-drive"      : {"label": "Enable drive"},
+                "drive-path"        : {"label": "Drive path"},
+                "security"          : {
+                    "label": "Security mode",
+                    "options": {
+                        "empty" : "(default)",
+                        "rdp"   : "RDP encryption",
+                        "tls"   : "TLS encryption",
+                        "nla"   : "NLA (Network Level Authentication)",
+                        "any"   : "Any"
+                    }
+                },
+                "disable-auth"      : {"label": "Disable authentication"},
+                "ignore-cert"       : {"label": "Ignore server certificate"}
+            }
         },
         "ssh": {
-            "label": "SSH"
+            "label": "SSH",
+            "parameters": {
+                "hostname"          : {"label": "Hostname"},
+                "port"              : {"label": "Port"},
+                "username"          : {"label": "Username"},
+                "password"          : {"label": "Password"},
+                "font-name"         : {"label": "Font name"},
+                "font-size"         : {
+                    "label": "Font size",
+                    "options": {
+                        "empty" : "",
+                        "8"     : "8",
+                        "9"     : "9",
+                        "10"    : "10",
+                        "11"    : "11",
+                        "12"    : "12",
+                        "14"    : "14",
+                        "18"    : "18",
+                        "24"    : "24",
+                        "30"    : "30",
+                        "36"    : "36",
+                        "48"    : "48",
+                        "60"    : "60",
+                        "72"    : "72",
+                        "96"    : "96"
+                    }
+                 },
+                "enable-sftp"       : {"label": "Enable SFTP"},
+                "private-key"       : {"label": "Private key"},
+                "passphrase"        : {"label": "Passphrase"}
+            }
         }
     }
 }

@@ -39,6 +39,9 @@ angular.module('login').controller('loginController', ['$scope', '$injector',
             .success(function success(data, status, headers, config) {
                 localStorageUtility.set('authToken', data.authToken);
                 localStorageUtility.set('userID', data.userID);
+                
+                // Set up the basic permissions for the user
+                $scope.loadBasicPermissions();
                 $location.path('/');
             }).error(function error(data, status, headers, config) {
                 $scope.loginError = true;
