@@ -28,11 +28,12 @@ angular.module('connectionGroup').factory('connectionGroupService', ['$injector'
     var connectionGroupDAO      = $injector.get('connectionGroupDAO');
     var connectionDAO           = $injector.get('connectionDAO');
     var permissionCheckService  = $injector.get('permissionCheckService');
+    var $q                      = $injector.get('$q');
             
     var service = {};
         
     // Add all connections and balancing groups from this group to the all connection list
-    function addToAllConnections(connectionGroup, parentGroup) {
+    function addToAllConnections(connectionGroup, parentGroup, context) {
         parentGroup.children.push(connectionGroup);
         
         connectionGroup.isConnection = false;
@@ -42,18 +43,22 @@ angular.module('connectionGroup').factory('connectionGroupService', ['$injector'
         connectionGroup.children = [];
 
         // Get all connections in the ORGANIZATIONAL group and add them under this connection group
+        context.openRequest();
         connectionDAO.getConnections(connectionGroup.identifier).success(function fetchConnections(connections) {
             for(var i = 0; i < connections.length; i++) {
                 connections[i].isConnection = true;
                 connectionGroup.children.push(connections[i]);
             }
+            context.closeRequest();
         });
 
         // Get all connection groups in the ORGANIZATIONAL group and repeat
+        context.openRequest();
         connectionGroupDAO.getConnectionGroups(connectionGroup.identifier).success(function fetchConnectionGroups(connectionGroups) {
             for(var i = 0; i < connectionGroups.length; i++) {
-                addToAllConnections(connectionGroups[i], connectionGroup);
+                addToAllConnections(connectionGroups[i], connectionGroup, context);
             }
+            context.closeRequest();
         });
     }
     
@@ -69,23 +74,62 @@ angular.module('connectionGroup').factory('connectionGroupService', ['$injector'
      * @param {string} parentID The parent ID for the connection group.
      *                          If not passed in, it will begin with 
      *                          the root connection group.
+     *                          
+     * @return {promise} A promise that will be fulfilled when all connections
+     *                   and groups have been loaded.
      */
     service.getAllGroupsAndConnections = function getAllGroupsAndConnections(items, parentID) {
         
+        var context = {
+            // The number of requets to the server currently open
+            openRequests        : 0,
+
+            // Create the promise
+            finishedFetching    : $q.defer(),
+            
+            // Notify the caller that the promise has been completed
+            complete            : function complete() {
+                this.finishedFetching.resolve();
+            },
+            
+            /**
+             * Indicate that a request has been started.
+             */ 
+            openRequest         : function openRequest() {
+                this.openRequests++;
+            },
+            
+            /**
+             * Indicate that a request has been completed. If this was the last
+             * open request, fulfill the promise.
+             */ 
+            closeRequest        : function closeRequest() {
+                if(--this.openRequests === 0)
+                    this.complete();
+            }
+        };
+        
         // Get the root connection groups and begin building out the tree once we know the permissions
+        context.openRequest();
         connectionGroupDAO.getConnectionGroups(parentID).success(function fetchRootConnectionGroups(connectionGroups) {
             for(var i = 0; i < connectionGroups.length; i++) {
-                addToAllConnections(connectionGroups[i], {children: items});
+                addToAllConnections(connectionGroups[i], {children: items}, context);
             }
 
             // Get all connections in the root group and add them under this connection group
+            context.openRequest();
             connectionDAO.getConnections().success(function fetchRootConnections(connections) {
                 for(var i = 0; i < connections.length; i++) {
                     connections[i].isConnection = true;
                     items.push(connections[i]);
                 }
+                context.closeRequest();
             });
+            context.closeRequest();
         });     
+        
+        // Return the promise
+        return context.finishedFetching.promise;
     };
     
     

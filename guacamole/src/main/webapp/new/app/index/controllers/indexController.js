@@ -30,12 +30,17 @@ angular.module('index').controller('indexController', ['$scope', '$injector',
     var permissionDAO           = $injector.get("permissionDAO");
     var permissionCheckService  = $injector.get("permissionCheckService");
     var localStorageUtility     = $injector.get("localStorageUtility");
+    var $q                      = $injector.get("$q");
 
     // Put some useful variables in the top level scope
     $scope.currentUserID = null;
     $scope.currentUserIsAdmin = false;
     $scope.currentUserHasUpdate = false;
     $scope.currentUserPermissions = null;
+    
+    // A promise to be fulfilled when all basic user permissions are loaded.
+    var permissionsLoaded= $q.defer();
+    $scope.basicPermissionsLoaded = permissionsLoaded.promise;
     
     // Allow the permissions to be reloaded elsewhere if needed
     $scope.loadBasicPermissions = function loadBasicPermissions() {
@@ -50,6 +55,8 @@ angular.module('index').controller('indexController', ['$scope', '$injector',
             // Will be true if the user is an admin or has update access to any object               
             $scope.currentUserHasUpdate = $scope.currentUserIsAdmin || 
                     permissionCheckService.checkPermission($scope.currentUserPermissions, undefined, undefined, "UPDATE");
+            
+            permissionsLoaded.resolve();
         });
     };
     

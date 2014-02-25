@@ -34,19 +34,22 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
     // All the connections and connection groups in root
     $scope.connectionsAndGroups = [];
     
-    connectionGroupService.getAllGroupsAndConnections($scope.connectionsAndGroups);
-    
-    // Filter the items to only include ones that we have UPDATE for
-    if(!$scope.currentUserIsAdmin) {
-        connectionGroupService.filterConnectionsAndGroupByPermission(
-            $scope.connectionsAndGroups,
-            $scope.currentUserPermissions,
-            {
-                'CONNECTION':       'UPDATE',
-                'CONNECTION_GROUP': 'UPDATE'
+    $scope.basicPermissionsLoaded.then(function basicPermissionsHaveBeenLoaded() {
+        connectionGroupService.getAllGroupsAndConnections($scope.connectionsAndGroups).then(function filterConnectionsAndGroups() {
+            // Filter the items to only include ones that we have UPDATE for
+            if(!$scope.currentUserIsAdmin) {
+                connectionGroupService.filterConnectionsAndGroupByPermission(
+                    $scope.connectionsAndGroups,
+                    $scope.currentUserPermissions,
+                    {
+                        'CONNECTION':       'UPDATE',
+                        'CONNECTION_GROUP': 'UPDATE'
+                    }
+                );
             }
-        );
-    }
+        });
+    });
+        
     
     $scope.protocols = {};
     
@@ -73,7 +76,8 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
         connectionEditModal.activate(
         {
             connection : connection, 
-            protocols  : $scope.protocols
+            protocols  : $scope.protocols,
+            
         });
     };
 }]);
