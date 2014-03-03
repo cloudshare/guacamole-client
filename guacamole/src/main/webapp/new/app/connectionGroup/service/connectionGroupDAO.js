@@ -26,6 +26,11 @@
 angular.module('connectionGroup').factory('connectionGroupDAO', ['$http', 'localStorageUtility',
         function connectionGrouDAO($http, localStorageUtility) {
             
+    /**
+     * The ID of the root connection group.
+     */
+    var ROOT_CONNECTION_GROUP_ID = "ROOT";
+            
     var service = {};
     
     /**
@@ -45,6 +50,24 @@ angular.module('connectionGroup').factory('connectionGroupDAO', ['$http', 'local
             parentIDParam = "&parentID=" + parentID;
         
         return $http.get("../api/connectionGroup?token=" + localStorageUtility.get('authToken') + parentIDParam);
+    };
+    
+    /**
+     * Makes a request to the REST API to get an individual connection group,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {string} connectionGroupID The ID for the connection group.
+     *                                   If not passed in, it will query the
+     *                                   root connection group.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.getConnectionGroup = function getConnectionGroup(connectionGroupID) {
+        
+        // Use the root connection group ID if no ID is passed in
+        connectionGroupID = connectionGroupID || ROOT_CONNECTION_GROUP_ID;
+        
+        return $http.get("../api/connectionGroup/" + connectionGroupID + "?token=" + localStorageUtility.get('authToken'));
     };
     
     return service;

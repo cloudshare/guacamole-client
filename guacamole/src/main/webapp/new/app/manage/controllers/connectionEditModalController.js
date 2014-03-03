@@ -26,8 +26,9 @@
 angular.module('manage').controller('connectionEditModalController', ['$scope', '$injector', 
         function connectionEditModalController($scope, $injector) {
             
-    var connectionEditModal = $injector.get('connectionEditModal');
-    var connectionDAO       = $injector.get('connectionDAO');
+    var connectionEditModal     = $injector.get('connectionEditModal');
+    var connectionDAO           = $injector.get('connectionDAO');
+    var connectionGroupService  = $injector.get('connectionGroupService');
     
     // Make a copy of the old connection so that we can copy over the changes when done
     var oldConnection = $scope.connection;
@@ -60,6 +61,15 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
         });
     };
     
+    // The parent connection group for this connection
+    $scope.parent = null;
+    
+    // Get all the connection groups starting with ROOT
+    $scope.connectionGroups = [];
+    connectionGroupService.getAllGroupsAndConnections($scope.connectionGroups, undefined, false, true)
+    .then(function chooseParentGroup() {
+        console.log($scope.connection);
+    });
 }]);
 
 

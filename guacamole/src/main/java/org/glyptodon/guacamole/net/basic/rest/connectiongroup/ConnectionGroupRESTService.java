@@ -74,6 +74,11 @@ public class ConnectionGroupRESTService {
     private ConnectionGroupService connectionGroupService;
     
     /**
+     * The ID that will be guaranteed to refer to the root connection group.
+     */
+    private static String ROOT_CONNECTION_GROUP_ID = "ROOT";
+    
+    /**
      * Gets a list of connection groups with the given ConnectionGroup parentID.
      * If no parentID is provided, returns the connection groups from the root group.
      * 
@@ -128,6 +133,11 @@ public class ConnectionGroupRESTService {
         
         // Get the connection group directory
         ConnectionGroup rootGroup = userContext.getRootConnectionGroup();
+        
+        // Return the root group if it was asked for
+        if(connectionGroupID != null && connectionGroupID.equals(ROOT_CONNECTION_GROUP_ID))
+            return new APIConnectionGroup(rootGroup);
+        
         Directory<String, ConnectionGroup> connectionGroupDirectory =
                 rootGroup.getConnectionGroupDirectory();
 
@@ -155,9 +165,14 @@ public class ConnectionGroupRESTService {
     public void deleteConnectionGroup(@QueryParam("token") String authToken, 
             @PathParam("connectionGroupID") String connectionGroupID) throws GuacamoleException {
         UserContext userContext = authenticationService.getUserContextFromAuthToken(authToken);
-
+        
         // Get the connection group directory
         ConnectionGroup rootGroup = userContext.getRootConnectionGroup();
+        
+        // Use the root group if it was asked for
+        if(connectionGroupID != null && connectionGroupID.equals(ROOT_CONNECTION_GROUP_ID))
+            connectionGroupID = rootGroup.getIdentifier();
+        
         Directory<String, ConnectionGroup> connectionGroupDirectory =
                 rootGroup.getConnectionGroupDirectory();
 
@@ -237,6 +252,11 @@ public class ConnectionGroupRESTService {
 
         // Get the connection directory
         ConnectionGroup rootGroup = userContext.getRootConnectionGroup();
+        
+        // Use the root group if it was asked for
+        if(connectionGroupID != null && connectionGroupID.equals(ROOT_CONNECTION_GROUP_ID))
+            connectionGroupID = rootGroup.getIdentifier();
+        
         Directory<String, ConnectionGroup> connectionGroupDirectory =
                 rootGroup.getConnectionGroupDirectory();
 
@@ -267,6 +287,11 @@ public class ConnectionGroupRESTService {
         
         // Get the connection group directory
         ConnectionGroup rootGroup = userContext.getRootConnectionGroup();
+        
+        // Use the root group if it was asked for
+        if(connectionGroupID != null && connectionGroupID.equals(ROOT_CONNECTION_GROUP_ID))
+            connectionGroupID = rootGroup.getIdentifier();
+        
         Directory<String, ConnectionGroup> connectionGroupDirectory =
                 rootGroup.getConnectionGroupDirectory();
 
