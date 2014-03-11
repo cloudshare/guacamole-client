@@ -153,7 +153,7 @@ angular.module('connectionGroup').factory('connectionGroupService', ['$injector'
                     connectionDAO.getConnections().success(function fetchRootConnections(connections) {
                         for(var i = 0; i < connections.length; i++) {
                             connections[i].isConnection = true;
-                            items.push(connections[i]);
+                            children.push(connections[i]);
                         }
                         context.closeRequest();
                     });

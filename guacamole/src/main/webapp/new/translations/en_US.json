@@ -129,7 +129,10 @@
                     }
                 },
                 "disable-auth"      : {"label": "Disable authentication"},
-                "ignore-cert"       : {"label": "Ignore server certificate"}
+                "ignore-cert"       : {"label": "Ignore server certificate"},
+                "remote-app"        : {"label": "RemoteApp program"},
+                "remote-app-dir"    : {"label": "RemoteApp working directory"},
+                "remote-app-args"   : {"label": "RemoteApp parameters"}
             }
         },
         "ssh": {

@@ -29,6 +29,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.glyptodon.guacamole.GuacamoleException;
 import org.glyptodon.guacamole.net.auth.Connection;
 import org.glyptodon.guacamole.net.auth.ConnectionRecord;
+import org.glyptodon.guacamole.net.basic.rest.APIConstants;
 import org.glyptodon.guacamole.protocol.GuacamoleConfiguration;
 
 /**
@@ -86,6 +87,10 @@ public class APIConnection {
         this.identifier = connection.getIdentifier();
         this.parentIdentifier = connection.getParentIdentifier();
         this.history = connection.getHistory();
+        
+        // Use the explicit ROOT group ID
+        if(this.parentIdentifier == null)
+            this.parentIdentifier = APIConstants.ROOT_CONNECTION_GROUP_IDENTIFIER;
         
         GuacamoleConfiguration configuration = connection.getConfiguration();
         

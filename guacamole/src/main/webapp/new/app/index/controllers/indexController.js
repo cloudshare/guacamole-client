@@ -31,6 +31,21 @@ angular.module('index').controller('indexController', ['$scope', '$injector',
     var permissionCheckService  = $injector.get("permissionCheckService");
     var localStorageUtility     = $injector.get("localStorageUtility");
     var $q                      = $injector.get("$q");
+    
+    /*
+     * Safe $apply implementation from Alex Vanston:
+     * https://coderwall.com/p/ngisma
+     */
+    $scope.safeApply = function(fn) {
+        var phase = this.$root.$$phase;
+        if(phase == '$apply' || phase == '$digest') {
+            if(fn && (typeof(fn) === 'function')) {
+                fn();
+            }
+        } else {
+            this.$apply(fn);
+        }
+    };
 
     // Put some useful variables in the top level scope
     $scope.currentUserID = null;

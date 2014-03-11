@@ -48,12 +48,10 @@ angular.module('connection').factory('connectionDAO', ['$http', 'localStorageUti
     };
     
     /**
-     * Makes a request to the REST API to get the list of connections,
+     * Makes a request to the REST API to save a connection,
      * returning a promise that can be used for processing the results of the call.
      * 
-     * @param {string} parentID The parent ID for the connection.
-     *                          If not passed in, it will query a list of the 
-     *                          connections in the root group.
+     * @param {object} connection The connection to update
      *                          
      * @returns {promise} A promise for the HTTP call.
      */
@@ -61,10 +59,32 @@ angular.module('connection').factory('connectionDAO', ['$http', 'localStorageUti
         
         // This is a new connection
         if(!connection.identifier) {
-           
+            return $http.post("../api/connection/?token=" + localStorageUtility.get('authToken'), connection);
         } else {
-            return $http.post("../api/connection/" + connection.identifier + "?token=" + localStorageUtility.get('authToken'), connection);
+            return $http.post(
+                "../api/connection/" + connection.identifier + 
+                "?token=" + localStorageUtility.get('authToken') + 
+                "&parentID=" + connection.parentIdentifier, 
+            connection);
         }
+        
+    };
+    
+    /**
+     * Makes a request to the REST API to move a connection to a different group,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {object} connection The connection to move. 
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.moveConnection = function moveConnection(connection) {
+        
+        return $http.put(
+            "../api/connection/" + connection.identifier + 
+            "?token=" + localStorageUtility.get('authToken') + 
+            "&parentID=" + connection.parentIdentifier, 
+        connection);
         
     };
     

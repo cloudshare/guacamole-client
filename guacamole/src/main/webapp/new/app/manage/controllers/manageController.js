@@ -35,7 +35,10 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
     $scope.connectionsAndGroups = [];
     
     $scope.basicPermissionsLoaded.then(function basicPermissionsHaveBeenLoaded() {
-        connectionGroupService.getAllGroupsAndConnections($scope.connectionsAndGroups).then(function filterConnectionsAndGroups() {
+        connectionGroupService.getAllGroupsAndConnections([], undefined, true, true).then(function filterConnectionsAndGroups(rootGroupList) {
+            $scope.rootGroup = rootGroupList[0];
+            $scope.connectionsAndGroups = $scope.rootGroup.children;
+            
             // Filter the items to only include ones that we have UPDATE for
             if(!$scope.currentUserIsAdmin) {
                 connectionGroupService.filterConnectionsAndGroupByPermission(
@@ -49,6 +52,47 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
             }
         });
     });
+    
+    /**
+     * Move the connection or connection group within the group heirarchy.
+     * @param {object} item The connection or connection group to move.
+     * @param {string} fromID The ID of the group to move the item from.
+     * @param {string} toID The ID of the group to move the item to.
+     */
+    $scope.moveItem = function moveItem(item, fromID, toID) {
+        var oldParent   = findGroup($scope.rootGroup, fromID),
+            oldChildren = oldParent.children,
+            newParent   = findGroup($scope.rootGroup, toID),
+            newChildren = newParent.children;
+            
+        // Find and remove the item from the old group
+        for(var i = 0; i < oldChildren.length; i++) {
+            var child = oldChildren[i];
+            if(child.isConnection === item.isConnection &&
+                    child.identifier === item.identifier) {
+                oldChildren.splice(i, 1);
+                break;
+            }
+        }
+        
+        // Add it to the new group
+        newChildren.push(item);
+    };
+    
+    function findGroup(group, parentID) {
+        // Only searching in groups
+        if(group.isConnection)
+            return;
+        
+        if(group.identifier === parentID)
+            return group;
+        
+        for(var i = 0; i < group.children.length; i++) {
+            var child = group.children[i];
+            var foundGroup = findGroup(child, parentID);
+            if(foundGroup) return foundGroup;
+        }
+    }
         
     
     $scope.protocols = {};
@@ -77,7 +121,8 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
         {
             connection : connection, 
             protocols  : $scope.protocols,
-            
+            moveItem   : $scope.moveItem,
+            rootGroup  : $scope.rootGroup
         });
     };
 }]);

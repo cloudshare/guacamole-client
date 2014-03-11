@@ -124,7 +124,7 @@ public class MySQLConnectionGroup extends AbstractConnectionGroup {
      */
     public void setParentID(Integer parentID) {
         this.parentID = parentID;
-        this.setParentIdentifier(String.valueOf(parentID));
+        this.setParentIdentifier(parentID == null ? null : String.valueOf(parentID));
     }
 
     /**

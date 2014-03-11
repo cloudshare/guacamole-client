@@ -28,7 +28,6 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
             
     var connectionEditModal     = $injector.get('connectionEditModal');
     var connectionDAO           = $injector.get('connectionDAO');
-    var connectionGroupService  = $injector.get('connectionGroupService');
     
     // Make a copy of the old connection so that we can copy over the changes when done
     var oldConnection = $scope.connection;
@@ -51,25 +50,27 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
      * Save the connection and close the modal.
      */
     $scope.save = function save() {
+        
+        var newConnection = !$scope.connection.identifier;
+        
         connectionDAO.saveConnection($scope.connection).success(function successfullyUpdatedConnection() {
+            
+            var oldParentID = oldConnection.parentIdentifier;
+            var newParentID = $scope.connection.parentIdentifier;
             
             // Copy the data back to the original model
             angular.extend(oldConnection, $scope.connection);
+            
+            // We have to move this connection
+            if(!newConnection && oldParentID !== newParentID)
+                connectionDAO.moveConnection($scope.connection).then(function moveConnection() {
+                    $scope.moveItem($scope.connection, oldParentID, newParentID);
+                });
             
             // Close the modal
             connectionEditModal.deactivate();
         });
     };
-    
-    // The parent connection group for this connection
-    $scope.parent = null;
-    
-    // Get all the connection groups starting with ROOT
-    $scope.connectionGroups = [];
-    connectionGroupService.getAllGroupsAndConnections($scope.connectionGroups, undefined, false, true)
-    .then(function chooseParentGroup() {
-        console.log($scope.connection);
-    });
 }]);
 
 
