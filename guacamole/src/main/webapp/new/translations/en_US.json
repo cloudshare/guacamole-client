@@ -48,6 +48,20 @@
                 "root"              : "ROOT",
                 "location"          : "Location:",
                 "name"              : "Name:"
+            },
+            "connectionGroup": {
+                "cancel"            : "Cancel",
+                "save"              : "Save",
+                "delete"            : "Delete",
+                "usageHistory"      : "Usage History:",
+                "type"              : {
+                    "label"             : "Type",
+                    "organizational"    : "Organizational",
+                    "balancing"         : "Balancing"
+                },
+                "root"              : "ROOT",
+                "location"          : "Location:",
+                "name"              : "Name:"
             }
         }
     },

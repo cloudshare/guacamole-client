@@ -25,10 +25,11 @@
  */
 angular.module('connectionGroup').factory('connectionGroupService', ['$injector', function connectionGroupService($injector) {
             
-    var connectionGroupDAO      = $injector.get('connectionGroupDAO');
-    var connectionDAO           = $injector.get('connectionDAO');
-    var permissionCheckService  = $injector.get('permissionCheckService');
-    var $q                      = $injector.get('$q');
+    var connectionGroupDAO              = $injector.get('connectionGroupDAO');
+    var connectionDAO                   = $injector.get('connectionDAO');
+    var permissionCheckService          = $injector.get('permissionCheckService');
+    var $q                              = $injector.get('$q');
+    var displayObjectPreparationService = $injector.get('displayObjectPreparationService');
             
     var service = {};
         
@@ -41,14 +42,11 @@ angular.module('connectionGroup').factory('connectionGroupService', ['$injector'
         
         parentGroup.children.push(connectionGroup);
         
-        connectionGroup.isConnection = false;
-            
-        connectionGroup.balancer = connectionGroup.type !== "ORGANIZATIONAL";
-        connectionGroup.expanded = false;
-        connectionGroup.children = [];
-
+        // Prepare this group for display
+        displayObjectPreparationService.prepareConnectionGroup(connectionGroup);
+        
         if(includeConnections) {
-            // Get all connections in the ORGANIZATIONAL group and add them under this connection group
+            // Get all connections in the group and add them under this connection group
             context.openRequest();
             connectionDAO.getConnections(connectionGroup.identifier).success(function fetchConnections(connections) {
                 for(var i = 0; i < connections.length; i++) {
@@ -59,7 +57,7 @@ angular.module('connectionGroup').factory('connectionGroupService', ['$injector'
             });
         }
 
-        // Get all connection groups in the ORGANIZATIONAL group and repeat
+        // Get all connection groups in the group and repeat
         context.openRequest();
         connectionGroupDAO.getConnectionGroups(connectionGroup.identifier).success(function fetchConnectionGroups(connectionGroups) {
             for(var i = 0; i < connectionGroups.length; i++) {
@@ -152,7 +150,10 @@ angular.module('connectionGroup').factory('connectionGroupService', ['$injector'
                     context.openRequest();
                     connectionDAO.getConnections().success(function fetchRootConnections(connections) {
                         for(var i = 0; i < connections.length; i++) {
-                            connections[i].isConnection = true;
+                            
+                            // Prepare this connection for display
+                            displayObjectPreparationService.prepareConnection(connections[i]);
+                            
                             children.push(connections[i]);
                         }
                         context.closeRequest();
@@ -210,7 +211,7 @@ angular.module('connectionGroup').factory('connectionGroupService', ['$injector'
                  */
                 if(requiredConnectionGroupPermission) {
                     if(!permissionCheckService.checkPermission(permissionList, 
-                            "CONNECTION", item.identifier, requiredConnectionPermission)) {
+                            "CONNECTION_GROUP", item.identifier, requiredConnectionGroupPermission)) {
                         items.splice(i, 1);
                         continue;
                     }    

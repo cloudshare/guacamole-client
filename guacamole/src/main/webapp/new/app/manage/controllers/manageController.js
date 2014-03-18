@@ -27,9 +27,10 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
         function manageController($scope, $injector) {
             
     // Get the dependencies commonJS style
-    var connectionGroupService  = $injector.get('connectionGroupService');
-    var connectionEditModal     = $injector.get('connectionEditModal');
-    var protocolDAO             = $injector.get('protocolDAO');
+    var connectionGroupService      = $injector.get('connectionGroupService');
+    var connectionEditModal         = $injector.get('connectionEditModal');
+    var connectionGroupEditModal    = $injector.get('connectionGroupEditModal');
+    var protocolDAO                 = $injector.get('protocolDAO');
     
     // All the connections and connection groups in root
     $scope.connectionsAndGroups = [];
@@ -144,6 +145,33 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
             rootGroup  : $scope.rootGroup
         });
     };
+    
+    /**
+     * Open a modal to edit a new connection group.
+     */
+    $scope.newConnectionGroup = function newConnectionGroup() {
+        connectionGroupEditModal.activate(
+        {
+            connectionGroup : {}, 
+            moveItem        : $scope.moveItem,
+            rootGroup       : $scope.rootGroup
+        });
+    };
+    
+    /**
+     * Open a modal to edit the connection group.
+     *  
+     * @param {object} connection The connection group to edit.
+     */
+    $scope.editConnectionGroup = function editConnectionGroup(connectionGroup) {
+        connectionGroupEditModal.activate(
+        {
+            connectionGroup : connectionGroup, 
+            moveItem        : $scope.moveItem,
+            rootGroup       : $scope.rootGroup
+        });
+    };
+    
 }]);
 
 

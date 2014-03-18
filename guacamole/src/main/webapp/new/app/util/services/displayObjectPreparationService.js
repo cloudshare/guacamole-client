@@ -21,7 +21,36 @@
  */
 
 /**
- * The module for the administration functionality.
+ * A service to help prepare objects from the REST API for display.
  */
-angular.module('manage', ['btford.modal', 'protocol', 'connectionGroup', 'util']);
-
+angular.module('util').factory('displayObjectPreparationService', [function displayObjectPreparationService() {
+    var service = {};
+    
+    /**
+     * Adds properties to the connection that will be useful for display.
+     * 
+     * @param {object} connection The connection to add display properties to.
+     */
+    service.prepareConnection = function prepareConnection(connection) {
+        
+        // This is a connection
+        connection.isConnection = true;
+    };
+    
+    /**
+     * Adds properties to the connection that will be useful for display.
+     * 
+     * @param {object} connectionGroup The connection group to add display properties to.
+     */
+    service.prepareConnectionGroup = function prepareConnectionGroup(connectionGroup) {
+        
+        // This is not a connection
+        connectionGroup.isConnection = false;
+            
+        connectionGroup.balancer = connectionGroup.type !== "ORGANIZATIONAL";
+        connectionGroup.expanded = false;
+        connectionGroup.children = [];
+    };
+    
+    return service;
+}]);

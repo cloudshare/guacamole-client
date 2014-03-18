@@ -21,7 +21,15 @@
  */
 
 /**
- * The module for the administration functionality.
+ * A modal for editing a connection group.
  */
-angular.module('manage', ['btford.modal', 'protocol', 'connectionGroup', 'util']);
-
+angular.module('manage').factory('connectionGroupEditModal', ['btfModal', 
+        function connectionGroupEditModal(btfModal) {
+            
+    // Create the modal object to be used later to actually create the modal
+    return btfModal({
+        controller: 'connectionGroupEditModalController',
+        controllerAs: 'modal',
+        templateUrl: 'app/manage/templates/editableConnectionGroup.html',
+    });
+}]);

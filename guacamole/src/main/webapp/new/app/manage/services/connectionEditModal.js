@@ -23,7 +23,7 @@
 /**
  * A modal for editing a connection.
  */
-angular.module('index').factory('connectionEditModal', ['btfModal', 
+angular.module('manage').factory('connectionEditModal', ['btfModal', 
         function connectionEditModal(btfModal) {
             
     // Create the modal object to be used later to actually create the modal

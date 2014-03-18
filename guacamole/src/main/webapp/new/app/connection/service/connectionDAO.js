@@ -67,8 +67,7 @@ angular.module('connection').factory('connectionDAO', ['$http', 'localStorageUti
         } else {
             return $http.post(
                 "../api/connection/" + connection.identifier + 
-                "?token=" + localStorageUtility.get('authToken') + 
-                "&parentID=" + connection.parentIdentifier, 
+                "?token=" + localStorageUtility.get('authToken'), 
             connection);
         }
     };

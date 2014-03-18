@@ -26,8 +26,9 @@
 angular.module('manage').controller('connectionEditModalController', ['$scope', '$injector', 
         function connectionEditModalController($scope, $injector) {
             
-    var connectionEditModal     = $injector.get('connectionEditModal');
-    var connectionDAO           = $injector.get('connectionDAO');
+    var connectionEditModal             = $injector.get('connectionEditModal');
+    var connectionDAO                   = $injector.get('connectionDAO');
+    var displayObjectPreparationService = $injector.get('displayObjectPreparationService');
     
     // Make a copy of the old connection so that we can copy over the changes when done
     var oldConnection = $scope.connection;
@@ -35,9 +36,14 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
     // Copy data into a new conection object in case the user doesn't want to save
     $scope.connection = angular.copy($scope.connection);
     
+    var newConnection = !$scope.connection.identifier;
+    if(newConnection)
+        // Prepare this connection for display
+        displayObjectPreparationService.prepareConnection($scope.connection);
+    
     // Set it to VNC by default
     if(!$scope.connection.protocol)
-        $scope.connection.protocol = "VNC";
+        $scope.connection.protocol = "vnc";
     
     /**
      * Close the modal.
@@ -50,12 +56,6 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
      * Save the connection and close the modal.
      */
     $scope.save = function save() {
-        
-        // Make sure to mark the new connection as a connection for UI purposes
-        var newConnection = !$scope.connection.identifier;
-        if(newConnection)
-            $scope.connection.isConnection = true;
-        
         connectionDAO.saveConnection($scope.connection).success(function successfullyUpdatedConnection() {
             
             var oldParentID = oldConnection.parentIdentifier;
@@ -66,9 +66,15 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
             
             // We have to move this connection
             if(oldParentID !== newParentID)
-                connectionDAO.moveConnection($scope.connection).then(function moveConnection() {
+                
+                // New connections are created by default in root - don't try to move it if it's already there.
+                if(newConnection && newParentID === $scope.rootGroup.identifier) {
                     $scope.moveItem($scope.connection, oldParentID, newParentID);
-                });
+                } else {
+                    connectionDAO.moveConnection($scope.connection).then(function moveConnection() {
+                        $scope.moveItem($scope.connection, oldParentID, newParentID);
+                    });
+                }
             
             // Close the modal
             connectionEditModal.deactivate();
