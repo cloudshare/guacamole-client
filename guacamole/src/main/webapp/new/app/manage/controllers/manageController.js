@@ -54,29 +54,35 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
     });
     
     /**
-     * Move the connection or connection group within the group heirarchy.
+     * Move the connection or connection group within the group heirarchy, 
+     * initially place a new item, or remove an item from the heirarchy.
      * @param {object} item The connection or connection group to move.
-     * @param {string} fromID The ID of the group to move the item from.
-     * @param {string} toID The ID of the group to move the item to.
+     * @param {string} fromID The ID of the group to move the item from, if relevant.
+     * @param {string} toID The ID of the group to move the item to, if relevant.
      */
     $scope.moveItem = function moveItem(item, fromID, toID) {
-        var oldParent   = findGroup($scope.rootGroup, fromID),
-            oldChildren = oldParent.children,
-            newParent   = findGroup($scope.rootGroup, toID),
-            newChildren = newParent.children;
+        
+        // Remove the item from the old group, if there was one
+        if(fromID) {
+            var oldParent   = findGroup($scope.rootGroup, fromID),
+                oldChildren = oldParent.children;
             
-        // Find and remove the item from the old group
-        for(var i = 0; i < oldChildren.length; i++) {
-            var child = oldChildren[i];
-            if(child.isConnection === item.isConnection &&
-                    child.identifier === item.identifier) {
-                oldChildren.splice(i, 1);
-                break;
+            // Find and remove the item from the old group
+            for(var i = 0; i < oldChildren.length; i++) {
+                var child = oldChildren[i];
+                if(child.isConnection === item.isConnection &&
+                        child.identifier === item.identifier) {
+                    oldChildren.splice(i, 1);
+                    break;
+                }
             }
         }
         
-        // Add it to the new group
-        newChildren.push(item);
+        // Add the item to the new group, if there is one
+        if(toID) {
+            var newParent = findGroup($scope.rootGroup, toID);
+            newParent.children.push(item);
+        }
     };
     
     function findGroup(group, parentID) {
@@ -112,7 +118,7 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
     };
     
     /**
-     * Open a modal to edit the connection
+     * Open a modal to edit the connection.
      *  
      * @param {object} connection The connection to edit.
      */
@@ -120,6 +126,19 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
         connectionEditModal.activate(
         {
             connection : connection, 
+            protocols  : $scope.protocols,
+            moveItem   : $scope.moveItem,
+            rootGroup  : $scope.rootGroup
+        });
+    };
+    
+    /**
+     * Open a modal to edit a new connection.
+     */
+    $scope.newConnection = function newConnection() {
+        connectionEditModal.activate(
+        {
+            connection : {}, 
             protocols  : $scope.protocols,
             moveItem   : $scope.moveItem,
             rootGroup  : $scope.rootGroup

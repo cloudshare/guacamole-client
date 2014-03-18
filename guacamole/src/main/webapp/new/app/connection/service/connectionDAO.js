@@ -56,10 +56,14 @@ angular.module('connection').factory('connectionDAO', ['$http', 'localStorageUti
      * @returns {promise} A promise for the HTTP call.
      */
     service.saveConnection = function saveConnection(connection) {
-        
         // This is a new connection
         if(!connection.identifier) {
-            return $http.post("../api/connection/?token=" + localStorageUtility.get('authToken'), connection);
+            return $http.post("../api/connection/?token=" + localStorageUtility.get('authToken'), connection).success(
+                function setConnectionID(connectionID){
+                    // Set the identifier on the new connection
+                    connection.identifier = connectionID;
+                    return connectionID;
+                });
         } else {
             return $http.post(
                 "../api/connection/" + connection.identifier + 
@@ -67,7 +71,6 @@ angular.module('connection').factory('connectionDAO', ['$http', 'localStorageUti
                 "&parentID=" + connection.parentIdentifier, 
             connection);
         }
-        
     };
     
     /**
@@ -86,6 +89,20 @@ angular.module('connection').factory('connectionDAO', ['$http', 'localStorageUti
             "&parentID=" + connection.parentIdentifier, 
         connection);
         
+    };
+    
+    /**
+     * Makes a request to the REST API to delete a connection,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {object} connection The connection to delete
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.deleteConnection = function deleteConnection(connection) {
+        return $http['delete'](
+            "../api/connection/" + connection.identifier + 
+            "?token=" + localStorageUtility.get('authToken'));
     };
     
     return service;

@@ -51,7 +51,10 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
      */
     $scope.save = function save() {
         
+        // Make sure to mark the new connection as a connection for UI purposes
         var newConnection = !$scope.connection.identifier;
+        if(newConnection)
+            $scope.connection.isConnection = true;
         
         connectionDAO.saveConnection($scope.connection).success(function successfullyUpdatedConnection() {
             
@@ -62,7 +65,7 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
             angular.extend(oldConnection, $scope.connection);
             
             // We have to move this connection
-            if(!newConnection && oldParentID !== newParentID)
+            if(oldParentID !== newParentID)
                 connectionDAO.moveConnection($scope.connection).then(function moveConnection() {
                     $scope.moveItem($scope.connection, oldParentID, newParentID);
                 });
@@ -71,6 +74,28 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
             connectionEditModal.deactivate();
         });
     };
+    
+    /**
+     * Delete the connection and close the modal.
+     */
+    $scope['delete'] = function deleteConnection() {
+        
+        // Nothing to delete if the connection is new
+        var newConnection = !$scope.connection.identifier;
+        if(newConnection)
+            // Close the modal
+            connectionEditModal.deactivate();
+        
+        connectionDAO.deleteConnection($scope.connection).success(function successfullyDeletedConnection() {
+            var oldParentID = oldConnection.parentIdentifier;
+            
+            // We have to remove this connection from the heirarchy
+            $scope.moveItem($scope.connection, oldParentID);
+            
+            // Close the modal
+            connectionEditModal.deactivate();
+        });
+    }
 }]);
 
 
