@@ -42,12 +42,18 @@
                 "cancel"            : "Cancel",
                 "save"              : "Save",
                 "delete"            : "Delete",
-                "connectionNotUsed" : "This connection has not yet been used.",
-                "usageHistory"      : "Usage History:",
                 "protocol"          : "Protocol:",
                 "root"              : "ROOT",
                 "location"          : "Location:",
-                "name"              : "Name:"
+                "name"              : "Name:",
+                "history"           : {
+                    "connectionNotUsed" : "This connection has not yet been used.",
+                    "usageHistory"      : "Usage History:",
+                    "username"          : "Username",
+                    "startTime"         : "Start Time",
+                    "duration"          : "Duration",
+                    "activeNow"         : "Active Now"
+                }
             },
             "connectionGroup": {
                 "cancel"            : "Cancel",

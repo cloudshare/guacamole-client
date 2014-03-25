@@ -80,10 +80,27 @@ THE SOFTWARE.
               </table>
             </dd>
 
-            <dt>{{'manage.edit.connection.usageHistory' | translate}}</dt>
+            <dt>{{'manage.edit.connection.history.usageHistory' | translate}}</dt>
 
-            <dd>
-              <p>{{'manage.edit.connection.connectionNotUsed' | translate}}</p>
+            <dd ng-hide="connection.history.length">
+              <p>{{'manage.edit.connection.history.connectionNotUsed' | translate}}</p>
+            </dd>
+            <dd ng-show="connection.history.length">
+                <table class="history section">
+                    <tr>
+                        <th>{{'manage.edit.connection.history.username' | translate}}</th>
+                        <th>{{'manage.edit.connection.history.startTime' | translate}}</th>
+                        <th>{{'manage.edit.connection.history.duration' | translate}}</th>
+                    </tr>
+                    <tbody>
+                        <tr ng-repeat="record in connection.history">
+                            <td class="username">{{record.username}}</td>
+                            <td class="start">{{record.startDate | date:'short'}}</td>
+                            <td ng-show="record.endDate" class="duration">{{record.endDate}}</td>
+                            <td ng-hide="record.endDate" class="duration">{{'manage.edit.connection.history.activeNow' | translate}}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </dd>
           </dl>
         </div>
