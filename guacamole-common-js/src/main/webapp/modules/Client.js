@@ -142,11 +142,6 @@ Guacamole.Client = function(tunnel) {
     // Array of allocated output streams by index
     var output_streams = [];
 
-    tunnel.onerror = function(message) {
-        if (guac_client.onerror)
-            guac_client.onerror(message);
-    };
-
     function setState(state) {
         if (state != currentState) {
             currentState = state;
@@ -394,8 +389,8 @@ Guacamole.Client = function(tunnel) {
      * is being closed.
      * 
      * @event
-     * @param {String} reason A human-readable reason describing the error.
-     * @param {Number} code The error code associated with the error.
+     * @param {Guacamole.Status} status A status object which describes the
+     *                                  error.
      */
     this.onerror = null;
 
@@ -564,7 +559,7 @@ Guacamole.Client = function(tunnel) {
 
                 // Signal ack if handler defined
                 if (stream.onack)
-                    stream.onack(reason, code);
+                    stream.onack(new Guacamole.Status(code, reason));
 
                 // If code is an error, invalidate stream
                 if (code >= 0x0100) {
@@ -800,7 +795,7 @@ Guacamole.Client = function(tunnel) {
 
             // Call handler if defined
             if (guac_client.onerror)
-                guac_client.onerror(reason, code);
+                guac_client.onerror(new Guacamole.Status(code, reason));
 
             guac_client.disconnect();
 
@@ -1259,6 +1254,7 @@ Guacamole.Client = function(tunnel) {
      *
      * @param data Arbitrary connection data to be sent to the underlying
      *             tunnel during the connection process.
+     * @throws {Guacamole.Status} If an error occurs during connection.
      */
     this.connect = function(data) {
 
@@ -1267,9 +1263,9 @@ Guacamole.Client = function(tunnel) {
         try {
             tunnel.connect(data);
         }
-        catch (e) {
+        catch (status) {
             setState(STATE_IDLE);
-            throw e;
+            throw status;
         }
 
         // Ping every 5 seconds (ensure connection alive)

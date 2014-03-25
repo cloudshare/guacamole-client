@@ -26,47 +26,47 @@ import org.glyptodon.guacamole.protocol.GuacamoleStatus;
 
 
 /**
- * A generic exception thrown when part of the Guacamole API fails to find
- * a requested resource, such as a configuration or tunnel.
- *
+ * An exception which is thrown when a resource has been requested, but that
+ * resource is locked or currently in use, and cannot be accessed by the
+ * current user.
+ * 
  * @author Michael Jumper
  */
-public class GuacamoleResourceNotFoundException extends GuacamoleClientException {
+public class GuacamoleResourceConflictException extends GuacamoleClientException {
 
     /**
-     * Creates a new GuacamoleResourceNotFoundException with the given message
-     * and cause.
+     * Creates a new GuacamoleResourceConflictException with the given message and cause.
      *
      * @param message A human readable description of the exception that
      *                occurred.
      * @param cause The cause of this exception.
      */
-    public GuacamoleResourceNotFoundException(String message, Throwable cause) {
+    public GuacamoleResourceConflictException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Creates a new GuacamoleResourceNotFoundException with the given message.
+     * Creates a new GuacamoleResourceConflictException with the given message.
      *
      * @param message A human readable description of the exception that
      *                occurred.
      */
-    public GuacamoleResourceNotFoundException(String message) {
+    public GuacamoleResourceConflictException(String message) {
         super(message);
     }
 
     /**
-     * Creates a new GuacamoleResourceNotFoundException with the given cause.
+     * Creates a new GuacamoleResourceConflictException with the given cause.
      *
      * @param cause The cause of this exception.
      */
-    public GuacamoleResourceNotFoundException(Throwable cause) {
+    public GuacamoleResourceConflictException(Throwable cause) {
         super(cause);
     }
 
     @Override
     public GuacamoleStatus getStatus() {
-        return GuacamoleStatus.RESOURCE_NOT_FOUND;
+        return GuacamoleStatus.RESOURCE_CONFLICT;
     }
 
 }

@@ -63,11 +63,181 @@ GuacUI.Client = {
 
     },
 
+    /**
+     * Enumeration of all tunnel-specific error messages for each applicable
+     * error code.
+     */
+    "tunnel_errors": {
+
+        0x0201: "The Guacamole server has rejected this connection attempt  \
+                 because there are too many active connections. Please wait \
+                 a few minutes and try again.",
+
+        0x0202: "The connection has been closed because the server is taking \
+                 too long to respond. This is usually caused by network      \
+                 problems, such as a spotty wireless signal, or slow network \
+                 speeds. Please check your network connection and try again  \
+                 or contact your system administrator.",
+
+        0x0203: "The server encountered an error and has closed the \
+                 connection. Please try again or contact your       \
+                 system administrator.",
+
+        0x0204: "The requested connection does not exist. Please check the \
+                 connection name and try again.",
+
+        0x0205: "This connection is currently in use, and concurrent access to \
+                 this connection is not allowed. Please try again later.",
+
+        0x0301: "You do not have permission to access this connection because \
+                 you are not logged in. Please log in and try again.",
+
+        0x0303: "You do not have permission to access this connection. If you \
+                 require access, please ask your system administrator to add  \
+                 you the list of allowed users, or check your system settings.",
+
+        0x0308: "The Guacamole server has closed the connection because there \
+                 has been no response from your browser for long enough that  \
+                 it appeared to be disconnected. This is commonly caused by   \
+                 network problems, such as spotty wireless signal, or simply  \
+                 very slow network speeds. Please check your network and try  \
+                 again.",
+
+        0x031D: "The Guacamole server is denying access to this connection \
+                 because you have exhausted the limit for simultaneous     \
+                 connection use by an individual user. Please close one or \
+                 more connections and try again.",
+
+        "DEFAULT": "An internal error has occurred within the Guacamole \
+                    server, and the connection has been terminated. If  \
+                    the problem persists, please notify your system     \
+                    administrator, or check your system logs."
+
+    },
+
+    /**
+     * Enumeration of all client-specific error messages for each applicable
+     * error code.
+     */
+    "client_errors": {
+
+        0x0201: "This connection has been closed because the server is busy. \
+                 Please wait a few minutes and try again.",
+
+        0x0202: "The Guacamole server has closed the connection because the \
+                 remote desktop is taking too long to respond. Please try   \
+                 again or contact your system administrator.",
+
+        0x0203: "The remote desktop server encountered an error and has closed \
+                 the connection. Please try again or contact your system       \
+                 administrator.",
+
+        0x0205: "This connection has been closed because it conflicts with \
+                 another connection. Please try again later.",
+
+        0x0301: "Log in failed. Please reconnect and try again.",
+
+        0x0303: "You do not have permission to access this connection. If you \
+                 require access, please ask your system administrator to add  \
+                 you the list of allowed users, or check your system settings.",
+
+        0x0308: "The Guacamole server has closed the connection because there \
+                 has been no response from your browser for long enough that  \
+                 it appeared to be disconnected. This is commonly caused by   \
+                 network problems, such as spotty wireless signal, or simply  \
+                 very slow network speeds. Please check your network and try  \
+                 again.",
+
+        0x031D: "The Guacamole server is denying access to this connection \
+                 because you have exhausted the limit for simultaneous     \
+                 connection use by an individual user. Please close one or \
+                 more connections and try again.",
+
+        "DEFAULT": "An internal error has occurred within the Guacamole \
+                    server, and the connection has been terminated. If  \
+                    the problem persists, please notify your system     \
+                    administrator, or check your system logs."
+
+    },
+
+    /**
+     * Enumeration of all error messages for each applicable error code. This
+     * list is specific to file uploads.
+     */
+    "upload_errors": {
+
+        0x0100: "File transfer is either not supported or not enabled. Please \
+                 contact your system administrator, or check your system logs.",
+
+        0x0201: "Too many files are currently being transferred. Please wait \
+                 for existing transfers to complete, and then try again.",
+
+        0x0202: "The file cannot be transferred because the remote desktop \
+                 server is taking too long to respond. Please try again or \
+                 or contact your system administrator.",
+
+        0x0203: "The remote desktop server encountered an error during \
+                 transfer. Please try again or contact your system     \
+                 administrator.",
+
+        0x0204: "The destination for the file transfer does not exist. Please \
+                 check that the destionation exists and try again.",
+
+        0x0205: "The destination for the file transfer is currently locked. \
+                 Please wait for any in-progress tasks to complete and try  \
+                 again.",
+
+        0x0301: "You do not have permission to upload this file because you \
+                 are not logged in. Please log in and try again.",
+
+        0x0303: "You do not have permission to upload this file. If you \
+                 require access, please check your system settings, or  \
+                 check with your system administrator.",
+
+        0x0308: "The file transfer has stalled. This is commonly caused by \
+                 network problems, such as spotty wireless signal, or      \
+                 simply very slow network speeds. Please check your        \
+                 network and try again.",
+
+        0x031D: "Too many files are currently being transferred. Please wait \
+                 for existing transfers to complete, and then try again.",
+
+        "DEFAULT": "An internal error has occurred within the Guacamole \
+                    server, and the connection has been terminated. If  \
+                    the problem persists, please notify your system     \
+                    administrator, or check your system logs.",
+
+    },
+
+    /**
+     * All error codes for which automatic reconnection is appropriate when a
+     * tunnel error occurs.
+     */
+    "tunnel_auto_reconnect": {
+        0x0200: true,
+        0x0202: true,
+        0x0203: true,
+        0x0308: true
+    },
+
+    /**
+     * All error codes for which automatic reconnection is appropriate when a
+     * client error occurs.
+     */
+    "client_auto_reconnect": {
+        0x0200: true,
+        0x0202: true,
+        0x0203: true,
+        0x0301: true,
+        0x0308: true
+    },
+
     /* Constants */
     
     "LONG_PRESS_DETECT_TIMEOUT"     : 800, /* milliseconds */
     "LONG_PRESS_MOVEMENT_THRESHOLD" : 10,  /* pixels */    
     "KEYBOARD_AUTO_RESIZE_INTERVAL" : 30,  /* milliseconds */
+    "RECONNECT_PERIOD"              : 15,  /* seconds */
 
     /* UI Components */
 
@@ -544,7 +714,7 @@ GuacUI.StateManager.setState(GuacUI.Client.states.INTERACTIVE);
  * @constructor
  * @augments GuacUI.Component
  */
-GuacUI.Client.ModalStatus = function(title_text, text, classname) {
+GuacUI.Client.ModalStatus = function(title_text, text, classname, reconnect) {
 
     // Create element hierarchy
     var outer  = GuacUI.createElement("div", "dialogOuter");
@@ -564,11 +734,58 @@ GuacUI.Client.ModalStatus = function(title_text, text, classname) {
     if (classname)
         GuacUI.addClass(outer, classname);
 
+    // Automatically reconnect after the given time period
+    var reconnect_interval = null;
+    if (reconnect) {
+
+        var countdown = GuacUI.createChildElement(dialog, "p", "countdown");
+
+        function update_status() {
+
+            // Use appropriate description of time remaining 
+            if (reconnect === 0)
+                countdown.textContent = "Reconnecting...";
+            if (reconnect === 1)
+                countdown.textContent = "Reconnecting in 1 second...";
+            else
+                countdown.textContent = "Reconnecting in " + reconnect + " seconds...";
+
+            // Reconnect if countdown complete
+            if (reconnect === 0) {
+                window.clearInterval(reconnect_interval);
+                GuacUI.Client.connect();
+            }
+
+        }
+
+        // Update counter every second
+        reconnect_interval = window.setInterval(function update_countdown() {
+            reconnect--;
+            update_status();
+        }, 1000);
+
+        // Init status
+        update_status();
+
+    }
+
+    // Reconnect button
+    var reconnect_section = GuacUI.createChildElement(dialog, "div", "reconnect");
+    var reconnect_button = GuacUI.createChildElement(reconnect_section, "button");
+    reconnect_button.textContent = "Reconnect";
+
+    // Reconnect if button clicked
+    reconnect_button.onclick = function() {
+        window.clearInterval(reconnect_interval);
+        GuacUI.Client.connect();
+    };
+
     this.show = function() {
         document.body.appendChild(outer);
     };
 
     this.hide = function() {
+        window.clearInterval(reconnect_interval);
         document.body.removeChild(outer);
     };
 
@@ -676,21 +893,105 @@ GuacUI.Client.showStatus = function(title, status) {
 /**
  * Displays an error status overlay with the given text.
  */
-GuacUI.Client.showError = function(title, status) {
+GuacUI.Client.showError = function(title, status, reconnect) {
     GuacUI.Client.hideStatus();
 
     GuacUI.Client.visibleStatus =
-        new GuacUI.Client.ModalStatus(title, status, "guac-error");
+        new GuacUI.Client.ModalStatus(title, status, "guac-error", reconnect);
     GuacUI.Client.visibleStatus.show();
-}
+};
+
+/**
+ * Connects to the current Guacamole connection, attaching a new Guacamole
+ * client to the user interface. If a Guacamole client is already attached,
+ * it is replaced.
+ */
+GuacUI.Client.connect = function() {
+
+    var tunnel;
+
+    // If WebSocket available, try to use it.
+    if (window.WebSocket)
+        tunnel = new Guacamole.ChainedTunnel(
+            new Guacamole.WebSocketTunnel("websocket-tunnel"),
+            new Guacamole.HTTPTunnel("tunnel")
+        );
+
+    // If no WebSocket, then use HTTP.
+    else
+        tunnel = new Guacamole.HTTPTunnel("tunnel");
+
+    // Instantiate client
+    var guac = new Guacamole.Client(tunnel);
+
+    // Tie UI to client
+    GuacUI.Client.attach(guac);
+
+    // Calculate optimal width/height for display
+    var pixel_density = window.devicePixelRatio || 1;
+    var optimal_dpi = pixel_density * 96;
+    var optimal_width = window.innerWidth * pixel_density;
+    var optimal_height = window.innerHeight * pixel_density;
+
+    // Scale width/height to be at least 600x600
+    if (optimal_width < 600 || optimal_height < 600) {
+        var scale = Math.max(600 / optimal_width, 600 / optimal_height);
+        optimal_width = optimal_width * scale;
+        optimal_height = optimal_height * scale;
+    }
+
+    // Get entire query string, and pass to connect().
+    // Normally, only the "id" parameter is required, but
+    // all parameters should be preserved and passed on for
+    // the sake of authentication.
+
+    var connect_string =
+        window.location.search.substring(1)
+        + "&width="  + Math.floor(optimal_width)
+        + "&height=" + Math.floor(optimal_height)
+        + "&dpi="    + Math.floor(optimal_dpi);
+
+    // Add audio mimetypes to connect_string
+    GuacUI.Audio.supported.forEach(function(mimetype) {
+        connect_string += "&audio=" + encodeURIComponent(mimetype);
+    });
+
+    // Add video mimetypes to connect_string
+    GuacUI.Video.supported.forEach(function(mimetype) {
+        connect_string += "&video=" + encodeURIComponent(mimetype);
+    });
+
+    // Show connection errors from tunnel
+    tunnel.onerror = function(status) {
+        var message = GuacUI.Client.tunnel_errors[status.code] || GuacUI.Client.tunnel_errors.DEFAULT;
+        GuacUI.Client.showError("Connection Error", message,
+            GuacUI.Client.tunnel_auto_reconnect[status.code] && GuacUI.Client.RECONNECT_PERIOD);
+    };
+
+    // Notify of disconnections (if not already notified of something else)
+    tunnel.onstatechange = function(state) {
+        if (state === Guacamole.Tunnel.State.CLOSED && !GuacUI.Client.visibleStatus)
+            GuacUI.Client.showStatus("Disconnected", "You have been disconnected. Reload the page to reconnect.");
+    };
+
+    // Connect
+    guac.connect(connect_string);
+
+
+};
 
 /**
  * Attaches a Guacamole.Client to the client UI, such that Guacamole events
- * affect the UI, and local events affect the Guacamole.Client.
+ * affect the UI, and local events affect the Guacamole.Client. If a client
+ * is already attached, it is replaced.
  * 
  * @param {Guacamole.Client} guac The Guacamole.Client to attach to the UI.
  */
 GuacUI.Client.attach = function(guac) {
+
+    // If a client is already attached, ensure it is disconnected
+    if (GuacUI.Client.attachedClient)
+        GuacUI.Client.attachedClient.disconnect();
 
     // Store attached client
     GuacUI.Client.attachedClient = guac;
@@ -704,7 +1005,7 @@ GuacUI.Client.attach = function(guac) {
 
     guac.onresize = function(width, height) {
         GuacUI.Client.updateDisplayScale();
-    }
+    };
 
     /*
      * Update UI when the state of the Guacamole.Client changes.
@@ -744,16 +1045,9 @@ GuacUI.Client.attach = function(guac) {
 
                 break;
 
-            // Disconnecting
+            // Disconnecting / disconnected are handled by tunnel instead
             case 4:
-                GuacUI.Client.showStatus(null, "Disconnecting...");
-                GuacUI.Client.titlePrefix = "[Disconnecting...]";
-                break;
-
-            // Disconnected
             case 5:
-                GuacUI.Client.showStatus("Disconnected", "Guacamole has been manually disconnected. Reload the page to reconnect.");
-                GuacUI.Client.titlePrefix = "[Disconnected]";
                 break;
 
             // Unknown status code
@@ -780,13 +1074,15 @@ GuacUI.Client.attach = function(guac) {
      * receives an error.
      */
 
-    guac.onerror = function(error) {
+    guac.onerror = function(status) {
 
         // Disconnect, if connected
         guac.disconnect();
 
         // Display error message
-        GuacUI.Client.showError("Connection Error", error);
+        var message = GuacUI.Client.client_errors[status.code] || GuacUI.Client.client_errors.DEFAULT;
+        GuacUI.Client.showError("Connection Error", message,
+            GuacUI.Client.client_auto_reconnect[status.code] && GuacUI.Client.RECONNECT_PERIOD);
         
     };
 
@@ -914,6 +1210,21 @@ GuacUI.Client.attach = function(guac) {
             
         };
 
+    // Hide any existing status notifications
+    GuacUI.Client.hideStatus();
+
+    // Remove old client from UI, if any
+    GuacUI.Client.display.innerHTML = "";
+
+    // Add client to UI
+    guac.getDisplay().className = "software-cursor";
+    GuacUI.Client.display.appendChild(guac.getDisplay());
+
+};
+
+// One-time UI initialization
+(function() {
+
     /*
      * Route document-level keyboard events to the client.
      */
@@ -922,28 +1233,58 @@ GuacUI.Client.attach = function(guac) {
     var show_keyboard_gesture_possible = true;
 
     keyboard.onkeydown = function (keysym) {
+
+        // Only handle key events if client is attached
+        var guac = GuacUI.Client.attachedClient;
+        if (!guac) return;
+
+        // Handle Ctrl-shortcuts specifically
+        if (keyboard.modifiers.ctrl && !keyboard.modifiers.alt && !keyboard.modifiers.shift) {
+
+            // Allow event through if Ctrl+C or Ctrl+X
+            if (keyboard.pressed[0x63] || keyboard.pressed[0x78]) {
+                guac.sendKeyEvent(1, keysym);
+                return true;
+            }
+
+            // If Ctrl+V, wait until after paste event (next event loop)
+            if (keyboard.pressed[0x76]) {
+                window.setTimeout(function after_paste() {
+                    guac.sendKeyEvent(1, keysym);
+                }, 10);
+                return true;
+            }
+
+        }
+
+        // Just send key for all other cases
         guac.sendKeyEvent(1, keysym);
 
         // If key is NOT one of the expected keys, gesture not possible
-        if (keysym != 0xFFE3 && keysym != 0xFFE9 && keysym != 0xFFE1)
+        if (keysym !== 0xFFE3 && keysym !== 0xFFE9 && keysym !== 0xFFE1)
             show_keyboard_gesture_possible = false;
 
     };
 
     keyboard.onkeyup = function (keysym) {
+
+        // Only handle key events if client is attached
+        var guac = GuacUI.Client.attachedClient;
+        if (!guac) return;
+
         guac.sendKeyEvent(0, keysym);
 
         // If lifting up on shift, toggle keyboard if rest of gesture
         // conditions satisfied
-        if (show_keyboard_gesture_possible && keysym == 0xFFE1) {
+        if (show_keyboard_gesture_possible && keysym === 0xFFE1) {
             if (keyboard.pressed[0xFFE3] && keyboard.pressed[0xFFE9]) {
 
                 // If in INTERACTIVE mode, switch to OSK
-                if (GuacUI.StateManager.getState() == GuacUI.Client.states.INTERACTIVE)
+                if (GuacUI.StateManager.getState() === GuacUI.Client.states.INTERACTIVE)
                     GuacUI.StateManager.setState(GuacUI.Client.states.OSK);
 
                 // If in OSK mode, switch to INTERACTIVE 
-                else if (GuacUI.StateManager.getState() == GuacUI.Client.states.OSK)
+                else if (GuacUI.StateManager.getState() === GuacUI.Client.states.OSK)
                     GuacUI.StateManager.setState(GuacUI.Client.states.INTERACTIVE);
 
             }
@@ -962,13 +1303,36 @@ GuacUI.Client.attach = function(guac) {
 
     };
 
+    // Set local clipboard contents on cut 
+    document.body.addEventListener("cut", function handle_cut(e) {
+        e.preventDefault();
+        var data = GuacamoleService.Clipboard.get();
+        e.clipboardData.setData("text/plain", data);
+    }, false);
+
+    // Set local clipboard contents on copy 
+    document.body.addEventListener("copy", function handle_copy(e) {
+        e.preventDefault();
+        var data = GuacamoleService.Clipboard.get();
+        e.clipboardData.setData("text/plain", data);
+    }, false);
+
+    // Set remote clipboard contents on paste
+    document.body.addEventListener("paste", function handle_paste(e) {
+        e.preventDefault();
+        if (GuacUI.Client.attachedClient)
+            GuacUI.Client.attachedClient.setClipboard(e.clipboardData.getData("text/plain"));
+    }, false);
+
     /*
      * Disconnect and update thumbnail on close
      */
     window.onunload = function() {
 
         GuacUI.Client.updateThumbnail();
-        guac.disconnect();
+
+        if (GuacUI.Client.attachedClient)
+            GuacUI.Client.attachedClient.disconnect();
 
     };
 
@@ -981,15 +1345,17 @@ GuacUI.Client.attach = function(guac) {
         var width = window.innerWidth * pixel_density;
         var height = window.innerHeight * pixel_density;
 
-        guac.sendSize(width, height);
+        if (GuacUI.Client.attachedClient)
+            GuacUI.Client.attachedClient.sendSize(width, height);
+
         GuacUI.Client.updateDisplayScale();
 
     };
 
     GuacUI.sessionState.onchange = function(old_state, new_state, name) {
-        if (name == "clipboard")
-            guac.setClipboard(new_state[name]);
-        else if (name == "auto-fit")
+        if (name === "clipboard" && GuacUI.Client.attachedClient)
+            GuacUI.Client.attachedClient.setClipboard(new_state[name]);
+        else if (name === "auto-fit")
             GuacUI.Client.updateDisplayScale();
     };
 
@@ -1032,7 +1398,7 @@ GuacUI.Client.attach = function(guac) {
     GuacUI.Client.display.addEventListener('touchstart', function(e) {
         
         // Record touch location
-        if (e.touches.length == 1) {
+        if (e.touches.length === 1) {
             var touch = e.touches[0];
             long_press_start_x = touch.screenX;
             long_press_start_y = touch.screenY;
@@ -1116,12 +1482,14 @@ GuacUI.Client.attach = function(guac) {
 
             // Invalidate stream on all errors
             // Continue upload when acknowledged
-            stream.onack = function(text, code) {
+            stream.onack = function(status) {
 
-                // Handle codes
-                if (code >= 0x0100) {
+                // Handle errors 
+                if (status.isError()) {
                     valid = false;
-                    upload.showError(text);
+                    var message =  GuacUI.Client.upload_errors[status.code]
+                                || GuacUI.Client.upload_errors.DEFAULT;
+                    upload.showError(message);
                 }
 
                 // Abort upload if stream is invalid
@@ -1170,6 +1538,9 @@ GuacUI.Client.attach = function(guac) {
         e.preventDefault();
         e.stopPropagation();
 
+        // Ignore file drops if no attached client
+        if (!GuacUI.Client.attachedClient) return;
+
         // Upload each file 
         var files = e.dataTransfer.files;
         for (var i=0; i<files.length; i++)
@@ -1177,5 +1548,4 @@ GuacUI.Client.attach = function(guac) {
 
     }, false);
 
-};
-
+})();

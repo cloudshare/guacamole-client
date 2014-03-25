@@ -29,6 +29,7 @@ import javax.servlet.http.HttpSession;
 import org.glyptodon.guacamole.GuacamoleClientException;
 import org.glyptodon.guacamole.GuacamoleException;
 import org.glyptodon.guacamole.GuacamoleSecurityException;
+import org.glyptodon.guacamole.io.GuacamoleReader;
 import org.glyptodon.guacamole.net.GuacamoleSocket;
 import org.glyptodon.guacamole.net.GuacamoleTunnel;
 import org.glyptodon.guacamole.net.auth.Connection;
@@ -242,6 +243,9 @@ public class BasicTunnelRequestUtility {
         if (context == null || credentials == null)
             throw new GuacamoleSecurityException("Cannot connect - user not logged in.");
 
+        // Get clipboard 
+        final ClipboardState clipboard = AuthenticatingHttpServlet.getClipboardState(httpSession);
+
         // Get client information
         GuacamoleClientInformation info = new GuacamoleClientInformation();
 
@@ -322,6 +326,12 @@ public class BasicTunnelRequestUtility {
 
         // Associate socket with tunnel
         GuacamoleTunnel tunnel = new GuacamoleTunnel(socket) {
+
+            @Override
+            public GuacamoleReader acquireReader() {
+                // Monitor instructions which pertain to server-side events
+                return new MonitoringGuacamoleReader(clipboard, super.acquireReader());
+            }
 
             @Override
             public void close() throws GuacamoleException {

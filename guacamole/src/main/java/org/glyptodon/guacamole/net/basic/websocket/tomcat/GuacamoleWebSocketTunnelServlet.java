@@ -25,9 +25,9 @@ package org.glyptodon.guacamole.net.basic.websocket.tomcat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.catalina.websocket.Constants;
 import org.glyptodon.guacamole.GuacamoleException;
 import org.glyptodon.guacamole.io.GuacamoleReader;
 import org.glyptodon.guacamole.io.GuacamoleWriter;
@@ -36,8 +36,7 @@ import org.apache.catalina.websocket.StreamInbound;
 import org.apache.catalina.websocket.WebSocketServlet;
 import org.apache.catalina.websocket.WsOutbound;
 import org.glyptodon.guacamole.GuacamoleClientException;
-import org.glyptodon.guacamole.GuacamoleResourceNotFoundException;
-import org.glyptodon.guacamole.GuacamoleSecurityException;
+import org.glyptodon.guacamole.protocol.GuacamoleStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +56,23 @@ public abstract class GuacamoleWebSocketTunnelServlet extends WebSocketServlet {
      * Logger for this class.
      */
     private final Logger logger = LoggerFactory.getLogger(GuacamoleWebSocketTunnelServlet.class);
+
+    /**
+     * Sends the given status on the given WebSocket connection and closes the
+     * connection.
+     *
+     * @param outbound The outbound WebSocket connection to close.
+     * @param guac_status The status to send.
+     * @throws IOException If an error prevents proper closure of the WebSocket
+     *                     connection.
+     */
+    public static void closeConnection(WsOutbound outbound,
+            GuacamoleStatus guac_status) throws IOException {
+
+        byte[] message = Integer.toString(guac_status.getGuacamoleStatusCode()).getBytes("UTF-8");
+        outbound.close(guac_status.getWebSocketCode(), ByteBuffer.wrap(message));
+
+    }
 
     @Override
     public StreamInbound createWebSocketInbound(String protocol, HttpServletRequest request) {
@@ -128,28 +144,20 @@ public abstract class GuacamoleWebSocketTunnelServlet extends WebSocketServlet {
                                 }
 
                                 // No more data
-                                outbound.close(Constants.STATUS_SHUTDOWN, null);
-                                
+                                closeConnection(outbound, GuacamoleStatus.SUCCESS);
+
                             }
 
                             // Catch any thrown guacamole exception and attempt
                             // to pass within the WebSocket connection, logging
                             // each error appropriately.
-                            catch (GuacamoleSecurityException e) {
-                                logger.warn("Authorization failed.", e);
-                                outbound.close(Constants.STATUS_POLICY_VIOLATION, null);
-                            }
-                            catch (GuacamoleResourceNotFoundException e) {
-                                logger.debug("Resource not found.", e);
-                                outbound.close(Constants.STATUS_PROTOCOL_ERROR, null);
-                            }
                             catch (GuacamoleClientException e) {
-                                logger.warn("Error in client request.", e);
-                                outbound.close(Constants.STATUS_PROTOCOL_ERROR, null);
+                                logger.warn("Client request rejected: {}", e.getMessage());
+                                closeConnection(outbound, e.getStatus());
                             }
                             catch (GuacamoleException e) {
-                                logger.error("Server error in tunnel", e);
-                                outbound.close(Constants.STATUS_UNEXPECTED_CONDITION, null);
+                                logger.error("Internal server error.", e);
+                                closeConnection(outbound, e.getStatus());
                             }
 
                         }

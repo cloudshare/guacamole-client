@@ -32,8 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.glyptodon.guacamole.GuacamoleClientException;
 import org.glyptodon.guacamole.GuacamoleException;
-import org.glyptodon.guacamole.GuacamoleResourceNotFoundException;
-import org.glyptodon.guacamole.GuacamoleSecurityException;
+import org.glyptodon.guacamole.GuacamoleUnauthorizedException;
 import org.glyptodon.guacamole.net.auth.AuthenticationProvider;
 import org.glyptodon.guacamole.net.auth.Credentials;
 import org.glyptodon.guacamole.net.auth.UserContext;
@@ -44,6 +43,7 @@ import org.glyptodon.guacamole.net.event.AuthenticationSuccessEvent;
 import org.glyptodon.guacamole.net.event.listener.AuthenticationFailureListener;
 import org.glyptodon.guacamole.net.event.listener.AuthenticationSuccessListener;
 import org.glyptodon.guacamole.properties.GuacamoleProperties;
+import org.glyptodon.guacamole.protocol.GuacamoleStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +80,11 @@ public abstract class AuthenticatingHttpServlet extends HttpServlet {
      */
     public static final String CREDENTIALS_ATTRIBUTE = "GUAC_CREDS";
 
+    /**
+     * The session attribute holding the session-scoped clipboard storage.
+     */
+    public static final String CLIPBOARD_ATTRIBUTE = "GUAC_CLIP";
+    
     /**
      * The AuthenticationProvider to use to authenticate all requests.
      */
@@ -166,25 +171,27 @@ public abstract class AuthenticatingHttpServlet extends HttpServlet {
     }
 
     /**
-     * Sends an error on the given HTTP response with the given integer error
-     * code.
+     * Sends an error on the given HTTP response using the information within
+     * the given GuacamoleStatus.
      *
      * @param response The HTTP response to use to send the error.
-     * @param code The HTTP status code of the error.
+     * @param guac_status The status to send
      * @param message A human-readable message that can be presented to the
      *                user.
      * @throws ServletException If an error prevents sending of the error
      *                          code.
      */
-    private void sendError(HttpServletResponse response, int code,
-            String message) throws ServletException {
+    public static void sendError(HttpServletResponse response,
+            GuacamoleStatus guac_status, String message)
+            throws ServletException {
 
         try {
 
-            // If response not committed, send error code
+            // If response not committed, send error code and message
             if (!response.isCommitted()) {
+                response.addHeader("Guacamole-Status-Code", Integer.toString(guac_status.getGuacamoleStatusCode()));
                 response.addHeader("Guacamole-Error-Message", message);
-                response.sendError(code);
+                response.sendError(guac_status.getHttpStatusCode());
             }
 
         }
@@ -216,6 +223,25 @@ public abstract class AuthenticatingHttpServlet extends HttpServlet {
      */
     public static UserContext getUserContext(HttpSession session) {
         return (UserContext) session.getAttribute(CONTEXT_ATTRIBUTE);
+    }
+
+    /**
+     * Returns the ClipboardState associated with the given session. If none
+     * exists yet, one is created.
+     *
+     * @param session The session to retrieve the ClipboardState from.
+     * @return The ClipboardState associated with the given session.
+     */
+    public static ClipboardState getClipboardState(HttpSession session) {
+
+        ClipboardState clipboard = (ClipboardState) session.getAttribute(CLIPBOARD_ATTRIBUTE);
+        if (clipboard == null) {
+            clipboard = new ClipboardState();
+            session.setAttribute(CLIPBOARD_ATTRIBUTE, clipboard);
+        }
+
+        return clipboard;
+
     }
 
     /**
@@ -304,7 +330,7 @@ public abstract class AuthenticatingHttpServlet extends HttpServlet {
 
             // If no context, no authorizaton present
             if (context == null)
-                throw new GuacamoleSecurityException("Not authenticated");
+                throw new GuacamoleUnauthorizedException("Not authenticated");
 
             // Allow servlet to run now that authentication has been validated
             authenticatedService(context, request, response);
@@ -313,25 +339,13 @@ public abstract class AuthenticatingHttpServlet extends HttpServlet {
 
         // Catch any thrown guacamole exception and attempt to pass within the
         // HTTP response, logging each error appropriately.
-        catch (GuacamoleSecurityException e) {
-            logger.warn("Permission denied: {}", e.getMessage());
-            sendError(response, HttpServletResponse.SC_FORBIDDEN,
-                    "Permission denied.");
-        }
-        catch (GuacamoleResourceNotFoundException e) {
-            logger.debug("Resource not found: {}", e.getMessage());
-            sendError(response, HttpServletResponse.SC_NOT_FOUND,
-                    e.getMessage());
-        }
         catch (GuacamoleClientException e) {
-            logger.warn("Error in client request: {}", e.getMessage());
-            sendError(response, HttpServletResponse.SC_BAD_REQUEST,
-                    e.getMessage());
+            logger.warn("Client request rejected: {}", e.getMessage());
+            sendError(response, e.getStatus(), e.getMessage());
         }
         catch (GuacamoleException e) {
             logger.error("Internal server error.", e);
-            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                      "Internal server error.");
+            sendError(response, e.getStatus(), "Internal server error.");
         }
 
     }
