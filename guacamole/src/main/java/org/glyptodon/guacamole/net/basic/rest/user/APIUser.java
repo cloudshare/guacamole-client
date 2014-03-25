@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
 
 package org.glyptodon.guacamole.net.basic.rest.user;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.glyptodon.guacamole.net.auth.User;
 
@@ -30,6 +31,7 @@ import org.glyptodon.guacamole.net.auth.User;
  * 
  * @author James Muehlner
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class APIUser {
     

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,14 +22,17 @@
 
 package org.glyptodon.guacamole.net.basic.rest.connectiongroup;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.glyptodon.guacamole.net.auth.ConnectionGroup;
 import org.glyptodon.guacamole.net.auth.ConnectionGroup.Type;
+import org.glyptodon.guacamole.net.basic.rest.APIConstants;
 
 /**
  * A simple connection group to expose through the REST endpoints.
  * 
  * @author James Muehlner
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class APIConnectionGroup {
 
     /**
@@ -66,6 +69,11 @@ public class APIConnectionGroup {
     public APIConnectionGroup(ConnectionGroup connectionGroup) {
         this.identifier = connectionGroup.getIdentifier();
         this.parentIdentifier = connectionGroup.getParentIdentifier();
+        
+        // Use the explicit ROOT group ID
+        if(this.parentIdentifier == null)
+            this.parentIdentifier = APIConstants.ROOT_CONNECTION_GROUP_IDENTIFIER;
+        
         this.name = connectionGroup.getName();
         this.type = connectionGroup.getType();
     }

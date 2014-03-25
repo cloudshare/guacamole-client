@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@
 package org.glyptodon.guacamole.net.basic.rest.auth;
 
 /**
- * A simple object to represent an auth token in the API.
+ * A simple object to represent an auth token/userID pair in the API.
  * 
  * @author James Muehlner
  */
@@ -32,7 +32,13 @@ public class APIAuthToken {
     /**
      * The auth token.
      */
-    private String authToken;
+    private final String authToken;
+    
+    
+    /**
+     * The user ID.
+     */
+    private final String userID;
 
     /**
      * Get the auth token.
@@ -43,11 +49,20 @@ public class APIAuthToken {
     }
     
     /**
+     * Get the user ID.
+     * @return The user ID.
+     */
+    public String getUserID() {
+        return userID;
+    }
+    
+    /**
      * Create a new APIAuthToken Object with the given auth token.
      * 
      * @param authToken The auth token to create the new APIAuthToken with. 
      */
-    public APIAuthToken(String authToken) {
+    public APIAuthToken(String authToken, String userID) {
         this.authToken = authToken;
+        this.userID = userID;
     }
 }

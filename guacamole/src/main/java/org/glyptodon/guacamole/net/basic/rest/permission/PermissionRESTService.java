@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,9 +33,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
-import org.glyptodon.guacamole.GuacamoleClientException;
 import org.glyptodon.guacamole.GuacamoleException;
-import org.glyptodon.guacamole.GuacamoleSecurityException;
 import org.glyptodon.guacamole.net.auth.User;
 import org.glyptodon.guacamole.net.auth.UserContext;
 import org.glyptodon.guacamole.net.basic.rest.AuthProviderRESTExposure;

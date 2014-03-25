@@ -1,0 +1,192 @@
+{
+    "index": {
+        "title" : "Guacamole 0.8.3"
+    },
+    
+    "login": {
+        "loginError" : "Invalid Login",
+        "username"   : "Username",
+        "password"   : "Password",
+        "login"      : "Login"
+    },
+    
+    "home": {
+        "manage"                  : "Manage",
+        "logout"                  : "Logout",
+        "recentConnections"       : "Recent Connections",
+        "noRecentConnections"     : "No recent Connections.",
+        "allConnections"          : "All Connections",
+        "clipboard"               : "Clipboard",
+        "clipboardDescription"    : "Text copied/cut within Guacamole will appear here. Changes to the text will affect the remote clipboard, and will be pastable within the remote desktop. Use the textbox below as an interface between the client and server clipboards.",
+        "settings"                : "Settings",
+        "autoFitDisplay"          : "Auto-fit display to browser window",
+        "autoFitDescription"      : "If checked, remote displays are automatically scaled to exactly fit within the browser window. If unchecked, remote displays are always shown at their natural resolution, even if doing so causes the display to extend beyond the bounds of the window.",
+        "disableSound"            : "Disable Sound",
+        "disableSoundDescription" : "If on a device or network where bandwidth usage must be kept to a minimum, you may wish to check this box and disable sound. This can also be necessary if a device doesn't actually support sound, but claims to, resulting in wasted bandwidth.",
+        "disableSoundNote"        : "Changing this setting will only affect future connections."
+    },
+            
+    "manage": {
+        "back"                   : "Back",
+        "logout"                 : "Logout",
+        "administration"         : "Administration",
+        "users"                  : "Users",
+        "usersDescription"       : "Click or tap on a user below to manage that user. Depending on your access level, users can be added and deleted, and their passwords can be changed.",
+        "addUser"                : "Add User",
+        "connections"            : "Connections",
+        "connectionsDescription" : "Click or tap on a connection below to manage that connection. Depending on your access level, connections can be added and deleted, and their properties (protocol, hostname, port, etc.) can be changed.",
+        "newConnection"          : "New Connection",
+        "newGroup"               : "New Group",
+        "edit": {
+            "connection": {
+                "cancel"            : "Cancel",
+                "save"              : "Save",
+                "delete"            : "Delete",
+                "protocol"          : "Protocol:",
+                "root"              : "ROOT",
+                "location"          : "Location:",
+                "name"              : "Name:",
+                "history"           : {
+                    "connectionNotUsed" : "This connection has not yet been used.",
+                    "usageHistory"      : "Usage History:",
+                    "username"          : "Username",
+                    "startTime"         : "Start Time",
+                    "duration"          : "Duration",
+                    "activeNow"         : "Active Now"
+                }
+            },
+            "connectionGroup": {
+                "cancel"            : "Cancel",
+                "save"              : "Save",
+                "delete"            : "Delete",
+                "usageHistory"      : "Usage History:",
+                "type"              : {
+                    "label"             : "Type",
+                    "organizational"    : "Organizational",
+                    "balancing"         : "Balancing"
+                },
+                "root"              : "ROOT",
+                "location"          : "Location:",
+                "name"              : "Name:"
+            }
+        }
+    },
+    "protocol": {
+        "vnc": {
+            "label": "VNC",
+            "parameters": {
+                "hostname"          : {"label": "Hostname"},
+                "port"              : {"label": "Port"},
+                "password"          : {"label": "Password"},
+                "read-only"         : {"label": "Read-only"},
+                "swap-red-blue"     : {"label": "Swap red/blue components"},
+                "cursor"            : {
+                    "label": "Cursor",
+                    "options": {
+                        "local"     : "Local",
+                        "remote"    : "Remote"
+                    }
+                },
+                "color-depth"       : {
+                    "label": "Color Depth",
+                    "options": {
+                        "8"    : "256 color",
+                        "16"    : "Low color (16-bit)",
+                        "24"    : "True color (24-bit)",
+                        "32"    : "True color (32-bit)"
+                    }
+                },
+                "dest-host"         : {"label": "Repeater destination host"},
+                "dest-port"         : {"label": "Repeater destination port"},
+                "enable-audio"      : {"label": "Enable audio"},
+                "audio-servername"  : {"label": "Audio server name"}
+            }
+        },
+        "rdp": {
+            "label": "RDP",
+            "parameters": {
+                "hostname"          : {"label": "Hostname"},
+                "port"              : {"label": "Port"},
+                "username"          : {"label": "Username"},
+                "password"          : {"label": "Password"},
+                "domain"            : {"label": "Domain"},
+                "initial-program"   : {"label": "Initial Program"},
+                "width"             : {"label": "Width"},
+                "height"            : {"label": "Height"},
+                "color-depth"       : {
+                    "label": "Color Depth",
+                    "options": {
+                        "8"    : "256 color",
+                        "16"    : "Low color (16-bit)",
+                        "24"    : "True color (24-bit)",
+                        "32"    : "True color (32-bit)"
+                    }
+                },
+                "server-layout"     : {
+                    "label": "Keyboard layout",
+                    "options": {
+                        "empty"         : "(default)",
+                        "en-us-qwerty"  : "US English (Qwerty)",
+                        "fr-fr-azerty"  : "French (Azerty)",
+                        "de-de-qwertz"  : "German (Qwertz)",
+                        "failsafe"      : "Unicode"
+                    }
+                },
+                "console"           : {"label": "Administrator console"},
+                "console-audio"     : {"label": "Support audio in console"},
+                "disable-audio"     : {"label": "Disable audio"},
+                "enable-printing"   : {"label": "Enable printing"},
+                "enable-drive"      : {"label": "Enable drive"},
+                "drive-path"        : {"label": "Drive path"},
+                "security"          : {
+                    "label": "Security mode",
+                    "options": {
+                        "empty" : "(default)",
+                        "rdp"   : "RDP encryption",
+                        "tls"   : "TLS encryption",
+                        "nla"   : "NLA (Network Level Authentication)",
+                        "any"   : "Any"
+                    }
+                },
+                "disable-auth"      : {"label": "Disable authentication"},
+                "ignore-cert"       : {"label": "Ignore server certificate"},
+                "remote-app"        : {"label": "RemoteApp program"},
+                "remote-app-dir"    : {"label": "RemoteApp working directory"},
+                "remote-app-args"   : {"label": "RemoteApp parameters"}
+            }
+        },
+        "ssh": {
+            "label": "SSH",
+            "parameters": {
+                "hostname"          : {"label": "Hostname"},
+                "port"              : {"label": "Port"},
+                "username"          : {"label": "Username"},
+                "password"          : {"label": "Password"},
+                "font-name"         : {"label": "Font name"},
+                "font-size"         : {
+                    "label": "Font size",
+                    "options": {
+                        "empty" : "",
+                        "8"     : "8",
+                        "9"     : "9",
+                        "10"    : "10",
+                        "11"    : "11",
+                        "12"    : "12",
+                        "14"    : "14",
+                        "18"    : "18",
+                        "24"    : "24",
+                        "30"    : "30",
+                        "36"    : "36",
+                        "48"    : "48",
+                        "60"    : "60",
+                        "72"    : "72",
+                        "96"    : "96"
+                    }
+                 },
+                "enable-sftp"       : {"label": "Enable SFTP"},
+                "private-key"       : {"label": "Private key"},
+                "passphrase"        : {"label": "Passphrase"}
+            }
+        }
+    }
+}

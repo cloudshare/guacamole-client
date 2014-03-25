@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,46 +20,20 @@
  * THE SOFTWARE.
  */
 
-button#back {
+angular.module('index').factory('authenticationInterceptor', ['$location', '$q', 
+        function authenticationInterceptor($location, $q) {
+            
+    return {
+        'response': function(response) {
+            return response || $q.when(response);
+        },
 
-    background-image: url('../images/action-icons/guac-back.png');
-    background-repeat: no-repeat;
-    background-size: 1em;
-    background-position: 0.5em 0.45em;
-
-    padding-left: 1.8em;
-
-}
-
-button#add-user {
-
-    background-image: url('../images/action-icons/guac-user-add.png');
-    background-repeat: no-repeat;
-    background-size: 1em;
-    background-position: 0.5em 0.45em;
-
-    padding-left: 1.8em;
-
-}
-
-button#add-connection {
-
-    background-image: url('../images/action-icons/guac-monitor-add.png');
-    background-repeat: no-repeat;
-    background-size: 1em;
-    background-position: 0.5em 0.45em;
-
-    padding-left: 1.8em;
-
-}
-
-button#add-connection-group {
-
-    background-image: url('../images/action-icons/guac-group-add.png');
-    background-repeat: no-repeat;
-    background-size: 1em;
-    background-position: 0.5em 0.45em;
-
-    padding-left: 1.8em;
-
-}
+        'responseError': function(rejection) {
+            // Do not redirect failed login requests to the login page.
+            if (rejection.status === 401 && rejection.config.url.search('/api/login') === -1) {
+                $location.path('/login');
+            }
+            return $q.reject(rejection);
+        }
+    };
+}]);

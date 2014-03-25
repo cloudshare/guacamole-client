@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,15 +25,19 @@ package org.glyptodon.guacamole.net.basic.rest.connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.glyptodon.guacamole.GuacamoleException;
 import org.glyptodon.guacamole.net.auth.Connection;
 import org.glyptodon.guacamole.net.auth.ConnectionRecord;
+import org.glyptodon.guacamole.net.basic.rest.APIConstants;
+import org.glyptodon.guacamole.protocol.GuacamoleConfiguration;
 
 /**
  * A simple connection to expose through the REST endpoints.
  * 
  * @author James Muehlner
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class APIConnection {
 
     /**
@@ -50,6 +54,11 @@ public class APIConnection {
      * The identifier of the parent connection group for this connection.
      */
     private String parentIdentifier;
+
+    /**
+     * The protocol of this connection.
+     */
+    private String protocol;
     
     /**
      * The history records associated with this connection.
@@ -78,6 +87,18 @@ public class APIConnection {
         this.identifier = connection.getIdentifier();
         this.parentIdentifier = connection.getParentIdentifier();
         this.history = connection.getHistory();
+        
+        // Use the explicit ROOT group ID
+        if(this.parentIdentifier == null)
+            this.parentIdentifier = APIConstants.ROOT_CONNECTION_GROUP_IDENTIFIER;
+        
+        GuacamoleConfiguration configuration = connection.getConfiguration();
+        
+        this.protocol = configuration.getProtocol();
+        
+        for(String key: configuration.getParameterNames()) {
+            this.parameters.put(key, configuration.getParameter(key));
+        }
     }
 
     /**
@@ -103,6 +124,7 @@ public class APIConnection {
     public String getIdentifier() {
         return identifier;
     }
+
     /**
      * Sets the unique identifier for this connection.
      * @param identifier The unique identifier for this connection.
@@ -118,6 +140,7 @@ public class APIConnection {
     public String getParentIdentifier() {
         return parentIdentifier;
     }
+
     /**
      * Sets the parent connection group identifier for this connection.
      * @param parentIdentifier The parent connection group identifier 
@@ -149,6 +172,22 @@ public class APIConnection {
      */
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    /**
+     * Returns the protocol for this connection.
+     * @return The protocol for this connection.
+     */
+    public String getProtocol() {
+        return protocol;
+    }
+
+    /**
+     * Sets the protocol for this connection.
+     * @param protocol protocol for this connection.
+     */
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
     
 }

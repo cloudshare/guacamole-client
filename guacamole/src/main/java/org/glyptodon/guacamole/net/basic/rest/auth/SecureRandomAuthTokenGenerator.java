@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ public class SecureRandomAuthTokenGenerator implements AuthTokenGenerator {
     /**
      * Instance of SecureRandom for generating the auth token.
      */
-    private SecureRandom secureRandom = new SecureRandom();
+    private final SecureRandom secureRandom = new SecureRandom();
 
     @Override
     public String getToken() {

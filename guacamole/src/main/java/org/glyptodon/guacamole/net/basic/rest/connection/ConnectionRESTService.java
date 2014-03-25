@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,6 @@
 package org.glyptodon.guacamole.net.basic.rest.connection;
 
 import com.google.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -38,7 +37,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import org.glyptodon.guacamole.GuacamoleClientException;
 import org.glyptodon.guacamole.GuacamoleException;
-import org.glyptodon.guacamole.GuacamoleSecurityException;
 import org.glyptodon.guacamole.net.auth.Connection;
 import org.glyptodon.guacamole.net.auth.ConnectionGroup;
 import org.glyptodon.guacamole.net.auth.Directory;
@@ -240,13 +238,20 @@ public class ConnectionRESTService {
         ConnectionGroup rootGroup = userContext.getRootConnectionGroup();
         Directory<String, Connection> connectionDirectory =
                 rootGroup.getConnectionDirectory();
+        
+        Connection connectionFromAuthProvider = connectionDirectory.get(connectionID);
 
         // Make sure the connection is there before trying to update
-        if(connectionDirectory.get(connectionID) == null)
+        if(connectionFromAuthProvider == null)
             throw new HTTPException(Status.NOT_FOUND, "No Connection found with the provided ID.");
+        
+        // Copy the information from this connection over to an object from the Auth Provider
+        APIConnectionWrapper wrappedConnection = new APIConnectionWrapper(connection);
+        connectionFromAuthProvider.setConfiguration(wrappedConnection.getConfiguration());
+        connectionFromAuthProvider.setName(wrappedConnection.getName());
 
         // Update the connection
-        connectionDirectory.update(new APIConnectionWrapper(connection));
+        connectionDirectory.update(connectionFromAuthProvider);
     }
     
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,9 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.glyptodon.guacamole.GuacamoleClientException;
 import org.glyptodon.guacamole.GuacamoleException;
-import org.glyptodon.guacamole.GuacamoleSecurityException;
 import org.glyptodon.guacamole.net.auth.Directory;
 import org.glyptodon.guacamole.net.auth.User;
 import org.glyptodon.guacamole.net.auth.UserContext;
@@ -96,6 +94,7 @@ public class UserRESTService {
      * Gets an individual user.
      * @param authToken The authentication token that is used to authenticate
      *                  the user performing the operation.
+     * @param userID    The ID of the user to retrieve.
      * @return user The user.
      * @throws GuacamoleException If a problem is encountered while retrieving the user.
      */

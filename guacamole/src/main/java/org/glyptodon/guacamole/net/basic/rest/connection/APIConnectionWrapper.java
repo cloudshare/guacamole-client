@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,6 @@
 
 package org.glyptodon.guacamole.net.basic.rest.connection;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.glyptodon.guacamole.GuacamoleException;
@@ -87,6 +86,8 @@ public class APIConnectionWrapper implements Connection {
         for(Map.Entry<String, String> entry : parameters.entrySet())
             configuration.setParameter(entry.getKey(), entry.getValue());
         
+        configuration.setProtocol(apiConnection.getProtocol());
+        
         return configuration;
     }
 
@@ -94,11 +95,12 @@ public class APIConnectionWrapper implements Connection {
     public void setConfiguration(GuacamoleConfiguration config) {
         
         // Create a parameter map from the GuacamoleConfiguration
-        Map<String, String> newParameters = new HashMap<String, String>();
+        Map<String, String> parameters = apiConnection.getParameters();
         for(String key : config.getParameterNames())
-            newParameters.put(key, config.getParameter(key));
+            parameters.put(key, config.getParameter(key));
         
-        apiConnection.setParameters(newParameters);
+        // Set the protocol
+        apiConnection.setProtocol(config.getProtocol());
     }
 
     @Override

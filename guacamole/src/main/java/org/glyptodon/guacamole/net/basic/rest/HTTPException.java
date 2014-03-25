@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -49,7 +49,7 @@ public class HTTPException extends WebApplicationException {
      * message will be wrapped in an APIError container.
      * 
      * @param status The HTTP Status to use for the response.
-     * @param entity The entity to wrap in an APIError as the body of the response.
+     * @param message The message to build the response entity with.
      */
     public HTTPException(Status status, String message) {
         super(Response.status(status).entity(new APIError(message)).build());

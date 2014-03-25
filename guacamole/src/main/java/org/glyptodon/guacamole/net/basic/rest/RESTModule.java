@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Glyptodon LLC
+ * Copyright (C) 2014 Glyptodon LLC
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ import org.glyptodon.guacamole.net.basic.rest.auth.TokenUserContextMap;
 import org.glyptodon.guacamole.net.basic.rest.connection.ConnectionService;
 import org.glyptodon.guacamole.net.basic.rest.connectiongroup.ConnectionGroupService;
 import org.glyptodon.guacamole.net.basic.rest.permission.PermissionService;
+import org.glyptodon.guacamole.net.basic.rest.protocol.ProtocolRetrievalService;
 import org.glyptodon.guacamole.net.basic.rest.user.UserService;
 import org.glyptodon.guacamole.properties.GuacamoleProperties;
 import org.slf4j.Logger;
@@ -77,6 +78,7 @@ public class RESTModule extends AbstractModule {
         bind(PermissionService.class);
         bind(UserService.class);
         bind(AuthenticationService.class);
+        bind(ProtocolRetrievalService.class);
         
         bind(AuthTokenGenerator.class).to(SecureRandomAuthTokenGenerator.class);
         
