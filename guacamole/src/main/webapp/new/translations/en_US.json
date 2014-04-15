@@ -68,6 +68,20 @@
                 "root"              : "ROOT",
                 "location"          : "Location:",
                 "name"              : "Name:"
+            },
+            "user": {
+                "cancel"                    : "Cancel",
+                "save"                      : "Save",
+                "delete"                    : "Delete",
+                "properties"                : "Properties:",
+                "password"                  : "Password:",
+                "passwordMatch"             : "Re-enter Password:",
+                "permissions"               : "Permissions:",
+                "administerSystem"          : "Administer system:",
+                "createUser"                : "Create new users:",
+                "createConnection"          : "Create new connections:",
+                "createConnectionGroup"     : "Create new connection groups:",
+                "connections"               : "Connections:"
             }
         }
     },

@@ -30,10 +30,16 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
     var connectionGroupService      = $injector.get('connectionGroupService');
     var connectionEditModal         = $injector.get('connectionEditModal');
     var connectionGroupEditModal    = $injector.get('connectionGroupEditModal');
+    var userEditModal               = $injector.get('userEditModal');
     var protocolDAO                 = $injector.get('protocolDAO');
+    var userDAO                     = $injector.get('userDAO');
+    var userService                 = $injector.get('userService');
     
     // All the connections and connection groups in root
     $scope.connectionsAndGroups = [];
+    
+    // All users that the current user has permission to edit
+    $scope.users = [];
     
     $scope.basicPermissionsLoaded.then(function basicPermissionsHaveBeenLoaded() {
         connectionGroupService.getAllGroupsAndConnections([], undefined, true, true).then(function filterConnectionsAndGroups(rootGroupList) {
@@ -49,6 +55,19 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
                         'CONNECTION':       'UPDATE',
                         'CONNECTION_GROUP': 'UPDATE'
                     }
+                );
+            }
+        });
+        
+        userDAO.getUsers().success(function filterEditableUsers(users) {
+            $scope.users = users;
+            
+            // Filter the users to only include ones that we have UPDATE for
+            if(!$scope.currentUserIsAdmin) {
+                userService.filterUsersByPermission(
+                    $scope.users,
+                    $scope.currentUserPermissions,
+                    'UPDATE'
                 );
             }
         });
@@ -170,6 +189,51 @@ angular.module('manage').controller('manageController', ['$scope', '$injector',
             moveItem        : $scope.moveItem,
             rootGroup       : $scope.rootGroup
         });
+    };
+    
+    // Remove the user from the current list of users
+    function removeUser(user) {
+        for(var i = 0; i < $scope.users.length; i++) {
+            if($scope.users[i].username === user.username) {
+                $scope.users.splice(i, 1);
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Open a modal to edit the user.
+     *  
+     * @param {object} user The user to edit.
+     */
+    $scope.editUser = function editUser(user) {
+        userEditModal.activate(
+        {
+            user            : user, 
+            rootGroup       : $scope.rootGroup,
+            removeUser      : removeUser
+        });
+    };
+    
+    $scope.newUsername = "";
+    
+    /**
+     * Open a modal to edit the user.
+     *  
+     * @param {object} user The user to edit.
+     */
+    $scope.newUser = function newUser() {
+        if($scope.newUsername) {
+            var newUser = {
+                username: $scope.newUsername
+            };
+            
+            userDAO.createUser(newUser).success(function addUserToList() {
+                $scope.users.push(newUser);
+            });
+            
+            $scope.newUsername = "";
+        }
     };
     
 }]);

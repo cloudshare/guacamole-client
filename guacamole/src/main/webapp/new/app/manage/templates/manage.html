@@ -57,18 +57,19 @@ THE SOFTWARE.
 
         <!-- Control to create a new user -->
         <div class="user-add-form">
-            <input type="text" class="name username" placeholder="Username"/>
-            <button class="add-user">{{'manage.addUser' | translate}}</button>
+            <input type="text" ng-model="newUsername" class="name username"/>
+            <button class="add-user" ng-click="newUser()">{{'manage.addUser' | translate}}</button>
         </div>
 
         <!-- List of users this user has access to -->
         <div class="user-list">
+            <div ng-click="editUser(user)" ng-repeat="user in users | orderBy : 'username'" class="list-item">
+                <div class="caption">
+                    <div class="icon user"></div>
+                    <span class="name">{{user.username}}</span>
+                </div>
+            </div>
         </div>
-
-        <!-- Controls to manipulate the user list -->
-        <div class="user-list-buttons">
-        </div>
-
     </div>
 
     <h3 class="require-manage-connections">{{'manage.connections' | translate}}</h3>
@@ -86,11 +87,6 @@ THE SOFTWARE.
         <div class="connection-list">
             <div class="list-item" ng-repeat="item in connectionsAndGroups | orderBy : 'name'" ng-include="'nestedGroup.html'"></div>
         </div>
-
-        <!-- Controls to manipulate the connections and groups -->
-        <div class="connection-list-buttons">
-        </div>
-
     </div>
 
 </div>

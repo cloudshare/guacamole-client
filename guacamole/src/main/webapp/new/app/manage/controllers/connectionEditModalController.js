@@ -88,9 +88,11 @@ angular.module('manage').controller('connectionEditModalController', ['$scope', 
         
         // Nothing to delete if the connection is new
         var newConnection = !$scope.connection.identifier;
-        if(newConnection)
+        if(newConnection) {
             // Close the modal
             connectionEditModal.deactivate();
+            return;
+        }
         
         connectionDAO.deleteConnection($scope.connection).success(function successfullyDeletedConnection() {
             var oldParentID = oldConnection.parentIdentifier;

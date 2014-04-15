@@ -50,5 +50,51 @@ angular.module('user').factory('userDAO', ['$http', 'localStorageUtility',
         return $http.get("../api/user/" + userID + "/?token=" + localStorageUtility.get('authToken'));
     };
     
+    /**
+     * Makes a request to the REST API to delete a user,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {object} user The user to delete.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.deleteUser = function deleteUser(user) {
+        return $http['delete'](
+            "../api/user/" + user.username + 
+            "?token=" + localStorageUtility.get('authToken'));
+    };
+    
+    
+    /**
+     * Makes a request to the REST API to create a user,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {object} user The user to create.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.createUser = function createUser(user) {
+        return $http.post(
+            "../api/user/" 
+            + "?token=" + localStorageUtility.get('authToken'), 
+            user
+        );
+    }
+    
+    /**
+     * Makes a request to the REST API to save a user,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {object} user The user to update.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.saveUser = function saveUser(user) {
+        return $http.post(
+            "../api/user/" + user.username + 
+            "?token=" + localStorageUtility.get('authToken'), 
+        user);
+    };
+    
     return service;
 }]);

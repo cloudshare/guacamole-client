@@ -24,6 +24,7 @@ package org.glyptodon.guacamole.net.basic.rest.user;
 
 import com.google.inject.Inject;
 import java.util.List;
+import java.util.UUID;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -133,6 +134,10 @@ public class UserRESTService {
         
         // Get the directory
         Directory<String, User> userDirectory = userContext.getUserDirectory();
+        
+        // Randomly set the password if it wasn't provided
+        if(user.getPassword() == null)
+            user.setPassword(UUID.randomUUID().toString());
 
         // Create the user
         userDirectory.add(new APIUserWrapper(user));

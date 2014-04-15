@@ -46,6 +46,11 @@ public class APIUser {
     private String password;
     
     /**
+     * Construct a new empty APIUser.
+     */
+    public APIUser() {}
+    
+    /**
      * Construct a new APIUser from the provided User.
      * @param user The User to construct the APIUser from.
      */
