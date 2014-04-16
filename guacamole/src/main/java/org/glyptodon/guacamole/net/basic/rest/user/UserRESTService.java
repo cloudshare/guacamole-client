@@ -125,6 +125,8 @@ public class UserRESTService {
      *                  the user performing the operation.
      * @param user The new user to create.
      * @throws GuacamoleException If a problem is encountered while creating the user.
+     * 
+     * @return The username of the newly created user.
      */
     @POST
     @AuthProviderRESTExposure
@@ -174,9 +176,10 @@ public class UserRESTService {
 
         /*
          * Update the user with the permission set from the existing user
-         * since the user REST endpoints do not expose permissions
+         * since the user REST endpoints do not expose permissions.
          */
-        userDirectory.update(new APIUserWrapper(user, existingUser.getPermissions()));
+        existingUser.setPassword(user.getPassword());
+        userDirectory.update(existingUser);
     }
     
     /**

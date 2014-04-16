@@ -20,6 +20,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
+<script type="text/ng-template" id="nestedUserPermissionEditGroup.html">
+    <div class="choice" ng-show="item.isConnection">
+      <input type="checkbox" ng-model="connectionPermissions[item.identifier]"/>
+      <div class="connection list-item">
+        <div class="caption">
+          <div class="protocol">
+            <div class="icon" ng-class="item.protocol"></div>
+          </div><span class="name">{{item.name}}</span>
+        </div>
+      </div>
+    </div>
+    
+    
+    <div class="choice" ng-show="!item.isConnection">
+      <input type="checkbox" ng-model="connectionGroupPermissions[item.identifier]"/>
+
+      <div class="group empty list-item balancer">
+        <div class="caption">
+          <div class="icon group" ng-click="toggleExpanded(item)" ng-class="{expanded: item.expanded, empty: !item.children.length, balancer: item.balancer && !item.children.length}"></div>
+
+          <span class="name">{{item.name}}</span>
+        </div>
+
+        <div class="children" ng-show="item.expanded">
+            <div ng-repeat="item in item.children | orderBy : 'name'" ng-include="'nestedUserPermissionEditGroup.html'">
+        </div>
+      </div>
+    </div>
+
+</script>
+
 
 <div class="dialog-container">
   <div class="dialog">
@@ -56,31 +87,37 @@ THE SOFTWARE.
                   <tr>
                     <th>{{'manage.edit.user.administerSystem' | translate}}</th>
 
-                    <td><input type="checkbox" ng-model="administerSystem" /></td>
+                    <td><input type="checkbox" ng-model="systemPermissions.ADMINISTER" /></td>
                   </tr>
 
                   <tr>
                     <th>{{'manage.edit.user.createUser' | translate}}</th>
 
-                    <td><input type="checkbox" ng-model="createUser" /></td>
+                    <td><input type="checkbox" ng-model="systemPermissions.CREATE_USER" /></td>
                   </tr>
 
                   <tr>
                     <th>{{'manage.edit.user.createConnection' | translate}}</th>
 
-                    <td><input type="checkbox" ng-model="createConnection" /></td>
+                    <td><input type="checkbox" ng-model="systemPermissions.CREATE_CONNECTION" /></td>
                   </tr>
 
                   <tr>
                     <th>{{'manage.edit.user.createConnectionGroup' | translate}}</th>
 
-                    <td><input type="checkbox" ng-model="createConnectionGroup" /></td>
+                    <td><input type="checkbox" ng-model="systemPermissions.CREATE_CONNECTION_GROUP" /></td>
                   </tr>
                 </table>
               </dd>
 
               <dt>{{'manage.edit.user.connections' | translate}}</dt>
-              <dd></dd>
+              <dd>
+                <div class="group-view">
+                  <div class="list">
+                    <div ng-repeat="item in rootGroup.children | orderBy : 'name'" ng-include="'nestedUserPermissionEditGroup.html'"></div>
+                  </div>
+                </div>
+              </dd>
             </dl>
           </div>
         </div>

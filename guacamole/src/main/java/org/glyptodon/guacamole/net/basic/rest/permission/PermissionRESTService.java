@@ -119,6 +119,7 @@ public class PermissionRESTService {
 
         // Add the new permission
         user.addPermission(permission.toPermission());
+        userContext.getUserDirectory().update(user);
     }
     
     /**
@@ -131,7 +132,7 @@ public class PermissionRESTService {
      * @throws GuacamoleException If a problem is encountered while removing the permission.
      */
     @POST
-    @Path("/remove{userID}/")
+    @Path("/remove/{userID}/")
     @AuthProviderRESTExposure
     public void removePermission(@QueryParam("token") String authToken, 
             @PathParam("userID") String userID, APIPermission permission) 
@@ -146,6 +147,7 @@ public class PermissionRESTService {
 
         // Remove the permission
         user.removePermission(permission.toPermission());
+        userContext.getUserDirectory().update(user);
     }
 
 }

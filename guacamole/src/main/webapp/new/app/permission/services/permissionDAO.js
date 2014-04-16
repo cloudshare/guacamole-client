@@ -40,5 +40,35 @@ angular.module('permission').factory('permissionDAO', ['$http', 'localStorageUti
         return $http.get("../api/permission/" + userID + "/?token=" + localStorageUtility.get('authToken'));
     };
     
+    /**
+     * Makes a request to the REST API to add a permission for a given user,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {string} userID The ID of the user to add the permission for.
+     * @param {object} permission The permission to add.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.addPermission = function addPermission(userID, permission) {
+        return $http.post("../api/permission/" + userID + "/?token=" + localStorageUtility.get('authToken'), permission);
+    };
+    
+    
+    
+    /**
+     * Makes a request to the REST API to remove a permission for a given user,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {string} userID The ID of the user to remove the permission for.
+     * @param {object} permission The permission to remove.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.removePermission = function removePermission(userID, permission) {
+        return $http.post("../api/permission/remove/" + userID + "/?token=" + localStorageUtility.get('authToken'), permission);
+    };
+    
+    
+    
     return service;
 }]);

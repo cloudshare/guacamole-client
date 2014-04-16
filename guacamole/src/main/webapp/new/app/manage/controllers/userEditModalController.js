@@ -47,21 +47,160 @@ angular.module('manage').controller('userEditModalController', ['$scope', '$inje
      * Save the user and close the modal.
      */
     $scope.save = function save() {
+        
+        if($scope.passwordMatch !== $scope.user.password) {
+            //TODO: Display an error
+            return;
+        }
+        
         userDAO.saveUser($scope.user).success(function successfullyUpdatedUser() {
             
-            // Copy the data back to the original model
-            angular.extend(oldUser, $scope.user);
+            //Figure out what permissions have changed
+            var connectionPermissionsToCreate = [],
+                connectionPermissionsToDelete = [],
+                connectionGroupPermissionsToCreate = [],
+                connectionGroupPermissionsToDelete = [],
+                systemPermissionsToCreate = [],
+                systemPermissionsToDelete = [];
+                
+            for(var connectionID in $scope.connectionPermissions) {
+                if(!originalConnectionPermissions[connectionID]) {
+                    //The permission exists in the new set, but not the old - create it!
+                    connectionPermissionsToCreate.push(connectionID);
+                }
+            }
+                
+            for(var connectionID in originalConnectionPermissions) {
+                if(!$scope.connectionPermissions[connectionID]) {
+                    //The permission exists in the old set, but not the new - delete it!
+                    connectionPermissionsToDelete.push(connectionID);
+                }
+            }
+                
+            for(var connectionGroupID in $scope.connectionGroupPermissions) {
+                if(!originalConnectionGroupPermissions[connectionGroupID]) {
+                    //The permission exists in the new set, but not the old - create it!
+                    connectionGroupPermissionsToCreate.push(connectionGroupID);
+                }
+            }
+                
+            for(var connectionGroupID in originalConnectionGroupPermissions) {
+                if(!$scope.connectionGroupPermissions[connectionGroupID]) {
+                    //The permission exists in the old set, but not the new - delete it!
+                    connectionGroupPermissionsToDelete.push(connectionGroupID);
+                }
+            }
+                
+            for(var permissionType in $scope.systemPermissions) {
+                if(!originalSystemPermissions[permissionType]) {
+                    //The permission exists in the new set, but not the old - create it!
+                    systemPermissionsToCreate.push(permissionType);
+                }
+            }
+                
+            for(var permissionType in originalSystemPermissions) {
+                if(!$scope.systemPermissions[permissionType]) {
+                    //The permission exists in the old set, but not the new - delete it!
+                    systemPermissionsToDelete.push(permissionType);
+                }
+            }
             
-            // Close the modal
-            userEditModal.deactivate();
+            // Figure out how many total API calls we'll have to make to update the permissions
+            var numberOfCallsToMake = 
+                connectionPermissionsToCreate.length + 
+                connectionPermissionsToDelete.length + 
+                connectionGroupPermissionsToCreate.length + 
+                connectionGroupPermissionsToDelete.length +
+                systemPermissionsToCreate.length + 
+                systemPermissionsToDelete.length; 
+        
+            function completeSaveProcess() {
+                // Close the modal
+                userEditModal.deactivate();
+            }
+            
+            function handleFailure() {
+                //TODO: Handle the permission API call failure
+            }
+            
+            function checkAndHandleSucess() {
+                if(--numberOfCallsToMake === 0) {
+                    completeSaveProcess();
+                }
+            }
+            
+            // No permissions to save
+            if(numberOfCallsToMake === 0) {
+                completeSaveProcess();
+                return;
+            }
+            
+            // Create new connection permissions
+            for(var i = 0; i < connectionPermissionsToCreate.length; i++) {
+                permissionDAO.addPermission($scope.user.username, {
+                    objectType :        "CONNECTION",
+                    objectIdentifier :  connectionPermissionsToCreate[i],
+                    permissionType :    "READ"
+                }).then(checkAndHandleSucess, handleFailure);
+            }
+            
+            // Delete old connection permissions
+            for(var i = 0; i < connectionPermissionsToDelete.length; i++) {
+                permissionDAO.removePermission($scope.user.username, {
+                    objectType :        "CONNECTION",
+                    objectIdentifier :  connectionPermissionsToDelete[i],
+                    permissionType :    "READ"
+                }).then(checkAndHandleSucess, handleFailure);
+            }
+            
+            // Create new connection group permissions
+            for(var i = 0; i < connectionGroupPermissionsToCreate.length; i++) {
+                permissionDAO.addPermission($scope.user.username, {
+                    objectType :        "CONNECTION_GROUP",
+                    objectIdentifier :  connectionGroupPermissionsToCreate[i],
+                    permissionType :    "READ"
+                }).then(checkAndHandleSucess, handleFailure);
+            }
+            
+            // Delete old connection group permissions
+            for(var i = 0; i < connectionGroupPermissionsToDelete.length; i++) {
+                permissionDAO.removePermission($scope.user.username, {
+                    objectType :        "CONNECTION_GROUP",
+                    objectIdentifier :  connectionGroupPermissionsToDelete[i],
+                    permissionType :    "READ"
+                }).then(checkAndHandleSucess, handleFailure);
+            }
+            
+            // Create new system permissions
+            for(var i = 0; i < systemPermissionsToCreate.length; i++) {
+                permissionDAO.addPermission($scope.user.username, {
+                    objectType :        "SYSTEM",
+                    permissionType :    systemPermissionsToCreate[i]
+                }).then(checkAndHandleSucess, handleFailure);
+            }
+            
+            // Delete old system permissions
+            for(var i = 0; i < systemPermissionsToDelete.length; i++) {
+                permissionDAO.removePermission($scope.user.username, {
+                    objectType :        "SYSTEM",
+                    permissionType :    systemPermissionsToDelete[i]
+                }).then(checkAndHandleSucess, handleFailure);
+            }
+            
         });
     };
     
     $scope.permissions = [];
-    $scope.administerSystem = false;
-    $scope.createUser = false;
-    $scope.createConnection = false;
-    $scope.createConnectionGroup = false;
+
+    // Maps of connection and connection group IDs to access permission booleans
+    $scope.connectionPermissions = {};
+    $scope.connectionGroupPermissions = {};
+    $scope.systemPermissions = {};
+    
+    // The original permissions to compare against 
+    var originalConnectionPermissions,
+        originalConnectionGroupPermissions,
+        originalSystemPermissions;
     
     // Get the permissions for the user we are editing
     permissionDAO.getPermissions($scope.user.username).success(function gotPermissions(permissions) {
@@ -71,22 +210,26 @@ angular.module('manage').controller('userEditModalController', ['$scope', '$inje
         for(var i = 0; i < $scope.permissions.length; i++) {
             var permission = $scope.permissions[i];
             if(permission.objectType === "SYSTEM") {
-                switch(permission.permissionType) {
-                    case "CREATE_USER":
-                        $scope.createUser = true;
+                
+                $scope.systemPermissions[permission.permissionType] = true;
+                
+            // Only READ permission is editable via this UI
+            } else if (permission.permissionType === "READ") {
+                switch(permission.objectType) {
+                    case "CONNECTION":
+                        $scope.connectionPermissions[permission.objectIdentifier] = true;
                         break;
-                    case "CREATE_CONNECTION":
-                        $scope.createConnection = true;
-                        break;
-                    case "CREATE_CONNECTION_GROUP":
-                        $scope.createConnectionGroup = true;
-                        break;
-                    case "ADMINISTER":
-                        $scope.administerSystem = true;
+                    case "CONNECTION_GROUP":
+                        $scope.connectionGroupPermissions[permission.objectIdentifier] = true;
                         break;
                 }
             }
         }
+        
+        // Copy the original permissions so we can compare later
+        originalConnectionPermissions = angular.copy($scope.connectionPermissions);
+        originalConnectionGroupPermissions = angular.copy($scope.connectionGroupPermissions);
+        originalSystemPermissions = angular.copy($scope.systemPermissions);
         
     });
     
@@ -103,6 +246,15 @@ angular.module('manage').controller('userEditModalController', ['$scope', '$inje
             userEditModal.deactivate();
         });
     }
+    
+    /**
+     * Toggle the open/closed status of the connectionGroup.
+     * 
+     * @param {object} connectionGroup The connection group to toggle.
+     */
+    $scope.toggleExpanded = function toggleExpanded(connectionGroup) {
+        connectionGroup.expanded = !connectionGroup.expanded;
+    };
 }]);
 
 
