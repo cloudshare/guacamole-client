@@ -23,7 +23,11 @@
 package org.glyptodon.guacamole.net.basic.rest.permission;
 
 import com.google.inject.Inject;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -34,10 +38,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import org.glyptodon.guacamole.GuacamoleException;
+import org.glyptodon.guacamole.net.auth.Directory;
 import org.glyptodon.guacamole.net.auth.User;
 import org.glyptodon.guacamole.net.auth.UserContext;
+import org.glyptodon.guacamole.net.auth.permission.Permission;
+import org.glyptodon.guacamole.net.basic.rest.APIPatch;
 import org.glyptodon.guacamole.net.basic.rest.AuthProviderRESTExposure;
 import org.glyptodon.guacamole.net.basic.rest.HTTPException;
+import org.glyptodon.guacamole.net.basic.rest.PATCH;
 import org.glyptodon.guacamole.net.basic.rest.auth.AuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,5 +157,56 @@ public class PermissionRESTService {
         user.removePermission(permission.toPermission());
         userContext.getUserDirectory().update(user);
     }
-
+    
+    
+    /**
+     * Applies a given list of permission patches.
+     * 
+     * @param authToken The authentication token that is used to authenticate
+     *                  the user performing the operation.
+     * @param patches   The permission patches to apply for this request.
+     * @throws GuacamoleException If a problem is encountered while removing the permission.
+     */
+    @PATCH
+    @AuthProviderRESTExposure
+    public void patchPermissions(@QueryParam("token") String authToken, 
+            List<APIPatch<APIPermission>> patches) throws GuacamoleException {
+        UserContext userContext = authenticationService.getUserContextFromAuthToken(authToken);
+        
+        // Get the user directory
+        Directory<String, User> userDirectory = userContext.getUserDirectory();
+        
+        // All users who have had permissions added or removed
+        Map<String, User> modifiedUsers = new HashMap<String, User>();
+        
+        for(APIPatch<APIPermission> patch : patches) {
+            String userID = patch.getPath();
+            Permission permission = patch.getValue().toPermission();
+            
+            // See if we've already modified this user in this request
+            User user = modifiedUsers.get(userID);
+            if(user == null)
+                user = userDirectory.get(userID);
+            
+            if(user == null)
+                throw new HTTPException(Status.NOT_FOUND, "User not found with userID " + userID + ".");
+            
+            // Only the add and remove operations are supported for permissions
+            switch(patch.getOp()) {
+                case add:
+                    user.addPermission(permission);
+                    modifiedUsers.put(userID, user);
+                    break;
+                case remove:
+                    user.removePermission(permission);
+                    modifiedUsers.put(userID, user);
+                    break;
+            }
+        }
+        
+        // Save the permission changes for all modified users
+        for(User user : modifiedUsers.values()) {
+            userDirectory.update(user);
+        }
+    }
 }

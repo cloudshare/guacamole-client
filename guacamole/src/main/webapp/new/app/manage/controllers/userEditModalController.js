@@ -105,14 +105,60 @@ angular.module('manage').controller('userEditModalController', ['$scope', '$inje
                 }
             }
             
-            // Figure out how many total API calls we'll have to make to update the permissions
-            var numberOfCallsToMake = 
-                connectionPermissionsToCreate.length + 
-                connectionPermissionsToDelete.length + 
-                connectionGroupPermissionsToCreate.length + 
-                connectionGroupPermissionsToDelete.length +
-                systemPermissionsToCreate.length + 
-                systemPermissionsToDelete.length; 
+            var permissionsToAdd = [];
+            var permissionsToRemove = [];
+            
+            // Create new connection permissions
+            for(var i = 0; i < connectionPermissionsToCreate.length; i++) {
+                permissionsToAdd.push({
+                    objectType :        "CONNECTION",
+                    objectIdentifier :  connectionPermissionsToCreate[i],
+                    permissionType :    "READ"
+                });
+            }
+            
+            // Delete old connection permissions
+            for(var i = 0; i < connectionPermissionsToDelete.length; i++) {
+                permissionsToRemove.push({
+                    objectType :        "CONNECTION",
+                    objectIdentifier :  connectionPermissionsToDelete[i],
+                    permissionType :    "READ"
+                });
+            }
+            
+            // Create new connection group permissions
+            for(var i = 0; i < connectionGroupPermissionsToCreate.length; i++) {
+                permissionsToAdd.push({
+                    objectType :        "CONNECTION_GROUP",
+                    objectIdentifier :  connectionGroupPermissionsToCreate[i],
+                    permissionType :    "READ"
+                });
+            }
+            
+            // Delete old connection group permissions
+            for(var i = 0; i < connectionGroupPermissionsToDelete.length; i++) {
+                permissionsToRemove.push({
+                    objectType :        "CONNECTION_GROUP",
+                    objectIdentifier :  connectionGroupPermissionsToDelete[i],
+                    permissionType :    "READ"
+                });
+            }
+            
+            // Create new system permissions
+            for(var i = 0; i < systemPermissionsToCreate.length; i++) {
+                permissionsToAdd.push({
+                    objectType :        "SYSTEM",
+                    permissionType :    systemPermissionsToCreate[i]
+                });
+            }
+            
+            // Delete old system permissions
+            for(var i = 0; i < systemPermissionsToDelete.length; i++) {
+                permissionsToRemove.push({
+                    objectType :        "SYSTEM",
+                    permissionType :    systemPermissionsToDelete[i]
+                });
+            }
         
             function completeSaveProcess() {
                 // Close the modal
@@ -123,68 +169,13 @@ angular.module('manage').controller('userEditModalController', ['$scope', '$inje
                 //TODO: Handle the permission API call failure
             }
             
-            function checkAndHandleSucess() {
-                if(--numberOfCallsToMake === 0) {
-                    completeSaveProcess();
-                }
-            }
-            
-            // No permissions to save
-            if(numberOfCallsToMake === 0) {
+            if(permissionsToAdd.length || permissionsToRemove.length) {
+                // Make the call to update the permissions
+                permissionDAO.patchPermissions(
+                        $scope.user.username, permissionsToAdd, permissionsToRemove)
+                        .success(completeSaveProcess).error(handleFailure);
+            } else {
                 completeSaveProcess();
-                return;
-            }
-            
-            // Create new connection permissions
-            for(var i = 0; i < connectionPermissionsToCreate.length; i++) {
-                permissionDAO.addPermission($scope.user.username, {
-                    objectType :        "CONNECTION",
-                    objectIdentifier :  connectionPermissionsToCreate[i],
-                    permissionType :    "READ"
-                }).then(checkAndHandleSucess, handleFailure);
-            }
-            
-            // Delete old connection permissions
-            for(var i = 0; i < connectionPermissionsToDelete.length; i++) {
-                permissionDAO.removePermission($scope.user.username, {
-                    objectType :        "CONNECTION",
-                    objectIdentifier :  connectionPermissionsToDelete[i],
-                    permissionType :    "READ"
-                }).then(checkAndHandleSucess, handleFailure);
-            }
-            
-            // Create new connection group permissions
-            for(var i = 0; i < connectionGroupPermissionsToCreate.length; i++) {
-                permissionDAO.addPermission($scope.user.username, {
-                    objectType :        "CONNECTION_GROUP",
-                    objectIdentifier :  connectionGroupPermissionsToCreate[i],
-                    permissionType :    "READ"
-                }).then(checkAndHandleSucess, handleFailure);
-            }
-            
-            // Delete old connection group permissions
-            for(var i = 0; i < connectionGroupPermissionsToDelete.length; i++) {
-                permissionDAO.removePermission($scope.user.username, {
-                    objectType :        "CONNECTION_GROUP",
-                    objectIdentifier :  connectionGroupPermissionsToDelete[i],
-                    permissionType :    "READ"
-                }).then(checkAndHandleSucess, handleFailure);
-            }
-            
-            // Create new system permissions
-            for(var i = 0; i < systemPermissionsToCreate.length; i++) {
-                permissionDAO.addPermission($scope.user.username, {
-                    objectType :        "SYSTEM",
-                    permissionType :    systemPermissionsToCreate[i]
-                }).then(checkAndHandleSucess, handleFailure);
-            }
-            
-            // Delete old system permissions
-            for(var i = 0; i < systemPermissionsToDelete.length; i++) {
-                permissionDAO.removePermission($scope.user.username, {
-                    objectType :        "SYSTEM",
-                    permissionType :    systemPermissionsToDelete[i]
-                }).then(checkAndHandleSucess, handleFailure);
             }
             
         });

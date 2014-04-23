@@ -69,6 +69,47 @@ angular.module('permission').factory('permissionDAO', ['$http', 'localStorageUti
     };
     
     
+    /**
+     * Makes a request to the REST API to modify the permissions for a given user,
+     * returning a promise that can be used for processing the results of the call.
+     * 
+     * @param {string} userID The ID of the user to remove the permission for.
+     * @param {array} permissionsToAdd The permissions to add.
+     * @param {array} permissionsToRemove The permissions to remove.
+     *                          
+     * @returns {promise} A promise for the HTTP call.
+     */
+    service.patchPermissions = function patchPermissions(userID, permissionsToAdd, permissionsToRemove) {
+        var permissionPatch = [];
+        
+        // Add all the add operations to the patch
+        for(var i = 0; i < permissionsToAdd.length; i++ ) {
+            permissionPatch.push({
+                op      : "add",
+                path    : userID, 
+                value   : permissionsToAdd[i]
+            });
+        }
+        
+        // Add all the remove operations to the patch
+        for(var i = 0; i < permissionsToRemove.length; i++ ) {
+            permissionPatch.push({
+                op      : "remove",
+                path    : userID, 
+                value   : permissionsToRemove[i]
+            });
+        }
+        
+        // Make the HTTP call
+        return $http({
+            method  : 'PATCH', 
+            url     : "../api/permission/?token=" + localStorageUtility.get('authToken'),
+            data    : permissionPatch
+        });
+    }
+    
+    
+    
     
     return service;
 }]);
