@@ -645,8 +645,8 @@ GuacAdmin.UserEditor = function(name, parameters) {
             GuacAdmin.reset();
 
         }
-        catch (e) {
-            alert(e.message);
+        catch (status) {
+            alert(status.message);
         }
 
     };
@@ -684,8 +684,8 @@ GuacAdmin.UserEditor = function(name, parameters) {
                 }
 
                 // Alert on failure
-                catch (e) {
-                    alert(e.message);
+                catch (status) {
+                    alert(status.message);
                 }
 
             }
@@ -842,8 +842,10 @@ GuacAdmin.ConnectionEditor = function(connection, parameters) {
             start.textContent = GuacAdmin.formatDate(record.start);
             if (record.duration !== null)
                 duration.textContent = GuacAdmin.formatSeconds(record.duration);
-            else
+            else if (record.active)
                 duration.textContent = "Active now";
+            else
+                duration.textContent = "-";
 
             // Add record to pager
             history_pager.addElement(row);
@@ -983,8 +985,8 @@ GuacAdmin.ConnectionEditor = function(connection, parameters) {
             GuacAdmin.reset();
 
         }
-        catch (e) {
-            alert(e.message);
+        catch (status) {
+            alert(status.message);
         }
 
     };
@@ -1022,8 +1024,8 @@ GuacAdmin.ConnectionEditor = function(connection, parameters) {
                 }
 
                 // Alert on failure
-                catch (e) {
-                    alert(e.message);
+                catch (status) {
+                    alert(status.message);
                 }
 
             }
@@ -1176,8 +1178,8 @@ GuacAdmin.ConnectionGroupEditor = function(group, parameters) {
             GuacAdmin.reset();
 
         }
-        catch (e) {
-            alert(e.message);
+        catch (status) {
+            alert(status.message);
         }
 
     };
@@ -1215,8 +1217,8 @@ GuacAdmin.ConnectionGroupEditor = function(group, parameters) {
                 }
 
                 // Alert on failure
-                catch (e) {
-                    alert(e.message);
+                catch (status) {
+                    alert(status.message);
                 }
 
             }
@@ -1406,8 +1408,8 @@ GuacAdmin.reset = function() {
             }
 
             // Alert on failure
-            catch (e) {
-                alert(e.message);
+            catch (status) {
+                alert(tatusmessage);
             }
 
         };

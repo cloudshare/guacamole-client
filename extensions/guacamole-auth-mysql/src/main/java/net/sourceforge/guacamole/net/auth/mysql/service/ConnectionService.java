@@ -288,16 +288,34 @@ public class ConnectionService {
             userIDSet.add(history.getUser_id());
         }
 
+        // Determine whether connection is currently active
+        int user_count = activeConnectionMap.getCurrentUserCount(connectionID);
+
         // Get all the usernames for the users who are in the history
         Map<Integer, String> usernameMap = userService.retrieveUsernames(userIDSet);
 
         // Create the new ConnectionRecords
         for(ConnectionHistory history : connectionHistories) {
+
             Date startDate = history.getStart_date();
             Date endDate = history.getEnd_date();
             String username = usernameMap.get(history.getUser_id());
-            MySQLConnectionRecord connectionRecord = new MySQLConnectionRecord(startDate, endDate, username);
+
+            // If there are active users, list the top N not-ended connections
+            // as active (best guess)
+            MySQLConnectionRecord connectionRecord;
+            if (user_count > 0 && endDate == null) {
+                connectionRecord = new MySQLConnectionRecord(startDate, endDate, username, true);
+                user_count--;
+            }
+
+            // If no active users, or end date is recorded, connection is not
+            // active.
+            else
+                connectionRecord = new MySQLConnectionRecord(startDate, endDate, username, false);
+
             connectionRecords.add(connectionRecord);
+
         }
 
         return connectionRecords;
@@ -322,46 +340,49 @@ public class ConnectionService {
             GuacamoleClientInformation info, int userID, Integer connectionGroupID)
         throws GuacamoleException {
 
-        // If the given connection is active, and multiple simultaneous
-        // connections are not allowed, disallow connection
-        if(GuacamoleProperties.getProperty(
-                MySQLGuacamoleProperties.MYSQL_DISALLOW_SIMULTANEOUS_CONNECTIONS, false)
-                && activeConnectionMap.isActive(connection.getConnectionID()))
-            throw new GuacamoleResourceConflictException("Cannot connect. This connection is in use.");
-        
-        if(GuacamoleProperties.getProperty(
-                MySQLGuacamoleProperties.MYSQL_DISALLOW_DUPLICATE_CONNECTIONS, true)
-                && activeConnectionMap.isConnectionUserActive(connection.getConnectionID(), userID))
-            throw new GuacamoleClientTooManyException
-                    ("Cannot connect. Connection already in use by this user.");
+        synchronized (activeConnectionMap) {
 
-        // Get guacd connection information
-        String host = GuacamoleProperties.getRequiredProperty(GuacamoleProperties.GUACD_HOSTNAME);
-        int port = GuacamoleProperties.getRequiredProperty(GuacamoleProperties.GUACD_PORT);
+            // If the given connection is active, and multiple simultaneous
+            // connections are not allowed, disallow connection
+            if(GuacamoleProperties.getProperty(
+                    MySQLGuacamoleProperties.MYSQL_DISALLOW_SIMULTANEOUS_CONNECTIONS, false)
+                    && activeConnectionMap.isActive(connection.getConnectionID()))
+                throw new GuacamoleResourceConflictException("Cannot connect. This connection is in use.");
+            
+            if(GuacamoleProperties.getProperty(
+                    MySQLGuacamoleProperties.MYSQL_DISALLOW_DUPLICATE_CONNECTIONS, true)
+                    && activeConnectionMap.isConnectionUserActive(connection.getConnectionID(), userID))
+                throw new GuacamoleClientTooManyException
+                        ("Cannot connect. Connection already in use by this user.");
 
-        // Get socket
-        GuacamoleSocket socket;
-        if (GuacamoleProperties.getProperty(GuacamoleProperties.GUACD_SSL, false))
-            socket = new ConfiguredGuacamoleSocket(
-                new SSLGuacamoleSocket(host, port),
-                connection.getConfiguration(), info
-            );
-        else
-            socket = new ConfiguredGuacamoleSocket(
-                new InetGuacamoleSocket(host, port),
-                connection.getConfiguration(), info
-            );
+            // Get guacd connection information
+            String host = GuacamoleProperties.getRequiredProperty(GuacamoleProperties.GUACD_HOSTNAME);
+            int port = GuacamoleProperties.getRequiredProperty(GuacamoleProperties.GUACD_PORT);
 
-        // Mark this connection as active
-        int historyID = activeConnectionMap.openConnection(connection.getConnectionID(), 
-                userID, connectionGroupID);
+            // Get socket
+            GuacamoleSocket socket;
+            if (GuacamoleProperties.getProperty(GuacamoleProperties.GUACD_SSL, false))
+                socket = new ConfiguredGuacamoleSocket(
+                    new SSLGuacamoleSocket(host, port),
+                    connection.getConfiguration(), info
+                );
+            else
+                socket = new ConfiguredGuacamoleSocket(
+                    new InetGuacamoleSocket(host, port),
+                    connection.getConfiguration(), info
+                );
 
-        // Return new MySQLGuacamoleSocket
-        MySQLGuacamoleSocket mySQLGuacamoleSocket = mySQLGuacamoleSocketProvider.get();
-        mySQLGuacamoleSocket.init(socket, connection.getConnectionID(), userID, 
-                historyID, connectionGroupID);
-        
-        return mySQLGuacamoleSocket;
+            // Mark this connection as active
+            int historyID = activeConnectionMap.openConnection(connection.getConnectionID(), 
+                    userID, connectionGroupID);
+
+                // Return new MySQLGuacamoleSocket
+            MySQLGuacamoleSocket mySQLGuacamoleSocket = mySQLGuacamoleSocketProvider.get();
+            mySQLGuacamoleSocket.init(socket, historyID, connectionGroupID);
+                
+            return mySQLGuacamoleSocket;
+
+        }
 
     }
 

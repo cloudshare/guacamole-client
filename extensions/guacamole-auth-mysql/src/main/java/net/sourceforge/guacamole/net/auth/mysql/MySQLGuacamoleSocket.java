@@ -39,7 +39,7 @@ public class MySQLGuacamoleSocket implements GuacamoleSocket {
      * Injected ActiveConnectionMap which will contain all active connections.
      */
     @Inject
-    private ActiveConnectionMap activeConnectionSet;
+    private ActiveConnectionMap activeConnectionMap;
 
     /**
      * The wrapped socket.
@@ -67,7 +67,7 @@ public class MySQLGuacamoleSocket implements GuacamoleSocket {
      * @param connectionGroupID The ID of the balancing connection group that is
      *                          being connected to; null if not used.
      */
-    public void init(GuacamoleSocket socket, int connectionID, int userID, 
+    public void init(GuacamoleSocket socket,
             int historyID, Integer connectionGroupID) {
         this.socket = socket;
         this.historyID = historyID;
@@ -87,11 +87,17 @@ public class MySQLGuacamoleSocket implements GuacamoleSocket {
     @Override
     public void close() throws GuacamoleException {
 
-        // Close socket
-        socket.close();
-
         // Mark this connection as inactive
-        activeConnectionSet.closeConnection(historyID, connectionGroupID);
+        synchronized (activeConnectionMap) {
+
+            if (isOpen())
+                activeConnectionMap.closeConnection(historyID, connectionGroupID);
+
+            // Close socket
+            socket.close();
+
+        }
+
     }
 
     @Override

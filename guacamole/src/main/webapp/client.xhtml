@@ -30,7 +30,7 @@
         <link rel="stylesheet" type="text/css" href="styles/ui.css"/>
         <link rel="stylesheet" type="text/css" href="styles/client.css"/>
         <link rel="stylesheet" type="text/css" href="styles/keyboard.css"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, target-densitydpi=medium-dpi"/>
         <meta name="apple-mobile-web-app-capable" content="yes"/>
         <title>Guacamole ${project.version}</title>
     </head>
@@ -38,9 +38,11 @@
     <body>
 
         <!-- Display -->
-        <div class="displayOuter">
-            <div class="displayMiddle">
-                <div id="display">
+        <div id="main">
+            <div class="displayOuter">
+                <div class="displayMiddle">
+                    <div id="display">
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,6 +53,43 @@
         <!-- Notification area -->
         <div id="notificationArea"/>
 
+        <!-- Menu -->
+        <div id="menu">
+            <h2 id="menu-title">Guacamole ${project.version}</h2>
+
+            <div class="content">
+                <h3>Clipboard</h3>
+                <div id="clipboardDiv">
+                    <p>Text copied/cut within Guacamole will appear here. Changes to the text below will affect the remote clipboard.</p>
+                    <textarea rows="10" cols="40" id="clipboard"></textarea>
+                </div>
+                <h3>Mouse emulation mode</h3>
+                <div id="mouse-settings">
+                    <p>Determines how the remote mouse behaves with respect to touches.</p>
+
+                    <!-- Touchscreen -->
+                    <div class="choice">
+                        <input name="mouse-mode" type="radio" value="absolute" checked="checked" id="absolute"/>
+                        <div class="figure">
+                            <label for="absolute"><img src="images/settings/touchscreen.png" alt=""/></label>
+                            <p class="caption"><label for="absolute">Tap to click. The click occurs at the location of the touch.</label></p>
+                        </div>
+                    </div>
+
+                    <!-- Touchpad -->
+                    <div class="choice">
+                        <input name="mouse-mode" type="radio" value="relative" id="relative"/>
+                        <div class="figure">
+                            <label for="relative"><img src="images/settings/touchpad.png" alt=""/></label>
+                            <p class="caption"><label for="relative">Drag to move the mouse pointer and tap to click. The click occurs at the location of the pointer.</label></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        
         <!-- Images which should be preloaded -->
         <div id="preload">
             <img src="images/action-icons/guac-close.png"/>

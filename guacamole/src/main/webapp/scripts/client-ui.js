@@ -38,28 +38,7 @@ GuacUI.Client = {
         /**
          * Same as INTERACTIVE except with visible on-screen keyboard.
          */
-        "OSK"              : 1,
-
-        /**
-         * No on-screen keyboard, but a visible magnifier.
-         */
-        "MAGNIFIER"        : 2,
-
-        /**
-         * Arrows and a draggable view.
-         */
-        "PAN"              : 3,
-
-        /**
-         * Same as PAN, but with visible native OSK.
-         */
-        "PAN_TYPING"       : 4,
-
-        /**
-         * Precursor to PAN_TYPING, like PAN, except does not pan the
-         * screen, but rather hints at how to start typing.
-         */
-        "WAIT_TYPING"      : 5
+        "OSK"              : 1
 
     },
 
@@ -234,15 +213,19 @@ GuacUI.Client = {
 
     /* Constants */
     
-    "LONG_PRESS_DETECT_TIMEOUT"     : 800, /* milliseconds */
-    "LONG_PRESS_MOVEMENT_THRESHOLD" : 10,  /* pixels */    
     "KEYBOARD_AUTO_RESIZE_INTERVAL" : 30,  /* milliseconds */
     "RECONNECT_PERIOD"              : 15,  /* seconds */
 
     /* UI Components */
 
     "viewport"          : document.getElementById("viewportClone"),
+    "main"              : document.getElementById("main"),
+    "menu"              : document.getElementById("menu"),
+    "menu_title"        : document.getElementById("menu-title"),
     "display"           : document.getElementById("display"),
+    "clipboard"         : document.getElementById("clipboard"),
+    "relative_radio"    : document.getElementById("relative"),
+    "absolute_radio"    : document.getElementById("absolute"),
     "notification_area" : document.getElementById("notificationArea"),
 
     /* Expected Input Rectangle */
@@ -252,370 +235,25 @@ GuacUI.Client = {
     "expected_input_width"  : 1,
     "expected_input_height" : 1,
 
+    "min_zoom"        : 0,
+    "max_zoom"        : 3,
+
     "connectionName"  : "Guacamole",
     "overrideAutoFit" : false,
-    "attachedClient"  : null
+    "attachedClient"  : null,
+
+    /* Mouse emulation */
+
+    "emulate_absolute" : true,
+    "touch"            : null,
+    "touch_screen"     : null,
+    "touch_pad"        : null,
+
+    /* Clipboard */
+
+    "clipboard_integration_enabled" : undefined
 
 };
-
-/**
- * Component which displays a magnified (100% zoomed) client display.
- * 
- * @constructor
- * @augments GuacUI.DraggableComponent
- */
-GuacUI.Client.Magnifier = function() {
-
-    /**
-     * Reference to this magnifier.
-     * @private
-     */
-    var guac_magnifier = this;
-
-    /**
-     * Large background div which will block touch events from reaching the
-     * client while also providing a click target to deactivate the
-     * magnifier.
-     * @private
-     */
-    var magnifier_background = GuacUI.createElement("div", "magnifier-background");
-
-    /**
-     * Container div for the magnifier, providing a clipping rectangle.
-     * @private
-     */
-    var magnifier = GuacUI.createChildElement(magnifier_background,
-        "div", "magnifier");
-
-    /**
-     * Canvas which will contain the static image copy of the display at time
-     * of show.
-     * @private
-     */
-    var magnifier_display = GuacUI.createChildElement(magnifier, "canvas");
-
-    /**
-     * Context of magnifier display.
-     * @private
-     */
-    var magnifier_context = magnifier_display.getContext("2d");
-
-    /*
-     * This component is draggable.
-     */
-    GuacUI.DraggableComponent.apply(this, [magnifier]);
-
-    // Ensure transformations on display originate at 0,0
-    magnifier.style.transformOrigin =
-    magnifier.style.webkitTransformOrigin =
-    magnifier.style.MozTransformOrigin =
-    magnifier.style.OTransformOrigin =
-    magnifier.style.msTransformOrigin =
-        "0 0";
-
-    /*
-     * Reposition magnifier display relative to own position on screen.
-     */
-
-    this.onmove = function(x, y) {
-
-        var width = magnifier.offsetWidth;
-        var height = magnifier.offsetHeight;
-
-        // Update contents relative to new position
-        var clip_x = x
-            / (window.innerWidth - width) * (GuacUI.Client.attachedClient.getWidth() - width);
-        var clip_y = y
-            / (window.innerHeight - height) * (GuacUI.Client.attachedClient.getHeight() - height);
-       
-        magnifier_display.style.WebkitTransform =
-        magnifier_display.style.MozTransform =
-        magnifier_display.style.OTransform =
-        magnifier_display.style.msTransform =
-        magnifier_display.style.transform = "translate("
-            + (-clip_x) + "px, " + (-clip_y) + "px)";
-
-        /* Update expected input rectangle */
-        GuacUI.Client.expected_input_x = clip_x;
-        GuacUI.Client.expected_input_y = clip_y;
-        GuacUI.Client.expected_input_width  = width;
-        GuacUI.Client.expected_input_height = height;
-
-    };
-
-    /*
-     * Copy display and add self to body on show.
-     */
-
-    this.show = function() {
-
-        // Copy displayed image
-        magnifier_display.width = GuacUI.Client.attachedClient.getWidth();
-        magnifier_display.height = GuacUI.Client.attachedClient.getHeight();
-        magnifier_context.drawImage(GuacUI.Client.attachedClient.flatten(), 0, 0);
-
-        // Show magnifier container
-        document.body.appendChild(magnifier_background);
-
-    };
-
-    /*
-     * Remove self from body on hide.
-     */
-
-    this.hide = function() {
-
-        // Hide magnifier container
-        document.body.removeChild(magnifier_background);
-
-    };
-
-    /*
-     * If the user clicks on the background, switch to INTERACTIVE mode.
-     */
-
-    magnifier_background.addEventListener("click", function() {
-        GuacUI.StateManager.setState(GuacUI.Client.states.INTERACTIVE);
-    }, true);
-
-    /*
-     * If the user clicks on the magnifier, switch to PAN_TYPING mode.
-     */
-
-    magnifier.addEventListener("click", function(e) {
-        GuacUI.StateManager.setState(GuacUI.Client.states.PAN_TYPING);
-        e.stopPropagation();
-    }, true);
-
-};
-
-/*
- * We inherit from GuacUI.DraggableComponent.
- */
-GuacUI.Client.Magnifier.prototype = new GuacUI.DraggableComponent();
-
-GuacUI.StateManager.registerComponent(
-    new GuacUI.Client.Magnifier(),
-    GuacUI.Client.states.MAGNIFIER
-);
-
-/**
- * Zoomed Display, a pseudo-component.
- * 
- * @constructor
- * @augments GuacUI.Component
- */
-GuacUI.Client.ZoomedDisplay = function() {
-
-    this.show = function() {
-        GuacUI.Client.overrideAutoFit = true;
-        GuacUI.Client.updateDisplayScale();
-    };
-
-    this.hide = function() {
-        GuacUI.Client.overrideAutoFit = false;
-        GuacUI.Client.updateDisplayScale();
-    };
-
-};
-
-GuacUI.Client.ZoomedDisplay.prototype = new GuacUI.Component();
-
-/*
- * Zoom the main display during PAN and PAN_TYPING modes.
- */
-
-GuacUI.StateManager.registerComponent(
-    new GuacUI.Client.ZoomedDisplay(),
-    GuacUI.Client.states.PAN,
-    GuacUI.Client.states.PAN_TYPING
-);
-
-/**
- * Type overlay UI. This component functions to provide a means of activating
- * the keyboard, when neither panning nor magnification make sense.
- * 
- * @constructor
- * @augments GuacUI.Component
- */
-GuacUI.Client.TypeOverlay = function() {
-
-    /**
-     * Overlay which will provide the means of scrolling the screen.
-     */
-    var type_overlay = GuacUI.createElement("div", "type-overlay");
-
-    /*
-     * Add exit button
-     */
-
-    var start = GuacUI.createChildElement(type_overlay, "p", "hint");
-    start.textContent = "Tap here to type, or tap the screen to cancel.";
-
-    // Begin typing when user clicks hint
-    start.addEventListener("click", function(e) {
-        GuacUI.StateManager.setState(GuacUI.Client.states.PAN_TYPING);
-        e.stopPropagation();
-    }, false);
-
-    this.show = function() {
-        document.body.appendChild(type_overlay);
-    };
-
-    this.hide = function() {
-        document.body.removeChild(type_overlay);
-    };
-
-    /*
-     * Cancel when user taps screen
-     */
-
-    type_overlay.addEventListener("click", function(e) {
-        GuacUI.StateManager.setState(GuacUI.Client.states.INTERACTIVE);
-        e.stopPropagation();
-    }, false);
-
-};
-
-GuacUI.Client.TypeOverlay.prototype = new GuacUI.Component();
-
-/*
- * Show the type overlay during WAIT_TYPING mode only
- */
-
-GuacUI.StateManager.registerComponent(
-    new GuacUI.Client.TypeOverlay(),
-    GuacUI.Client.states.WAIT_TYPING
-);
-
-/**
- * Pan overlay UI. This component functions to receive touch events and
- * translate them into scrolling of the main UI.
- * 
- * @constructor
- * @augments GuacUI.Component
- */
-GuacUI.Client.PanOverlay = function() {
-
-    /**
-     * Overlay which will provide the means of scrolling the screen.
-     */
-    var pan_overlay = GuacUI.createElement("div", "pan-overlay");
-
-    /*
-     * Add arrows
-     */
-
-    GuacUI.createChildElement(pan_overlay, "div", "indicator up");
-    GuacUI.createChildElement(pan_overlay, "div", "indicator down");
-    GuacUI.createChildElement(pan_overlay, "div", "indicator right");
-    GuacUI.createChildElement(pan_overlay, "div", "indicator left");
-
-    /*
-     * Add exit button
-     */
-
-    var back = GuacUI.createChildElement(pan_overlay, "p", "hint");
-    back.textContent = "Tap here to exit panning mode";
-
-    // Return to interactive when back is clicked
-    back.addEventListener("click", function() {
-        GuacUI.StateManager.setState(GuacUI.Client.states.INTERACTIVE);
-    }, false);
-
-    this.show = function() {
-        document.body.appendChild(pan_overlay);
-    };
-
-    this.hide = function() {
-        document.body.removeChild(pan_overlay);
-    };
-
-    /*
-     * Transition to PAN_TYPING when the user taps on the overlay.
-     */
-
-    pan_overlay.addEventListener("click", function(e) {
-        GuacUI.StateManager.setState(GuacUI.Client.states.PAN_TYPING);
-        e.stopPropagation();
-    }, true);
-
-};
-
-GuacUI.Client.PanOverlay.prototype = new GuacUI.Component();
-
-/*
- * Show the pan overlay during PAN or PAN_TYPING modes.
- */
-
-GuacUI.StateManager.registerComponent(
-    new GuacUI.Client.PanOverlay(),
-    GuacUI.Client.states.PAN,
-    GuacUI.Client.states.PAN_TYPING
-);
-
-/**
- * Native Keyboard. This component uses a hidden textarea field to show the
- * platforms native on-screen keyboard (if any) or otherwise enable typing,
- * should the platform require a text field with focus for keyboard events to
- * register.
- * 
- * @constructor
- * @augments GuacUI.Component
- */
-GuacUI.Client.NativeKeyboard = function() {
-
-    /**
-     * Event target. This is a hidden textarea element which will receive
-     * key events.
-     * @private
-     */
-    var eventTarget = GuacUI.createElement("textarea", "event-target");
-    eventTarget.setAttribute("autocorrect", "off");
-    eventTarget.setAttribute("autocapitalize", "off");
-
-    this.show = function() {
-
-        // Move to location of expected input
-        eventTarget.style.left   = GuacUI.Client.expected_input_x + "px";
-        eventTarget.style.top    = GuacUI.Client.expected_input_y + "px";
-        eventTarget.style.width  = GuacUI.Client.expected_input_width + "px";
-        eventTarget.style.height = GuacUI.Client.expected_input_height + "px";
-
-        // Show and focus target
-        document.body.appendChild(eventTarget);
-        eventTarget.focus();
-
-    };
-
-    this.hide = function() {
-
-        // Hide and blur target
-        eventTarget.blur();
-        document.body.removeChild(eventTarget);
-
-    };
-
-    /*
-     * Automatically switch to INTERACTIVE mode after target loses focus
-     */
-
-    eventTarget.addEventListener("blur", function() {
-        GuacUI.StateManager.setState(GuacUI.Client.states.INTERACTIVE);
-    }, false);
-
-};
-
-GuacUI.Client.NativeKeyboard.prototype = new GuacUI.Component();
-
-/*
- * Show native keyboard during PAN_TYPING mode only.
- */
-
-GuacUI.StateManager.registerComponent(
-    new GuacUI.Client.NativeKeyboard(),
-    GuacUI.Client.states.PAN_TYPING
-);
 
 /**
  * On-screen Keyboard. This component provides a clickable/touchable keyboard
@@ -794,6 +432,321 @@ GuacUI.Client.ModalStatus = function(title_text, text, classname, reconnect) {
 GuacUI.Client.ModalStatus.prototype = new GuacUI.Component();
 
 /**
+ * Monitors a given element for touch events, firing drag-specific events
+ * based on pre-defined gestures.
+ * 
+ * @constructor
+ * @param {Element} element The element to monitor for touch events. 
+ */
+GuacUI.Client.Drag = function(element) {
+
+    /**
+     * Reference to this drag instance.
+     * @private
+     */
+    var guac_drag = this;
+
+    /**
+     * Whether a drag gestures is in progress.
+     */
+    var in_progress = false;
+    
+    /**
+     * The starting X location of the drag gesture.
+     */
+    this.start_x = null;
+
+    /**
+     * The starting Y location of the drag gesture.
+     */
+    this.start_y = null;
+
+    /**
+     * The change in X relative to drag start.
+     */
+    this.delta_x = 0;
+
+    /**
+     * The change in X relative to drag start.
+     */
+    this.delta_y = 0;
+
+    /**
+     * Called when a drag gesture begins.
+     *
+     * @event
+     * @param {Number} x The relative change in X location relative to
+     *                   drag start. For drag start, this will ALWAYS be 0.
+     * @param {Number} y The relative change in Y location relative to
+     *                   drag start. For drag start, this will ALWAYS be 0.
+     */
+    this.ondragstart = null;
+
+    /**
+     * Called when the drag amount changes.
+     *
+     * @event
+     * @param {Number} x The relative change in X location relative to
+     *                   drag start.
+     * @param {Number} y The relative change in Y location relative to
+     *                   drag start.
+     */
+    this.ondragchange = null;
+
+    /**
+     * Called when a drag gesture ends.
+     *
+     * @event
+     * @param {Number} x The relative change in X location relative to
+     *                   drag start.
+     * @param {Number} y The relative change in Y location relative to
+     *                   drag start.
+     */
+    this.ondragend = null;
+
+    /**
+     * Cancels the current drag gesture, if any. Drag events will cease to fire
+     * until a new gesture begins.
+     */
+    this.cancel = function() {
+        in_progress = false;
+    };
+
+    // When there is exactly one touch, monitor the change in location
+    element.addEventListener("touchmove", function(e) {
+        if (e.touches.length === 1) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Get touch location
+            var x = e.touches[0].clientX;
+            var y = e.touches[0].clientY;
+
+            // If gesture just starting, fire zoom start
+            if (!guac_drag.start_x || !guac_drag.start_y) {
+                guac_drag.start_x = x;
+                guac_drag.start_y = y;
+                guac_drag.delta_x = 0;
+                guac_drag.delta_y = 0;
+                in_progress = true;
+                if (guac_drag.ondragstart)
+                    guac_drag.ondragstart(guac_drag.delta_x, guac_drag.delta_y);
+            }
+
+            // Otherwise, notify of zoom change
+            else if (guac_drag.ondragchange) {
+                guac_drag.delta_x = x - guac_drag.start_x;
+                guac_drag.delta_y = y - guac_drag.start_y;
+
+                if (in_progress)
+                    guac_drag.ondragchange(guac_drag.delta_x, guac_drag.delta_y);
+            }
+
+        }
+    }, false);
+
+    // Reset monitoring and fire end event when done
+    element.addEventListener("touchend", function(e) {
+
+        if (guac_drag.start_x && guac_drag.start_y && e.touches.length === 0) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (in_progress && guac_drag.ondragend)
+                guac_drag.ondragend();
+
+            guac_drag.start_x = null;
+            guac_drag.start_y = null;
+            guac_drag.delta_x = 0;
+            guac_drag.delta_y = 0;
+            in_progress = false;
+
+        }
+
+    }, false);
+
+};
+
+/**
+ * Monitors a given element for touch events, firing zoom-specific events
+ * based on pre-defined gestures.
+ * 
+ * @constructor
+ * @param {Element} element The element to monitor for touch events. 
+ */
+GuacUI.Client.Pinch = function(element) {
+
+    /**
+     * Reference to this zoom instance.
+     * @private
+     */
+    var guac_zoom = this;
+
+    /**
+     * The current pinch distance, or null if the gesture has not yet started.
+     * @private
+     */
+    var start_length = null;
+
+    /**
+     * The current zoom ratio.
+     * @type Number
+     */
+    this.ratio = 1;
+
+    /**
+     * The X-coordinate of the current center of the pinch gesture.
+     * @type Number
+     */
+    this.centerX = 0;
+
+    /**
+     * The Y-coordinate of the current center of the pinch gesture.
+     * @type Number
+     */
+    this.centerY = 0;
+
+    /**
+     * Called when a zoom gesture begins.
+     *
+     * @event
+     * @param {Number} ratio The relative value of the starting zoom. This will
+     *                       ALWAYS be 1.
+     * @param {Number} x The X-coordinate of the center of the pinch gesture.
+     * @param {Number} y The Y-coordinate of the center of the pinch gesture.
+     */
+    this.onzoomstart = null;
+
+    /**
+     * Called when the amount of zoom changes.
+     *
+     * @event
+     * @param {Number} ratio The relative value of the changed zoom, with 1
+     *                       being no change.
+     * @param {Number} x The X-coordinate of the center of the pinch gesture.
+     * @param {Number} y The Y-coordinate of the center of the pinch gesture.
+     */
+    this.onzoomchange = null;
+
+    /**
+     * Called when a zoom gesture ends.
+     *
+     * @event
+     * @param {Number} ratio The relative value of the final zoom, with 1
+     *                       being no change.
+     * @param {Number} x The X-coordinate of the center of the pinch gesture.
+     * @param {Number} y The Y-coordinate of the center of the pinch gesture.
+     */
+    this.onzoomend = null;
+
+    /**
+     * Given a touch event, calculates the distance between the first two
+     * touches in pixels.
+     *
+     * @param {TouchEvent} e The touch event to use when performing distance
+     *                       calculation.
+     * @return {Number} The distance in pixels between the first two touches.
+     */
+    function pinch_distance(e) {
+
+        var touch_a = e.touches[0];
+        var touch_b = e.touches[1];
+
+        var delta_x = touch_a.clientX - touch_b.clientX;
+        var delta_y = touch_a.clientY - touch_b.clientY;
+
+        return Math.sqrt(delta_x*delta_x + delta_y*delta_y);
+
+    }
+
+    /**
+     * Given a touch event, calculates the center between the first two
+     * touches in pixels, returning the X coordinate of this center.
+     *
+     * @param {TouchEvent} e The touch event to use when performing center 
+     *                       calculation.
+     * @return {Number} The X-coordinate of the center of the first two touches.
+     */
+    function pinch_center_x(e) {
+
+        var touch_a = e.touches[0];
+        var touch_b = e.touches[1];
+
+        return (touch_a.clientX + touch_b.clientX) / 2;
+
+    }
+
+    /**
+     * Given a touch event, calculates the center between the first two
+     * touches in pixels, returning the Y coordinate of this center.
+     *
+     * @param {TouchEvent} e The touch event to use when performing center 
+     *                       calculation.
+     * @return {Number} The Y-coordinate of the center of the first two touches.
+     */
+    function pinch_center_y(e) {
+
+        var touch_a = e.touches[0];
+        var touch_b = e.touches[1];
+
+        return (touch_a.clientY + touch_b.clientY) / 2;
+
+    }
+
+    // When there are exactly two touches, monitor the distance between
+    // them, firing zoom events as appropriate
+    element.addEventListener("touchmove", function(e) {
+        if (e.touches.length === 2) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Calculate current zoom level
+            var current = pinch_distance(e);
+
+            // Calculate center
+            guac_zoom.centerX = pinch_center_x(e);
+            guac_zoom.centerY = pinch_center_y(e);
+
+            // If gesture just starting, fire zoom start
+            if (!start_length) {
+                start_length = current;
+                guac_zoom.ratio = 1;
+                if (guac_zoom.onzoomstart)
+                    guac_zoom.onzoomstart(guac_zoom.ratio, guac_zoom.centerX, guac_zoom.centerY);
+            }
+
+            // Otherwise, notify of zoom change
+            else {
+                guac_zoom.ratio = current / start_length;
+                if (guac_zoom.onzoomchange)
+                    guac_zoom.onzoomchange(guac_zoom.ratio, guac_zoom.centerX, guac_zoom.centerY);
+            }
+
+        }
+    }, false);
+
+    // Reset monitoring and fire end event when done
+    element.addEventListener("touchend", function(e) {
+
+        if (start_length && e.touches.length < 2) {
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            start_length = null;
+            if (guac_zoom.onzoomend)
+                guac_zoom.onzoomend(guac_zoom.ratio, guac_zoom.centerX, guac_zoom.centerY);
+            guac_zoom.ratio = 1;
+        }
+
+    }, false);
+
+};
+
+/**
  * Flattens the attached Guacamole.Client, storing the result within the
  * connection history.
  */
@@ -837,25 +790,14 @@ GuacUI.Client.updateDisplayScale = function() {
     var guac = GuacUI.Client.attachedClient;
     var adjusted_scale = 1 / (window.devicePixelRatio || 1);
 
-    // If auto-fit is enabled, scale display
-    if (!GuacUI.Client.overrideAutoFit
-         && GuacUI.sessionState.getProperty("auto-fit")) {
+    // Calculate scale to fit screen
+    GuacUI.Client.min_zoom = Math.min(
+        window.innerWidth  / guac.getWidth(),
+        window.innerHeight / guac.getHeight()
+    );
 
-        // Calculate scale to fit screen
-        var fit_scale = Math.min(
-            window.innerWidth  / guac.getWidth(),
-            window.innerHeight / guac.getHeight()
-        );
-          
-        // Scale client
-        if (guac.getScale() !== fit_scale)
-            guac.scale(fit_scale);
-
-    }
-
-    // Otherwise, scale to 100%
-    else if (guac.getScale() !== adjusted_scale)
-        guac.scale(adjusted_scale);
+    if (guac.getScale() < GuacUI.Client.min_zoom)
+        guac.scale(GuacUI.Client.min_zoom);
 
 };
 
@@ -869,6 +811,33 @@ GuacUI.Client.updateTitle = function () {
     else
         document.title = GuacUI.Client.connectionName;
 
+    GuacUI.Client.menu_title.textContent = GuacUI.Client.connectionName;
+
+};
+
+/**
+ * Sets whether the menu is currently visible. Keyboard is disabled while the
+ * menu is shown.
+ *
+ * @param {Boolean} [shown] Whether the menu should be shown. If omitted, this
+ *                          function will cause the menu to be shown by default.
+ */
+GuacUI.Client.showMenu = function(shown) {
+    if (shown === false) {
+        GuacUI.Client.menu.className = "closed";
+        GuacUI.Client.commitClipboard();
+    }
+    else
+        GuacUI.Client.menu.className = "open";
+};
+
+/**
+ * Returns whether the menu is currently shown.
+ *
+ * @returns {Boolean} true if the menu is shown, false otherwise.
+ */
+GuacUI.Client.isMenuShown = function() {
+    return GuacUI.Client.menu.className === "open";
 };
 
 /**
@@ -981,6 +950,131 @@ GuacUI.Client.connect = function() {
 };
 
 /**
+ * Represents a number of bytes as a human-readable size string, including
+ * units.
+ *
+ * @param {Number} bytes The number of bytes.
+ * @returns {String} A human-readable string containing the size given.
+ */
+GuacUI.Client.getSizeString = function(bytes) {
+
+    if (bytes > 1000000000)
+        return (bytes / 1000000000).toFixed(1) + " GB";
+
+    else if (bytes > 1000000)
+        return (bytes / 1000000).toFixed(1) + " MB";
+
+    else if (bytes > 1000)
+        return (bytes / 1000).toFixed(1) + " KB";
+
+    else
+        return bytes + " B";
+
+};
+
+/**
+ * Commits the current contents of the clipboard textarea to the remote
+ * clipboard and the local Guacamole clipboard shared across connections.
+ */
+GuacUI.Client.commitClipboard = function() {
+
+    // Set value if changed
+    var new_value = GuacUI.Client.clipboard.value;
+    GuacamoleSessionStorage.setItem("clipboard", new_value);
+
+};
+
+/**
+ * Sets the mouse emulation mode to absolute or relative.
+ *
+ * @param {Boolean} absolute Whether mouse emulation should use absolute
+ *                           (touchscreen) mode.
+ */
+GuacUI.Client.setMouseEmulationAbsolute = function(absolute) {
+
+    function __handle_mouse_state(mouseState) {
+
+        // Get client - do nothing if not attached
+        var guac = GuacUI.Client.attachedClient;
+        if (!guac) return;
+   
+        // Determine mouse position within view
+        var guac_display = guac.getDisplay();
+        var mouse_view_x = mouseState.x + guac_display.offsetLeft - GuacUI.Client.main.scrollLeft;
+        var mouse_view_y = mouseState.y + guac_display.offsetTop  - GuacUI.Client.main.scrollTop;
+
+        // Determine viewport dimensioins
+        var view_width  = GuacUI.Client.main.offsetWidth;
+        var view_height = GuacUI.Client.main.offsetHeight;
+
+        // Determine scroll amounts based on mouse position relative to document
+
+        var scroll_amount_x;
+        if (mouse_view_x > view_width)
+            scroll_amount_x = mouse_view_x - view_width;
+        else if (mouse_view_x < 0)
+            scroll_amount_x = mouse_view_x;
+        else
+            scroll_amount_x = 0;
+
+        var scroll_amount_y;
+        if (mouse_view_y > view_height)
+            scroll_amount_y = mouse_view_y - view_height;
+        else if (mouse_view_y < 0)
+            scroll_amount_y = mouse_view_y;
+        else
+            scroll_amount_y = 0;
+
+        // Scroll (if necessary) to keep mouse on screen.
+        GuacUI.Client.main.scrollLeft += scroll_amount_x;
+        GuacUI.Client.main.scrollTop  += scroll_amount_y;
+
+        // Scale event by current scale
+        var scaledState = new Guacamole.Mouse.State(
+                mouseState.x / guac.getScale(),
+                mouseState.y / guac.getScale(),
+                mouseState.left,
+                mouseState.middle,
+                mouseState.right,
+                mouseState.up,
+                mouseState.down);
+
+        // Send mouse event
+        guac.sendMouseState(scaledState);
+        
+    };
+
+    var new_mode, old_mode;
+    GuacUI.Client.emulate_absolute = absolute;
+
+    // Switch to touchscreen if absolute
+    if (absolute) {
+        new_mode = GuacUI.Client.touch_screen;
+        old_mode = GuacUI.Client.touch;
+    }
+
+    // Switch to touchpad if not absolute (relative)
+    else {
+        new_mode = GuacUI.Client.touch_pad;
+        old_mode = GuacUI.Client.touch;
+    }
+
+    // Perform switch
+    if (new_mode) {
+
+        if (old_mode) {
+            old_mode.onmousedown = old_mode.onmouseup = old_mode.onmousemove = null;
+            new_mode.currentState.x = old_mode.currentState.x;
+            new_mode.currentState.y = old_mode.currentState.y;
+        }
+
+        new_mode.onmousedown = new_mode.onmouseup = new_mode.onmousemove = __handle_mouse_state;
+        GuacUI.Client.touch = new_mode;
+    }
+
+};
+
+/**
  * Attaches a Guacamole.Client to the client UI, such that Guacamole events
  * affect the UI, and local events affect the Guacamole.Client. If a client
  * is already attached, it is replaced.
@@ -1040,8 +1134,9 @@ GuacUI.Client.attach = function(guac) {
                 GuacUI.Client.titlePrefix = null;
 
                 // Update clipboard with current data
-                if (GuacUI.sessionState.getProperty("clipboard"))
-                    guac.setClipboard(GuacUI.sessionState.getProperty("clipboard"));
+                var clipboard = GuacamoleSessionStorage.getItem("clipboard");
+                if (clipboard)
+                    guac.setClipboard(clipboard);
 
                 break;
 
@@ -1087,34 +1182,38 @@ GuacUI.Client.attach = function(guac) {
     };
 
     // Server copy handler
-    guac.onclipboard = function(data) {
-        GuacUI.sessionState.setProperty("clipboard", data);
+    guac.onclipboard = function(stream, mimetype) {
+
+        // Only text/plain is supported for now
+        if (mimetype !== "text/plain") {
+            stream.sendAck("Only text/plain supported", Guacamole.Status.Code.UNSUPPORTED);
+            return;
+        }
+
+        var reader = new Guacamole.StringReader(stream);
+        var data = "";
+
+        // Append any received data to buffer
+        reader.ontext = function clipboard_text_received(text) {
+            data += text;
+            stream.sendAck("Received", Guacamole.Status.Code.SUCCESS);
+        };
+
+        // Set contents when done
+        reader.onend = function clipboard_text_end() {
+            GuacamoleSessionStorage.setItem("clipboard", data);
+        };
+
     };
 
     /*
      * Prompt to download file when file received.
      */
 
-    function getSizeString(bytes) {
-
-        if (bytes > 1000000000)
-            return (bytes / 1000000000).toFixed(1) + " GB";
-
-        else if (bytes > 1000000)
-            return (bytes / 1000000).toFixed(1) + " MB";
-
-        else if (bytes > 1000)
-            return (bytes / 1000).toFixed(1) + " KB";
-
-        else
-            return bytes + " B";
-
-    }
-
     guac.onfile = function(stream, mimetype, filename) {
 
         var download = new GuacUI.Download(filename);
-        download.updateProgress(getSizeString(0));
+        download.updateProgress(GuacUI.Client.getSizeString(0));
 
         var blob_reader = new Guacamole.BlobReader(stream, mimetype);
 
@@ -1122,7 +1221,7 @@ GuacUI.Client.attach = function(guac) {
 
         // Update progress as data is received
         blob_reader.onprogress = function() {
-            download.updateProgress(getSizeString(blob_reader.getLength()));
+            download.updateProgress(GuacUI.Client.getSizeString(blob_reader.getLength()));
             stream.sendAck("Received", 0x0000);
         };
 
@@ -1159,56 +1258,36 @@ GuacUI.Client.attach = function(guac) {
      * Handle mouse and touch events relative to the display element.
      */
 
+    // Touchscreen
+    var touch_screen = new Guacamole.Mouse.Touchscreen(guac_display);
+    GuacUI.Client.touch_screen = touch_screen;
+
+    // Touchpad
+    var touch_pad = new Guacamole.Mouse.Touchpad(guac_display);
+    GuacUI.Client.touch_pad = touch_pad;
+
+    // Init emulation mode for client
+    GuacUI.Client.setMouseEmulationAbsolute(GuacUI.Client.absolute_radio.checked);
+
     // Mouse
     var mouse = new Guacamole.Mouse(guac_display);
-    var touch = new Guacamole.Mouse.Touchpad(guac_display);
-    touch.onmousedown = touch.onmouseup = touch.onmousemove =
-    mouse.onmousedown = mouse.onmouseup = mouse.onmousemove =
-        function(mouseState) {
-       
-            // Determine mouse position within view
-            var mouse_view_x = mouseState.x + guac_display.offsetLeft - window.pageXOffset;
-            var mouse_view_y = mouseState.y + guac_display.offsetTop  - window.pageYOffset;
+    mouse.onmousedown = mouse.onmouseup = mouse.onmousemove = function(mouseState) {
 
-            // Determine viewport dimensioins
-            var view_width  = GuacUI.Client.viewport.offsetWidth;
-            var view_height = GuacUI.Client.viewport.offsetHeight;
+        // Scale event by current scale
+        var scaledState = new Guacamole.Mouse.State(
+                mouseState.x / guac.getScale(),
+                mouseState.y / guac.getScale(),
+                mouseState.left,
+                mouseState.middle,
+                mouseState.right,
+                mouseState.up,
+                mouseState.down);
 
-            // Determine scroll amounts based on mouse position relative to document
+        // Send mouse event
+        guac.sendMouseState(scaledState);
+        
+    };
 
-            var scroll_amount_x;
-            if (mouse_view_x > view_width)
-                scroll_amount_x = mouse_view_x - view_width;
-            else if (mouse_view_x < 0)
-                scroll_amount_x = mouse_view_x;
-            else
-                scroll_amount_x = 0;
-
-            var scroll_amount_y;
-            if (mouse_view_y > view_height)
-                scroll_amount_y = mouse_view_y - view_height;
-            else if (mouse_view_y < 0)
-                scroll_amount_y = mouse_view_y;
-            else
-                scroll_amount_y = 0;
-
-            // Scroll (if necessary) to keep mouse on screen.
-            window.scrollBy(scroll_amount_x, scroll_amount_y);
-
-            // Scale event by current scale
-            var scaledState = new Guacamole.Mouse.State(
-                    mouseState.x / guac.getScale(),
-                    mouseState.y / guac.getScale(),
-                    mouseState.left,
-                    mouseState.middle,
-                    mouseState.right,
-                    mouseState.up,
-                    mouseState.down);
-
-            // Send mouse event
-            guac.sendMouseState(scaledState);
-            
-        };
 
     // Hide any existing status notifications
     GuacUI.Client.hideStatus();
@@ -1232,37 +1311,50 @@ GuacUI.Client.attach = function(guac) {
     var keyboard = new Guacamole.Keyboard(document);
     var show_keyboard_gesture_possible = true;
 
+    window.kb = keyboard;
+
+    function __send_key(pressed, keysym) {
+
+        // Do not send key if menu shown
+        if (GuacUI.Client.isMenuShown())
+            return true;
+
+        GuacUI.Client.attachedClient.sendKeyEvent(pressed, keysym);
+        return false;
+
+    }
+
     keyboard.onkeydown = function (keysym) {
 
         // Only handle key events if client is attached
         var guac = GuacUI.Client.attachedClient;
-        if (!guac) return;
+        if (!guac) return true;
 
         // Handle Ctrl-shortcuts specifically
         if (keyboard.modifiers.ctrl && !keyboard.modifiers.alt && !keyboard.modifiers.shift) {
 
             // Allow event through if Ctrl+C or Ctrl+X
             if (keyboard.pressed[0x63] || keyboard.pressed[0x78]) {
-                guac.sendKeyEvent(1, keysym);
+                __send_key(1, keysym);
                 return true;
             }
 
             // If Ctrl+V, wait until after paste event (next event loop)
             if (keyboard.pressed[0x76]) {
                 window.setTimeout(function after_paste() {
-                    guac.sendKeyEvent(1, keysym);
+                    __send_key(1, keysym);
                 }, 10);
                 return true;
             }
 
         }
 
-        // Just send key for all other cases
-        guac.sendKeyEvent(1, keysym);
-
         // If key is NOT one of the expected keys, gesture not possible
         if (keysym !== 0xFFE3 && keysym !== 0xFFE9 && keysym !== 0xFFE1)
             show_keyboard_gesture_possible = false;
+
+        // Send key event
+        return __send_key(1, keysym);
 
     };
 
@@ -1270,25 +1362,13 @@ GuacUI.Client.attach = function(guac) {
 
         // Only handle key events if client is attached
         var guac = GuacUI.Client.attachedClient;
-        if (!guac) return;
+        if (!guac) return true;
 
-        guac.sendKeyEvent(0, keysym);
-
-        // If lifting up on shift, toggle keyboard if rest of gesture
+        // If lifting up on shift, toggle menu visibility if rest of gesture
         // conditions satisfied
-        if (show_keyboard_gesture_possible && keysym === 0xFFE1) {
-            if (keyboard.pressed[0xFFE3] && keyboard.pressed[0xFFE9]) {
-
-                // If in INTERACTIVE mode, switch to OSK
-                if (GuacUI.StateManager.getState() === GuacUI.Client.states.INTERACTIVE)
-                    GuacUI.StateManager.setState(GuacUI.Client.states.OSK);
-
-                // If in OSK mode, switch to INTERACTIVE 
-                else if (GuacUI.StateManager.getState() === GuacUI.Client.states.OSK)
-                    GuacUI.StateManager.setState(GuacUI.Client.states.INTERACTIVE);
-
-            }
-        }
+        if (show_keyboard_gesture_possible && keysym === 0xFFE1 
+            && keyboard.pressed[0xFFE3] && keyboard.pressed[0xFFE9])
+                GuacUI.Client.showMenu(!GuacUI.Client.isMenuShown());
 
         // Detect if no keys are pressed
         var reset_gesture = true;
@@ -1301,27 +1381,66 @@ GuacUI.Client.attach = function(guac) {
         if (reset_gesture)
             show_keyboard_gesture_possible = true;
 
+        // Send key event
+        return __send_key(0, keysym);
+
     };
+
+    /**
+     * Returns the contents of the remote clipboard if clipboard integration is
+     * enabled, and null otherwise.
+     */
+    function get_clipboard_data() {
+
+        // If integration not enabled, do not attempt retrieval
+        if (GuacUI.Client.clipboard_integration_enabled === false)
+            return null;
+
+        // Otherwise, attempt retrieval and update integration status
+        try {
+            var data = GuacamoleService.Clipboard.get();
+            GuacUI.Client.clipboard_integration_enabled = true;
+            return data;
+        }
+        catch (status) {
+            GuacUI.Client.clipboard_integration_enabled = false;
+            return null;
+        }
+
+    }
 
     // Set local clipboard contents on cut 
     document.body.addEventListener("cut", function handle_cut(e) {
-        e.preventDefault();
-        var data = GuacamoleService.Clipboard.get();
-        e.clipboardData.setData("text/plain", data);
+        var data = get_clipboard_data();
+        if (data !== null) {
+            e.preventDefault();
+            e.clipboardData.setData("text/plain", data);
+        }
     }, false);
 
     // Set local clipboard contents on copy 
     document.body.addEventListener("copy", function handle_copy(e) {
-        e.preventDefault();
-        var data = GuacamoleService.Clipboard.get();
-        e.clipboardData.setData("text/plain", data);
+        var data = get_clipboard_data();
+        if (data !== null) {
+            e.preventDefault();
+            e.clipboardData.setData("text/plain", data);
+        }
     }, false);
 
     // Set remote clipboard contents on paste
     document.body.addEventListener("paste", function handle_paste(e) {
-        e.preventDefault();
-        if (GuacUI.Client.attachedClient)
-            GuacUI.Client.attachedClient.setClipboard(e.clipboardData.getData("text/plain"));
+
+        // If status of clipboard integration is unknown, attempt to define it
+        if (GuacUI.Client.clipboard_integration_enabled === undefined)
+            get_clipboard_data();
+
+        // Override and handle paste only if integration is enabled
+        if (GuacUI.Client.clipboard_integration_enabled) {
+            e.preventDefault();
+            if (GuacUI.Client.attachedClient)
+                GuacUI.Client.attachedClient.setClipboard(e.clipboardData.getData("text/plain"));
+        }
+
     }, false);
 
     /*
@@ -1352,76 +1471,12 @@ GuacUI.Client.attach = function(guac) {
 
     };
 
-    GuacUI.sessionState.onchange = function(old_state, new_state, name) {
-        if (name === "clipboard" && GuacUI.Client.attachedClient)
-            GuacUI.Client.attachedClient.setClipboard(new_state[name]);
-        else if (name === "auto-fit")
-            GuacUI.Client.updateDisplayScale();
-    };
-
-    var long_press_start_x = 0;
-    var long_press_start_y = 0;
-    var longPressTimeout = null;
-
-    GuacUI.Client.startLongPressDetect = function() {
-
-        if (!longPressTimeout) {
-
-            longPressTimeout = window.setTimeout(function() {
-                longPressTimeout = null;
-
-                // If screen shrunken, show magnifier
-                if (GuacUI.Client.attachedClient.getScale() < 1.0)
-                    GuacUI.StateManager.setState(GuacUI.Client.states.MAGNIFIER);
-
-                // Otherwise, if screen too big to fit, use panning mode
-                else if (
-                       GuacUI.Client.attachedClient.getWidth() > window.innerWidth
-                    || GuacUI.Client.attachedClient.getHeight() > window.innerHeight
-                )
-                    GuacUI.StateManager.setState(GuacUI.Client.states.PAN);
-
-                // Otherwise, just show a hint
-                else
-                    GuacUI.StateManager.setState(GuacUI.Client.states.WAIT_TYPING);
-            }, GuacUI.Client.LONG_PRESS_DETECT_TIMEOUT);
-
+    GuacamoleSessionStorage.addChangeListener(function(name, value) {
+        if (name === "clipboard" && GuacUI.Client.attachedClient) {
+            GuacUI.Client.clipboard.value = value;
+            GuacUI.Client.attachedClient.setClipboard(value);
         }
-    };
-
-    GuacUI.Client.stopLongPressDetect = function() {
-        window.clearTimeout(longPressTimeout);
-        longPressTimeout = null;
-    };
-
-    // Detect long-press at bottom of screen
-    GuacUI.Client.display.addEventListener('touchstart', function(e) {
-        
-        // Record touch location
-        if (e.touches.length === 1) {
-            var touch = e.touches[0];
-            long_press_start_x = touch.screenX;
-            long_press_start_y = touch.screenY;
-        }
-        
-        // Start detection
-        GuacUI.Client.startLongPressDetect();
-        
-    }, true);
-
-    // Stop detection if touch moves significantly
-    GuacUI.Client.display.addEventListener('touchmove', function(e) {
-        
-        // If touch distance from start exceeds threshold, cancel long press
-        var touch = e.touches[0];
-        if (Math.abs(touch.screenX - long_press_start_x) >= GuacUI.Client.LONG_PRESS_MOVEMENT_THRESHOLD
-            || Math.abs(touch.screenY - long_press_start_y) >= GuacUI.Client.LONG_PRESS_MOVEMENT_THRESHOLD)
-            GuacUI.Client.stopLongPressDetect();
-        
-    }, true);
-
-    // Stop detection if press stops
-    GuacUI.Client.display.addEventListener('touchend', GuacUI.Client.stopLongPressDetect, true);
+    });
 
     /**
      * Ignores the given event.
@@ -1469,7 +1524,7 @@ GuacUI.Client.attach = function(guac) {
 
             // Add upload notification
             var upload = new GuacUI.Upload(file.name);
-            upload.updateProgress(getSizeString(0), 0);
+            upload.updateProgress(GuacUI.Client.getSizeString(0), 0);
 
             GuacUI.Client.notification_area.appendChild(upload.getElement());
 
@@ -1513,7 +1568,7 @@ GuacUI.Client.attach = function(guac) {
 
                 // Otherwise, update progress
                 else
-                    upload.updateProgress(getSizeString(offset), offset / bytes.length * 100);
+                    upload.updateProgress(GuacUI.Client.getSizeString(offset), offset / bytes.length * 100);
 
             };
 
@@ -1545,6 +1600,168 @@ GuacUI.Client.attach = function(guac) {
         var files = e.dataTransfer.files;
         for (var i=0; i<files.length; i++)
             _upload_file(files[i]);
+
+    }, false);
+
+    /*
+     * Pinch-to-zoom
+     */
+
+    var guac_pinch = new GuacUI.Client.Pinch(document.body);
+    var initial_scale = null;
+    var initial_center_x = null;
+    var initial_center_y = null;
+
+    guac_pinch.onzoomstart = function(ratio, x, y) {
+
+        var guac = GuacUI.Client.attachedClient;
+        if (!guac)
+            return;
+
+        initial_scale = guac.getScale();
+        initial_center_x = (x + GuacUI.Client.main.scrollLeft) / initial_scale;
+        initial_center_y = (y + GuacUI.Client.main.scrollTop) / initial_scale;
+    };
+
+    guac_pinch.onzoomchange = function(ratio, x, y) {
+
+        var guac = GuacUI.Client.attachedClient;
+        if (!guac)
+            return;
+
+        // Ignore pinch for relative mouse emulation
+        if (!GuacUI.Client.emulate_absolute)
+            return;
+
+        // Rescale based on new ratio
+        var new_scale = initial_scale * ratio;
+        new_scale = Math.max(new_scale, GuacUI.Client.min_zoom);
+        new_scale = Math.min(new_scale, GuacUI.Client.max_zoom);
+        guac.scale(new_scale);
+
+        // Calculate point at currently at center of touch
+        var point_at_center_x = (x + GuacUI.Client.main.scrollLeft) / new_scale;
+        var point_at_center_y = (y + GuacUI.Client.main.scrollTop) / new_scale;
+
+        // Correct position to keep point-of-interest within center of pinch
+        GuacUI.Client.main.scrollLeft += (initial_center_x - point_at_center_x) * new_scale;
+        GuacUI.Client.main.scrollTop += (initial_center_y - point_at_center_y) * new_scale;
+
+    };
+
+    /*
+     * Touch panning/swiping
+     */
+
+    var guac_drag = new GuacUI.Client.Drag(document.body);
+
+    var is_swipe_right = false;
+    var drag_start = 0;
+    var last_drag_dx = 0;
+    var last_drag_dy = 0;
+
+    guac_drag.ondragstart = function(dx, dy) {
+
+        last_drag_dx = dx;
+        last_drag_dy = dy;
+        drag_start = new Date().getTime();
+
+        // If dragging from far left, consider gesture to be a swipe
+        is_swipe_right = (guac_drag.start_x <= 32 && (!GuacUI.Client.touch || !GuacUI.Client.touch.currentState.left));
+
+    };
+
+    guac_drag.ondragchange = function(dx, dy) {
+        if (!GuacUI.Client.touch || !GuacUI.Client.touch.currentState.left) {
+
+            var duration = new Date().getTime() - drag_start;
+            var change_drag_dx = dx - last_drag_dx;
+            var change_drag_dy = dy - last_drag_dy;
+
+            // Show menu if swiping right
+            if (is_swipe_right && !GuacUI.Client.isMenuShown()) {
+                if (dx >= 64 && Math.abs(dy) < 32 && duration < 250) {
+                    GuacUI.Client.showMenu();
+                    guac_drag.cancel();
+                }
+            }
+
+            // Hide menu if swiping left 
+            else if (GuacUI.Client.isMenuShown()) {
+
+                GuacUI.Client.menu.scrollLeft -= change_drag_dx;
+                GuacUI.Client.menu.scrollTop -= change_drag_dy;
+
+                if (dx <= -64 && Math.abs(dy) < 32 && duration < 250) {
+                    GuacUI.Client.showMenu(false);
+                    guac_drag.cancel();
+                }
+
+            }
+
+            // Otherwise, drag UI (if not relative emulation)
+            else if (GuacUI.Client.emulate_absolute) {
+                GuacUI.Client.main.scrollLeft -= change_drag_dx;
+                GuacUI.Client.main.scrollTop -= change_drag_dy;
+            }
+
+            last_drag_dx = dx;
+            last_drag_dy = dy;
+
+        }
+    };
+
+    /*
+     * Initialize clipboard with current data
+     */
+
+    GuacUI.Client.clipboard.value = GuacamoleSessionStorage.getItem("clipboard", "");
+
+    /*
+     * Update clipboard contents when changed
+     */
+
+    window.onblur =
+    GuacUI.Client.clipboard.onchange = function() {
+        GuacUI.Client.commitClipboard();
+    };
+
+    /*
+     * Update emulation mode when changed
+     */
+
+    GuacUI.Client.absolute_radio.onclick =
+    GuacUI.Client.absolute_radio.onchange = function() {
+        GuacUI.Client.setMouseEmulationAbsolute(GuacUI.Client.absolute_radio.checked);
+        GuacUI.Client.showMenu(false);
+    };
+
+    GuacUI.Client.relative_radio.onclick =
+    GuacUI.Client.relative_radio.onchange = function() {
+        GuacUI.Client.setMouseEmulationAbsolute(!GuacUI.Client.relative_radio.checked);
+        GuacUI.Client.showMenu(false);
+    };
+
+    // Prevent default on all touch events
+    document.addEventListener("touchstart", function(e) {
+
+        // Inspect touch event target to determine whether the touch should
+        // be allowed.
+        if (e.touches.length === 1) {
+
+            var element = e.target;
+            while (element) {
+
+                // Allow single-touch events on the menu
+                if (element === GuacUI.Client.menu)
+                    return;
+
+                element = element.parentNode;
+            }
+
+        }
+
+        e.preventDefault();
 
     }, false);
 

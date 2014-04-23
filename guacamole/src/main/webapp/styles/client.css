@@ -113,6 +113,15 @@ div.dialog p {
     margin: 0;
 }
 
+div#main {
+    overflow: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
 div.displayOuter {
     height: 100%;
     width: 100%;
@@ -489,4 +498,117 @@ p.hint {
     width: 0;
     height: 0;
     overflow: hidden;
+}
+
+/* Menu */
+
+/**
+ * show-menu: Animation for showing the menu
+ */
+@keyframes show-menu {
+    from { left: -480px; opacity: 0;}
+    to   { left: 0;      opacity: 1;}
+}
+@-moz-keyframes show-menu {
+    from { left: -480px; opacity: 0;}
+    to   { left: 0;      opacity: 1;}
+}
+@-webkit-keyframes show-menu {
+    from { left: -480px; opacity: 0;}
+    to   { left: 0;      opacity: 1;}
+}
+
+/**
+ * hide-menu: Animation for hiding the menu
+ */
+@keyframes hide-menu {
+    from { left: 0;      opacity: 1;}
+    to   { left: -480px; opacity: 0;}
+}
+@-moz-keyframes hide-menu {
+    from { left: 0;      opacity: 1;}
+    to   { left: -480px; opacity: 0;}
+}
+@-webkit-keyframes hide-menu {
+    from { left: 0;      opacity: 1;}
+    to   { left: -480px; opacity: 0;}
+}
+
+#menu {
+    overflow: auto;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    max-width: 100%;
+    width: 480px;
+    background: #EEE;
+    box-shadow: inset -1px 0 2px white, 1px 0 2px black;
+}
+
+#menu .content {
+    padding: 1em;
+}
+
+#menu, #menu.closed {
+    left: -480px;
+    opacity: 0;
+}
+
+#menu.open {
+    left: 0px;
+    opacity: 1;
+}
+
+#menu.closed {
+    animation-name: hide-menu;
+    animation-timing-function: linear;
+    animation-duration: 0.05s;
+    -webkit-animation-name: hide-menu;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-duration: 0.05s;
+}
+
+#menu.open {
+    animation-name: show-menu;
+    animation-timing-function: linear;
+    animation-duration: 0.05s;
+    -webkit-animation-name: show-menu;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-duration: 0.05s;
+}
+
+div#mouse-settings,
+div#clipboardDiv {
+    padding: 0;
+}
+
+#clipboardDiv textarea {
+    width: 100%;
+    border: 1px solid #AAA;
+    -moz-border-radius: 0.25em;
+    -webkit-border-radius: 0.25em;
+    -khtml-border-radius: 0.25em;
+    border-radius: 0.25em;
+    white-space: pre;
+}
+
+#mouse-settings .choice {
+    text-align: center;
+}
+
+#mouse-settings .choice .figure {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 80%;
+}
+
+#mouse-settings .figure .caption {
+    text-align: center;
+    font-size: 0.9em;
+}
+
+#mouse-settings .figure img {
+    display: block;
+    max-width: 100%;
+    margin: 1em auto;
 }

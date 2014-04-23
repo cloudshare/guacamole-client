@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.glyptodon.guacamole.GuacamoleException;
 import org.glyptodon.guacamole.GuacamoleServerException;
+import org.glyptodon.guacamole.GuacamoleUnsupportedException;
 import org.glyptodon.guacamole.net.auth.UserContext;
 import org.glyptodon.guacamole.properties.BooleanGuacamoleProperty;
 import org.glyptodon.guacamole.properties.GuacamoleProperties;
@@ -70,14 +71,21 @@ public class CaptureClipboard extends AuthenticatingHttpServlet {
 
             // Send clipboard contents
             try {
-                response.setContentType("text/plain");
-                response.getWriter().print(clipboard.waitForContents(CLIPBOARD_TIMEOUT));
+                synchronized (clipboard) {
+                    clipboard.waitForContents(CLIPBOARD_TIMEOUT);
+                    response.setContentType(clipboard.getMimetype());
+                    response.getOutputStream().write(clipboard.getContents());
+                }
             }
             catch (IOException e) {
                 throw new GuacamoleServerException("Unable to send clipboard contents", e);
             }
 
         }
+
+        // Otherwise, inform not supported
+        else
+            throw new GuacamoleUnsupportedException("Clipboard integration not supported");
 
     }
 
