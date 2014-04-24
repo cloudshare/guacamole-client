@@ -43,6 +43,26 @@ angular.module('manage').controller('userEditModalController', ['$scope', '$inje
         userEditModal.deactivate();
     };
     
+    /*
+     * All the permissions that have been modified since this modal was opened.
+     * Maps of type or id to value.
+     */ 
+    $scope.modifiedSystemPermissions = {};
+    $scope.modifiedConnectionPermissions = {};
+    $scope.modifiedConnectionGroupPermissions = {};
+    
+    $scope.markSystemPermissionModified = function markSystemPermissionModified(type) {
+        $scope.modifiedSystemPermissions[type] = $scope.systemPermissions[type];
+    };
+    
+    $scope.markConnectionPermissionModified = function markConnectionPermissionModified(id) {
+        $scope.modifiedConnectionPermissions[id] = $scope.connectionPermissions[id];
+    };
+    
+    $scope.markConnectionGroupPermissionModified = function markConnectionGroupPermissionModified(id) {
+        $scope.modifiedConnectionGroupPermissions[id] = $scope.connectionGroupPermissions[id];
+    };
+    
     /**
      * Save the user and close the modal.
      */
@@ -62,46 +82,37 @@ angular.module('manage').controller('userEditModalController', ['$scope', '$inje
                 connectionGroupPermissionsToDelete = [],
                 systemPermissionsToCreate = [],
                 systemPermissionsToDelete = [];
-                
-            for(var connectionID in $scope.connectionPermissions) {
-                if(!originalConnectionPermissions[connectionID]) {
-                    //The permission exists in the new set, but not the old - create it!
-                    connectionPermissionsToCreate.push(connectionID);
+            
+            for(var type in $scope.modifiedSystemPermissions) {
+                // It was added
+                if($scope.modifiedSystemPermissions[type] && !originalSystemPermissions[type]) {
+                    systemPermissionsToCreate.push(type);
+                }
+                // It was removed
+                else if(!$scope.modifiedSystemPermissions[type] && originalSystemPermissions[type]) {
+                    systemPermissionsToDelete.push(type);
                 }
             }
-                
-            for(var connectionID in originalConnectionPermissions) {
-                if(!$scope.connectionPermissions[connectionID]) {
-                    //The permission exists in the old set, but not the new - delete it!
-                    connectionPermissionsToDelete.push(connectionID);
+            
+            for(var id in $scope.modifiedConnectionPermissions) {
+                // It was added
+                if($scope.modifiedConnectionPermissions[id] && !originalConnectionPermissions[id]) {
+                    connectionPermissionsToCreate.push(id);
+                }
+                // It was removed
+                else if(!$scope.modifiedConnectionPermissions[id] && originalConnectionPermissions[id]) {
+                    connectionPermissionsToDelete.push(id);
                 }
             }
-                
-            for(var connectionGroupID in $scope.connectionGroupPermissions) {
-                if(!originalConnectionGroupPermissions[connectionGroupID]) {
-                    //The permission exists in the new set, but not the old - create it!
-                    connectionGroupPermissionsToCreate.push(connectionGroupID);
+            
+            for(var id in $scope.modifiedConnectionGroupPermissions) {
+                // It was added
+                if($scope.modifiedConnectionGroupPermissions[id] && !originalConnectionGroupPermissions[id]) {
+                    connectionGroupPermissionsToCreate.push(id);
                 }
-            }
-                
-            for(var connectionGroupID in originalConnectionGroupPermissions) {
-                if(!$scope.connectionGroupPermissions[connectionGroupID]) {
-                    //The permission exists in the old set, but not the new - delete it!
-                    connectionGroupPermissionsToDelete.push(connectionGroupID);
-                }
-            }
-                
-            for(var permissionType in $scope.systemPermissions) {
-                if(!originalSystemPermissions[permissionType]) {
-                    //The permission exists in the new set, but not the old - create it!
-                    systemPermissionsToCreate.push(permissionType);
-                }
-            }
-                
-            for(var permissionType in originalSystemPermissions) {
-                if(!$scope.systemPermissions[permissionType]) {
-                    //The permission exists in the old set, but not the new - delete it!
-                    systemPermissionsToDelete.push(permissionType);
+                // It was removed
+                else if(!$scope.modifiedConnectionGroupPermissions[id] && originalConnectionGroupPermissions[id]) {
+                    connectionGroupPermissionsToDelete.push(id);
                 }
             }
             
@@ -159,6 +170,9 @@ angular.module('manage').controller('userEditModalController', ['$scope', '$inje
                     permissionType :    systemPermissionsToDelete[i]
                 });
             }
+            
+            console.log(permissionsToAdd, permissionsToRemove);
+            return;
         
             function completeSaveProcess() {
                 // Close the modal

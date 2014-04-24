@@ -20,9 +20,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
 
+<!-- Hierarchical connection and connection group permission selector -->
 <script type="text/ng-template" id="nestedUserPermissionEditGroup.html">
+    
+    <!-- Connection -->
     <div class="choice" ng-show="item.isConnection">
-      <input type="checkbox" ng-model="connectionPermissions[item.identifier]"/>
+      <input type="checkbox" ng-model="connectionPermissions[item.identifier]" ng-change="markConnectionPermissionModified(item.identifier)"/>
       <div class="connection list-item">
         <div class="caption">
           <div class="protocol">
@@ -32,9 +35,9 @@ THE SOFTWARE.
       </div>
     </div>
     
-    
+    <!-- Connection group -->
     <div class="choice" ng-show="!item.isConnection">
-      <input type="checkbox" ng-model="connectionGroupPermissions[item.identifier]"/>
+      <input type="checkbox" ng-model="connectionGroupPermissions[item.identifier]" ng-change="markConnectionGroupPermissionModified(item.identifier)"/>
 
       <div class="group empty list-item balancer">
         <div class="caption">
@@ -43,6 +46,7 @@ THE SOFTWARE.
           <span class="name">{{item.name}}</span>
         </div>
 
+        <!-- Connection group children -->
         <div class="children" ng-show="item.expanded">
             <div ng-repeat="item in item.children | orderBy : 'name'" ng-include="'nestedUserPermissionEditGroup.html'">
         </div>
@@ -51,7 +55,7 @@ THE SOFTWARE.
 
 </script>
 
-
+<!-- User edit modal -->
 <div class="dialog-container">
   <div class="dialog">
     <div class="header">
@@ -62,6 +66,8 @@ THE SOFTWARE.
         <div class="form">
           <div class="settings section">
             <dl>
+              
+              <!-- User properties section -->
               <dt>{{'manage.edit.user.properties' | translate}}</dt>
 
               <dd>
@@ -80,6 +86,7 @@ THE SOFTWARE.
                 </table>
               </dd>
 
+              <!-- System permissions section -->
               <dt>{{'manage.edit.user.permissions' | translate}}</dt>
 
               <dd>
@@ -87,29 +94,30 @@ THE SOFTWARE.
                   <tr>
                     <th>{{'manage.edit.user.administerSystem' | translate}}</th>
 
-                    <td><input type="checkbox" ng-model="systemPermissions.ADMINISTER" /></td>
+                    <td><input type="checkbox" ng-model="systemPermissions.ADMINISTER" ng-change="markSystemPermissionModified('ADMINISTER')" /></td>
                   </tr>
 
                   <tr>
                     <th>{{'manage.edit.user.createUser' | translate}}</th>
 
-                    <td><input type="checkbox" ng-model="systemPermissions.CREATE_USER" /></td>
+                    <td><input type="checkbox" ng-model="systemPermissions.CREATE_USER" ng-change="markSystemPermissionModified('CREATE_USER')" /></td>
                   </tr>
 
                   <tr>
                     <th>{{'manage.edit.user.createConnection' | translate}}</th>
 
-                    <td><input type="checkbox" ng-model="systemPermissions.CREATE_CONNECTION" /></td>
+                    <td><input type="checkbox" ng-model="systemPermissions.CREATE_CONNECTION" ng-change="markSystemPermissionModified('CREATE_CONNECTION')" /></td>
                   </tr>
 
                   <tr>
                     <th>{{'manage.edit.user.createConnectionGroup' | translate}}</th>
 
-                    <td><input type="checkbox" ng-model="systemPermissions.CREATE_CONNECTION_GROUP" /></td>
+                    <td><input type="checkbox" ng-model="systemPermissions.CREATE_CONNECTION_GROUP" ng-change="markSystemPermissionModified('CREATE_CONNECTION_GROUP')" /></td>
                   </tr>
                 </table>
               </dd>
 
+              <!-- Connection and connection group permission section -->
               <dt>{{'manage.edit.user.connections' | translate}}</dt>
               <dd>
                 <div class="group-view">
@@ -123,6 +131,7 @@ THE SOFTWARE.
         </div>
     </div>
 
+    <!-- Form controls -->
     <div class="footer">
       <button ng-click="save()">{{'manage.edit.user.save' | translate}}</button>
       <button ng-click="close()">{{'manage.edit.user.cancel' | translate}}</button>

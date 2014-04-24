@@ -174,12 +174,15 @@ public class UserRESTService {
         if(existingUser == null)
             throw new HTTPException(Response.Status.NOT_FOUND, "User not found with the provided userID.");
 
-        /*
-         * Update the user with the permission set from the existing user
-         * since the user REST endpoints do not expose permissions.
-         */
-        existingUser.setPassword(user.getPassword());
-        userDirectory.update(existingUser);
+        // Do not update the user password if no password was provided
+        if(user.getPassword() != null) {
+            /*
+             * Update the user with the permission set from the existing user
+             * since the user REST endpoints do not expose permissions.
+             */
+            existingUser.setPassword(user.getPassword());
+            userDirectory.update(existingUser);
+        }
     }
     
     /**

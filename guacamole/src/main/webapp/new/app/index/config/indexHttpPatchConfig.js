@@ -21,7 +21,7 @@
  */
 
 /**
- * The config block for setting up the HTPP PATCH method.
+ * The config block for setting up the HTTP PATCH method.
  */
 angular.module('index').config(['$httpProvider', 
         function indexHttpPatchConfig($httpProvider) {
