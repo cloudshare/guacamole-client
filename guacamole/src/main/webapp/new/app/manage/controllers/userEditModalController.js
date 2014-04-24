@@ -170,9 +170,6 @@ angular.module('manage').controller('userEditModalController', ['$scope', '$inje
                     permissionType :    systemPermissionsToDelete[i]
                 });
             }
-            
-            console.log(permissionsToAdd, permissionsToRemove);
-            return;
         
             function completeSaveProcess() {
                 // Close the modal
