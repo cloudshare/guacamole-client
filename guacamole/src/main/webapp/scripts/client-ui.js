@@ -26,23 +26,6 @@
 GuacUI.Client = {
 
     /**
-     * Collection of all Guacamole client UI states.
-     */
-    "states": {
-
-        /**
-         * The normal default Guacamole client UI mode
-         */
-        "INTERACTIVE"      : 0,
-
-        /**
-         * Same as INTERACTIVE except with visible on-screen keyboard.
-         */
-        "OSK"              : 1
-
-    },
-
-    /**
      * Enumeration of all tunnel-specific error messages for each applicable
      * error code.
      */
@@ -215,31 +198,44 @@ GuacUI.Client = {
     
     "KEYBOARD_AUTO_RESIZE_INTERVAL" : 30,  /* milliseconds */
     "RECONNECT_PERIOD"              : 15,  /* seconds */
+    "TEXT_INPUT_PADDING"            : 128, /* characters */
+    "TEXT_INPUT_PADDING_CODEPOINT"  : 0x200B,
 
-    /* UI Components */
+    /* Main application area */
 
     "viewport"          : document.getElementById("viewportClone"),
     "main"              : document.getElementById("main"),
+    "display"           : document.getElementById("display"),
+    "notification_area" : document.getElementById("notificationArea"),
+
+    /* Text input */
+
+    "text_input" : {
+        "container" : document.getElementById("text-input"),
+        "sent"      : document.getElementById("sent-history"),
+        "target"    : document.getElementById("target"),
+        "enabled"   : false
+    },
+
+    /* Menu */
+
     "menu"              : document.getElementById("menu"),
     "menu_title"        : document.getElementById("menu-title"),
-    "display"           : document.getElementById("display"),
     "clipboard"         : document.getElementById("clipboard"),
     "relative_radio"    : document.getElementById("relative"),
     "absolute_radio"    : document.getElementById("absolute"),
-    "notification_area" : document.getElementById("notificationArea"),
+    "ime_none_radio"    : document.getElementById("ime-none"),
+    "ime_text_radio"    : document.getElementById("ime-text"),
+    "ime_osk_radio"     : document.getElementById("ime-osk"),
+    "zoom_state"        : document.getElementById("zoom-state"),
+    "zoom_out"          : document.getElementById("zoom-out"),
+    "zoom_in"           : document.getElementById("zoom-in"),
+    "auto_fit"          : document.getElementById("auto-fit"),
 
-    /* Expected Input Rectangle */
-
-    "expected_input_x"      : 0,
-    "expected_input_y"      : 0,
-    "expected_input_width"  : 1,
-    "expected_input_height" : 1,
-
-    "min_zoom"        : 0,
+    "min_zoom"        : 1,
     "max_zoom"        : 3,
 
     "connectionName"  : "Guacamole",
-    "overrideAutoFit" : false,
     "attachedClient"  : null,
 
     /* Mouse emulation */
@@ -251,6 +247,7 @@ GuacUI.Client = {
 
     /* Clipboard */
 
+    "remote_clipboard" : "",
     "clipboard_integration_enabled" : undefined
 
 };
@@ -260,9 +257,8 @@ GuacUI.Client = {
  * which sends key events to the Guacamole client.
  * 
  * @constructor
- * @augments GuacUI.Component
  */
-GuacUI.Client.OnScreenKeyboard = function() {
+GuacUI.Client.OnScreenKeyboard = new (function() {
 
     /**
      * Event target. This is a hidden textarea element which will receive
@@ -289,14 +285,20 @@ GuacUI.Client.OnScreenKeyboard = function() {
     }
 
     keyboard.onkeydown = function(keysym) {
-        GuacUI.Client.attachedClient.sendKeyEvent(1, keysym);
+        if (GuacUI.Client.attachedClient)
+            GuacUI.Client.attachedClient.sendKeyEvent(1, keysym);
     };
 
     keyboard.onkeyup = function(keysym) {
-        GuacUI.Client.attachedClient.sendKeyEvent(0, keysym);
+        if (GuacUI.Client.attachedClient)
+            GuacUI.Client.attachedClient.sendKeyEvent(0, keysym);
     };
 
     this.show = function() {
+
+        // Only add if not already present
+        if (keyboard_container.parentNode === document.body)
+            return;
 
         // Show keyboard
         document.body.appendChild(keyboard_container);
@@ -316,6 +318,10 @@ GuacUI.Client.OnScreenKeyboard = function() {
 
     this.hide = function() {
 
+        // Only remove if present
+        if (keyboard_container.parentNode !== document.body)
+            return;
+
         // Hide keyboard
         document.body.removeChild(keyboard_container);
         window.clearInterval(keyboard_resize_interval);
@@ -323,24 +329,7 @@ GuacUI.Client.OnScreenKeyboard = function() {
 
     };
 
-};
-
-GuacUI.Client.OnScreenKeyboard.prototype = new GuacUI.Component();
-
-/*
- * Show on-screen keyboard during OSK mode only.
- */
-
-GuacUI.StateManager.registerComponent(
-    new GuacUI.Client.OnScreenKeyboard(),
-    GuacUI.Client.states.OSK
-);
-
-/*
- * Set initial state
- */
-
-GuacUI.StateManager.setState(GuacUI.Client.states.INTERACTIVE);
+})();
 
 /**
  * Modal status display. Displays a message to the user, covering the entire
@@ -350,7 +339,6 @@ GuacUI.StateManager.setState(GuacUI.Client.states.INTERACTIVE);
  * components is impossible.
  * 
  * @constructor
- * @augments GuacUI.Component
  */
 GuacUI.Client.ModalStatus = function(title_text, text, classname, reconnect) {
 
@@ -374,6 +362,19 @@ GuacUI.Client.ModalStatus = function(title_text, text, classname, reconnect) {
 
     // Automatically reconnect after the given time period
     var reconnect_interval = null;
+    var reconnect_forced = false;
+
+    /**
+     * Stops the reconnect countdown and forces a client reconnect.
+     */
+    function force_reconnect() {
+        if (!reconnect_forced) {
+            reconnect_forced = true;
+            window.clearInterval(reconnect_interval);
+            GuacUI.Client.connect();
+        }
+    }
+
     if (reconnect) {
 
         var countdown = GuacUI.createChildElement(dialog, "p", "countdown");
@@ -389,10 +390,8 @@ GuacUI.Client.ModalStatus = function(title_text, text, classname, reconnect) {
                 countdown.textContent = "Reconnecting in " + reconnect + " seconds...";
 
             // Reconnect if countdown complete
-            if (reconnect === 0) {
-                window.clearInterval(reconnect_interval);
-                GuacUI.Client.connect();
-            }
+            if (reconnect === 0)
+                force_reconnect();
 
         }
 
@@ -413,10 +412,13 @@ GuacUI.Client.ModalStatus = function(title_text, text, classname, reconnect) {
     reconnect_button.textContent = "Reconnect";
 
     // Reconnect if button clicked
-    reconnect_button.onclick = function() {
-        window.clearInterval(reconnect_interval);
-        GuacUI.Client.connect();
-    };
+    reconnect_button.onclick = force_reconnect;
+
+    // Reconnect if button tapped
+    reconnect_button.addEventListener("touchend", function(e) {
+        if (e.touches.length === 0)
+            force_reconnect();
+    }, true);
 
     this.show = function() {
         document.body.appendChild(outer);
@@ -428,8 +430,6 @@ GuacUI.Client.ModalStatus = function(title_text, text, classname, reconnect) {
     };
 
 };
-
-GuacUI.Client.ModalStatus.prototype = new GuacUI.Component();
 
 /**
  * Monitors a given element for touch events, firing drag-specific events
@@ -752,8 +752,16 @@ GuacUI.Client.Pinch = function(element) {
  */
 GuacUI.Client.updateThumbnail = function() {
 
+    var guac = GuacUI.Client.attachedClient;
+    if (!guac)
+        return;
+
+    // Do not create empty thumbnails
+    if (guac.getDisplay().getWidth() <= 0 || guac.getDisplay().getHeight() <= 0)
+        return;
+
     // Get screenshot
-    var canvas = GuacUI.Client.attachedClient.flatten();
+    var canvas = guac.getDisplay().flatten();
 
     // Calculate scale of thumbnail (max 320x240, max zoom 100%)
     var scale = Math.min(
@@ -781,23 +789,65 @@ GuacUI.Client.updateThumbnail = function() {
 };
 
 /**
+ * Sets the current display scale to the given value, where 1 is 100% (1:1
+ * pixel ratio). Out-of-range values will be clamped in-range.
+ * 
+ * @param {Number} new_scale The new scale to apply
+ */
+GuacUI.Client.setScale = function(new_scale) {
+
+    new_scale = Math.max(new_scale, GuacUI.Client.min_zoom);
+    new_scale = Math.min(new_scale, GuacUI.Client.max_zoom);
+
+    if (GuacUI.Client.attachedClient)
+        GuacUI.Client.attachedClient.getDisplay().scale(new_scale);
+
+    GuacUI.Client.zoom_state.textContent = Math.round(new_scale * 100) + "%";
+
+    // If at minimum zoom level, auto fit is ON
+    if (new_scale === GuacUI.Client.min_zoom) {
+        GuacUI.Client.main.style.overflow = "hidden";
+        GuacUI.Client.auto_fit.checked = true;
+        GuacUI.Client.auto_fit.disabled = (GuacUI.Client.min_zoom >= 1);
+    }
+
+    // If at minimum zoom level, auto fit is OFF
+    else {
+        GuacUI.Client.main.style.overflow = "auto";
+        GuacUI.Client.auto_fit.checked = false;
+        GuacUI.Client.auto_fit.disabled = false;
+    }
+
+};
+
+/**
  * Updates the scale of the attached Guacamole.Client based on current window
  * size and "auto-fit" setting.
  */
 GuacUI.Client.updateDisplayScale = function() {
 
-    // Currently attacched client
     var guac = GuacUI.Client.attachedClient;
-    var adjusted_scale = 1 / (window.devicePixelRatio || 1);
+    if (!guac)
+        return;
+
+    // Determine whether display is currently fit to the screen
+    var auto_fit = (guac.getDisplay().getScale() === GuacUI.Client.min_zoom);
 
     // Calculate scale to fit screen
     GuacUI.Client.min_zoom = Math.min(
-        window.innerWidth  / guac.getWidth(),
-        window.innerHeight / guac.getHeight()
+        GuacUI.Client.main.offsetWidth / Math.max(guac.getDisplay().getWidth(), 1),
+        GuacUI.Client.main.offsetHeight / Math.max(guac.getDisplay().getHeight(), 1)
     );
 
-    if (guac.getScale() < GuacUI.Client.min_zoom)
-        guac.scale(GuacUI.Client.min_zoom);
+    // Calculate appropriate maximum zoom level
+    GuacUI.Client.max_zoom = Math.max(GuacUI.Client.min_zoom, 3);
+
+    // Clamp zoom level, maintain auto-fit
+    if (guac.getDisplay().getScale() < GuacUI.Client.min_zoom || auto_fit)
+        GuacUI.Client.setScale(GuacUI.Client.min_zoom);
+
+    else if (guac.getDisplay().getScale() > GuacUI.Client.max_zoom)
+        GuacUI.Client.setScale(GuacUI.Client.max_zoom);
 
 };
 
@@ -829,6 +879,24 @@ GuacUI.Client.showMenu = function(shown) {
     }
     else
         GuacUI.Client.menu.className = "open";
+};
+
+/**
+ * Sets whether the text input box is currently visible.
+ *
+ * @param {Boolean} [shown] Whether the text input box should be shown. If
+ *                          omitted, this function will cause the menu to be
+ *                          shown by default.
+ */
+GuacUI.Client.showTextInput = function(shown) {
+    if (shown === false) {
+        GuacUI.Client.text_input.container.className = "closed";
+        GuacUI.Client.text_input.target.blur();
+    }
+    else {
+        GuacUI.Client.text_input.container.className = "open";
+        GuacUI.Client.text_input.target.focus();
+    }
 };
 
 /**
@@ -868,6 +936,22 @@ GuacUI.Client.showError = function(title, status, reconnect) {
     GuacUI.Client.visibleStatus =
         new GuacUI.Client.ModalStatus(title, status, "guac-error", reconnect);
     GuacUI.Client.visibleStatus.show();
+};
+
+GuacUI.Client.showNotification = function(message) {
+
+    // Create notification
+    var element = GuacUI.createElement("div", "message notification");
+    GuacUI.createChildElement(element, "div", "caption").textContent = message;
+
+    // Add to DOM
+    GuacUI.Client.notification_area.appendChild(element);
+
+    // Remove from DOM after around 5 seconds
+    window.setTimeout(function() {
+        GuacUI.Client.notification_area.removeChild(element);
+    }, 5000);
+
 };
 
 /**
@@ -973,14 +1057,26 @@ GuacUI.Client.getSizeString = function(bytes) {
 };
 
 /**
- * Commits the current contents of the clipboard textarea to the remote
- * clipboard and the local Guacamole clipboard shared across connections.
+ * Commits the current contents of the clipboard textarea to session storage,
+ * and thus to the remote clipboard if the client is connected.
  */
 GuacUI.Client.commitClipboard = function() {
-
-    // Set value if changed
     var new_value = GuacUI.Client.clipboard.value;
     GuacamoleSessionStorage.setItem("clipboard", new_value);
+};
+
+/**
+ * Sets the contents of the remote clipboard, if the contents given are
+ * different.
+ *
+ * @param {String} data The data to assign to the clipboard.
+ */
+GuacUI.Client.setClipboard = function(data) {
+
+    if (data !== GuacUI.Client.remote_clipboard && GuacUI.Client.attachedClient) {
+        GuacUI.Client.remote_clipboard = data;
+        GuacUI.Client.attachedClient.setClipboard(data);
+    }
 
 };
 
@@ -999,7 +1095,7 @@ GuacUI.Client.setMouseEmulationAbsolute = function(absolute) {
         if (!guac) return;
    
         // Determine mouse position within view
-        var guac_display = guac.getDisplay();
+        var guac_display = guac.getDisplay().getElement();
         var mouse_view_x = mouseState.x + guac_display.offsetLeft - GuacUI.Client.main.scrollLeft;
         var mouse_view_y = mouseState.y + guac_display.offsetTop  - GuacUI.Client.main.scrollTop;
 
@@ -1031,8 +1127,8 @@ GuacUI.Client.setMouseEmulationAbsolute = function(absolute) {
 
         // Scale event by current scale
         var scaledState = new Guacamole.Mouse.State(
-                mouseState.x / guac.getScale(),
-                mouseState.y / guac.getScale(),
+                mouseState.x / guac.getDisplay().getScale(),
+                mouseState.y / guac.getDisplay().getScale(),
                 mouseState.left,
                 mouseState.middle,
                 mouseState.right,
@@ -1091,13 +1187,13 @@ GuacUI.Client.attach = function(guac) {
     GuacUI.Client.attachedClient = guac;
 
     // Get display element
-    var guac_display = guac.getDisplay();
+    var guac_display = guac.getDisplay().getElement();
 
     /*
      * Update the scale of the display when the client display size changes.
      */
 
-    guac.onresize = function(width, height) {
+    guac.getDisplay().onresize = function(width, height) {
         GuacUI.Client.updateDisplayScale();
     };
 
@@ -1136,7 +1232,7 @@ GuacUI.Client.attach = function(guac) {
                 // Update clipboard with current data
                 var clipboard = GuacamoleSessionStorage.getItem("clipboard");
                 if (clipboard)
-                    guac.setClipboard(clipboard);
+                    GuacUI.Client.setClipboard(clipboard);
 
                 break;
 
@@ -1201,6 +1297,7 @@ GuacUI.Client.attach = function(guac) {
 
         // Set contents when done
         reader.onend = function clipboard_text_end() {
+            GuacUI.Client.remote_clipboard = data;
             GuacamoleSessionStorage.setItem("clipboard", data);
         };
 
@@ -1275,8 +1372,8 @@ GuacUI.Client.attach = function(guac) {
 
         // Scale event by current scale
         var scaledState = new Guacamole.Mouse.State(
-                mouseState.x / guac.getScale(),
-                mouseState.y / guac.getScale(),
+                mouseState.x / guac.getDisplay().getScale(),
+                mouseState.y / guac.getDisplay().getScale(),
                 mouseState.left,
                 mouseState.middle,
                 mouseState.right,
@@ -1296,13 +1393,49 @@ GuacUI.Client.attach = function(guac) {
     GuacUI.Client.display.innerHTML = "";
 
     // Add client to UI
-    guac.getDisplay().className = "software-cursor";
-    GuacUI.Client.display.appendChild(guac.getDisplay());
+    guac.getDisplay().getElement().className = "software-cursor";
+    GuacUI.Client.display.appendChild(guac.getDisplay().getElement());
 
 };
 
 // One-time UI initialization
 (function() {
+
+    var i;
+
+    /**
+     * Keys which should be allowed through to the client when in text input
+     * mode, providing corresponding key events are received. Keys in this
+     * set will be allowed through to the server.
+     */
+    var IME_ALLOWED_KEYS = {
+            0xFF08: true, /* Backspace */
+            0xFF09: true, /* Tab */
+            0xFF0D: true, /* Enter */
+            0xFF1B: true, /* Escape */
+            0xFF50: true, /* Home */
+            0xFF51: true, /* Left */
+            0xFF52: true, /* Up */
+            0xFF53: true, /* Right */
+            0xFF54: true, /* Down */
+            0xFF57: true, /* End */
+            0xFF64: true, /* Insert */
+            0xFFBE: true, /* F1 */
+            0xFFBF: true, /* F2 */
+            0xFFC0: true, /* F3 */
+            0xFFC1: true, /* F4 */
+            0xFFC2: true, /* F5 */
+            0xFFC3: true, /* F6 */
+            0xFFC4: true, /* F7 */
+            0xFFC5: true, /* F8 */
+            0xFFC6: true, /* F9 */
+            0xFFC7: true, /* F10 */
+            0xFFC8: true, /* F11 */
+            0xFFC9: true, /* F12 */
+            0xFFE1: true, /* Left shift */
+            0xFFE2: true, /* Right shift */
+            0xFFFF: true  /* Delete */
+    };
 
     /*
      * Route document-level keyboard events to the client.
@@ -1311,12 +1444,14 @@ GuacUI.Client.attach = function(guac) {
     var keyboard = new Guacamole.Keyboard(document);
     var show_keyboard_gesture_possible = true;
 
-    window.kb = keyboard;
-
     function __send_key(pressed, keysym) {
 
         // Do not send key if menu shown
         if (GuacUI.Client.isMenuShown())
+            return true;
+
+        // Allow all but specific keys through to browser when in IME mode
+        if (GuacUI.Client.text_input.enabled && !IME_ALLOWED_KEYS[keysym])
             return true;
 
         GuacUI.Client.attachedClient.sendKeyEvent(pressed, keysym);
@@ -1367,8 +1502,12 @@ GuacUI.Client.attach = function(guac) {
         // If lifting up on shift, toggle menu visibility if rest of gesture
         // conditions satisfied
         if (show_keyboard_gesture_possible && keysym === 0xFFE1 
-            && keyboard.pressed[0xFFE3] && keyboard.pressed[0xFFE9])
+            && keyboard.pressed[0xFFE3] && keyboard.pressed[0xFFE9]) {
+                __send_key(0, 0xFFE1);
+                __send_key(0, 0xFFE9);
+                __send_key(0, 0xFFE3);
                 GuacUI.Client.showMenu(!GuacUI.Client.isMenuShown());
+        }
 
         // Detect if no keys are pressed
         var reset_gesture = true;
@@ -1437,8 +1576,7 @@ GuacUI.Client.attach = function(guac) {
         // Override and handle paste only if integration is enabled
         if (GuacUI.Client.clipboard_integration_enabled) {
             e.preventDefault();
-            if (GuacUI.Client.attachedClient)
-                GuacUI.Client.attachedClient.setClipboard(e.clipboardData.getData("text/plain"));
+            GuacUI.Client.setClipboard(e.clipboardData.getData("text/plain"));
         }
 
     }, false);
@@ -1456,25 +1594,81 @@ GuacUI.Client.attach = function(guac) {
     };
 
     /*
-     * Send size events on resize
+     * Reflow layout and send size events on resize/scroll
      */
-    window.onresize = function() {
 
-        var pixel_density = window.devicePixelRatio || 1;
-        var width = window.innerWidth * pixel_density;
-        var height = window.innerHeight * pixel_density;
+    var last_scroll_left   = 0;
+    var last_scroll_top    = 0;
+    var last_scroll_width  = 0;
+    var last_scroll_height = 0;
+    var last_window_width  = 0;
+    var last_window_height = 0;
 
-        if (GuacUI.Client.attachedClient)
-            GuacUI.Client.attachedClient.sendSize(width, height);
+    function __update_layout() {
 
-        GuacUI.Client.updateDisplayScale();
+        // Only reflow if size or scroll have changed
+        if (document.body.scrollLeft   !== last_scroll_left
+         || document.body.scrollTop    !== last_scroll_top
+         || document.body.scrollWidth  !== last_scroll_width
+         || document.body.scrollHeight !== last_scroll_height
+         || window.innerWidth          !== last_window_width
+         || window.innerHeight         !== last_window_height) {
 
-    };
+            last_scroll_top    = document.body.scrollTop;
+            last_scroll_left   = document.body.scrollLeft;
+            last_scroll_width  = document.body.scrollWidth;
+            last_scroll_height = document.body.scrollHeight;
+            last_window_width  = window.innerWidth;
+            last_window_height = window.innerHeight;
+
+            // Reset scroll and reposition document such that it's on-screen
+            window.scrollTo(document.body.scrollWidth, document.body.scrollHeight);
+
+            // Determine height of bottom section (currently only text input)
+            var bottom = GuacUI.Client.text_input.container;
+            var bottom_height = (bottom && bottom.offsetHeight) | 0;
+
+            // Calculate correct height of main section (display)
+            var main_width = window.innerWidth;
+            var main_height = window.innerHeight - bottom_height;
+
+            // Anchor main to top-left of viewport, sized to fit above bottom
+            var main = GuacUI.Client.main;
+            main.style.top = document.body.scrollTop + "px";
+            main.style.left = document.body.scrollLeft + "px";
+            main.style.width = main_width + "px";
+            main.style.height = main_height + "px";
+
+            // Anchor bottom to bottom of viewport
+            if (bottom) {
+                bottom.style.top = (document.body.scrollTop + main_height) + "px";
+                bottom.style.left = document.body.scrollLeft + "px";
+                bottom.style.width = window.innerWidth + "px";
+            }
+
+            // Send new size
+            if (GuacUI.Client.attachedClient) {
+                var pixel_density = window.devicePixelRatio || 1;
+                var width = main_width * pixel_density;
+                var height = main_height * pixel_density;
+                GuacUI.Client.attachedClient.sendSize(width, height);
+            }
+
+            // Rescale display appropriately
+            GuacUI.Client.updateDisplayScale();
+
+        }
+
+    }
+
+    window.onresize = __update_layout;
+    window.onscroll = __update_layout;
+    window.setInterval(__update_layout, 10);
 
     GuacamoleSessionStorage.addChangeListener(function(name, value) {
-        if (name === "clipboard" && GuacUI.Client.attachedClient) {
+        if (name === "clipboard") {
             GuacUI.Client.clipboard.value = value;
-            GuacUI.Client.attachedClient.setClipboard(value);
+            GuacUI.Client.setClipboard(value);
         }
     });
 
@@ -1564,6 +1758,7 @@ GuacUI.Client.attach = function(guac) {
                 if (offset >= bytes.length) {
                     stream.sendEnd();
                     GuacUI.Client.notification_area.removeChild(upload.getElement());
+                    GuacUI.Client.showNotification("Upload of \"" + file.name + "\" complete.");
                 }
 
                 // Otherwise, update progress
@@ -1618,7 +1813,7 @@ GuacUI.Client.attach = function(guac) {
         if (!guac)
             return;
 
-        initial_scale = guac.getScale();
+        initial_scale = guac.getDisplay().getScale();
         initial_center_x = (x + GuacUI.Client.main.scrollLeft) / initial_scale;
         initial_center_y = (y + GuacUI.Client.main.scrollTop) / initial_scale;
     };
@@ -1635,9 +1830,7 @@ GuacUI.Client.attach = function(guac) {
 
         // Rescale based on new ratio
         var new_scale = initial_scale * ratio;
-        new_scale = Math.max(new_scale, GuacUI.Client.min_zoom);
-        new_scale = Math.min(new_scale, GuacUI.Client.max_zoom);
-        guac.scale(new_scale);
+        GuacUI.Client.setScale(new_scale);
 
         // Calculate point at currently at center of touch
         var point_at_center_x = (x + GuacUI.Client.main.scrollLeft) / new_scale;
@@ -1732,14 +1925,364 @@ GuacUI.Client.attach = function(guac) {
 
     GuacUI.Client.absolute_radio.onclick =
     GuacUI.Client.absolute_radio.onchange = function() {
-        GuacUI.Client.setMouseEmulationAbsolute(GuacUI.Client.absolute_radio.checked);
-        GuacUI.Client.showMenu(false);
+        if (!GuacUI.Client.emulate_absolute) {
+            GuacUI.Client.showNotification("Absolute mouse emulation selected");
+            GuacUI.Client.setMouseEmulationAbsolute(GuacUI.Client.absolute_radio.checked);
+            GuacUI.Client.showMenu(false);
+        }
     };
 
     GuacUI.Client.relative_radio.onclick =
     GuacUI.Client.relative_radio.onchange = function() {
-        GuacUI.Client.setMouseEmulationAbsolute(!GuacUI.Client.relative_radio.checked);
+        if (GuacUI.Client.emulate_absolute) {
+            GuacUI.Client.showNotification("Relative mouse emulation selected");
+            GuacUI.Client.setMouseEmulationAbsolute(!GuacUI.Client.relative_radio.checked);
+            GuacUI.Client.showMenu(false);
+        }
+    };
+
+    /*
+     * Update input method mode when changed
+     */
+
+    GuacUI.Client.ime_none_radio.onclick =
+    GuacUI.Client.ime_none_radio.onchange = function() {
+        GuacUI.Client.showTextInput(false);
+        GuacUI.Client.OnScreenKeyboard.hide();
         GuacUI.Client.showMenu(false);
+    };
+
+    GuacUI.Client.ime_text_radio.onclick =
+    GuacUI.Client.ime_text_radio.onchange = function() {
+        GuacUI.Client.showTextInput(true);
+        GuacUI.Client.OnScreenKeyboard.hide();
+        GuacUI.Client.showMenu(false);
+    };
+
+    GuacUI.Client.ime_osk_radio.onclick =
+    GuacUI.Client.ime_osk_radio.onchange = function() {
+        GuacUI.Client.showTextInput(false);
+        GuacUI.Client.OnScreenKeyboard.show();
+        GuacUI.Client.showMenu(false);
+    };
+
+    /*
+     * Text input
+     */
+
+    // Disable automatic input features on platforms that support these attributes
+    GuacUI.Client.text_input.target.setAttribute("autocapitalize", "off");
+    GuacUI.Client.text_input.target.setAttribute("autocorrect",    "off");
+    GuacUI.Client.text_input.target.setAttribute("autocomplete",   "off");
+    GuacUI.Client.text_input.target.setAttribute("spellcheck",     "off");
+
+    function keysym_from_codepoint(codepoint) {
+
+        // Keysyms for control characters
+        if (codepoint <= 0x1F || (codepoint >= 0x7F && codepoint <= 0x9F))
+            return 0xFF00 | codepoint;
+
+        // Keysyms for ASCII chars
+        if (codepoint >= 0x0000 && codepoint <= 0x00FF)
+            return codepoint;
+
+        // Keysyms for Unicode
+        if (codepoint >= 0x0100 && codepoint <= 0x10FFFF)
+            return 0x01000000 | codepoint;
+
+        return null;
+
+    }
+
+    /**
+     * Presses and releases the key corresponding to the given keysym, as if
+     * typed by the user.
+     * 
+     * @param {Number} keysym The keysym of the key to send.
+     */
+    function send_keysym(keysym) {
+
+        var guac = GuacUI.Client.attachedClient;
+        if (!guac)
+            return;
+
+        guac.sendKeyEvent(1, keysym);
+        guac.sendKeyEvent(0, keysym);
+
+    }
+
+    /**
+     * Presses and releases the key having the keysym corresponding to the
+     * Unicode codepoint given, as if typed by the user.
+     * 
+     * @param {Number} codepoint The Unicode codepoint of the key to send.
+     */
+    function send_codepoint(codepoint) {
+
+        if (codepoint === 10) {
+            send_keysym(0xFF0D);
+            release_sticky_keys();
+            return;
+        }
+
+        var keysym = keysym_from_codepoint(codepoint);
+        if (keysym) {
+            send_keysym(keysym);
+            release_sticky_keys();
+        }
+
+    }
+
+    /**
+     * Translates each character within the given string to keysyms and sends
+     * each, in order, as if typed by the user.
+     * 
+     * @param {String} content The string to send.
+     */
+    function send_string(content) {
+
+        var sent_text = "";
+
+        for (var i=0; i<content.length; i++) {
+            var codepoint = content.charCodeAt(i);
+            if (codepoint !== GuacUI.Client.TEXT_INPUT_PADDING_CODEPOINT) {
+                sent_text += String.fromCharCode(codepoint);
+                send_codepoint(codepoint);
+            }
+        }
+
+        // Display the text that was sent
+        var notify_sent = GuacUI.createChildElement(GuacUI.Client.text_input.sent, "div", "sent-text");
+        notify_sent.textContent = sent_text;
+
+        // Remove text after one second
+        window.setTimeout(function __remove_notify_sent() {
+            notify_sent.parentNode.removeChild(notify_sent);
+        }, 1000);
+
+    }
+
+    /**
+     * Set of all active key elements, indexed by keysym.
+     * 
+     * @private
+     * @type Object.<Number, Element>
+     */
+    var active_sticky_keys = {};
+
+    /**
+     * Presses/releases the keysym defined by the "data-keysym" attribute on
+     * the given element whenever the element is pressed. The "data-sticky"
+     * attribute, if present and set to "true", causes the key to remain
+     * pressed until text is sent.
+     *
+     * @param {Element} key The element which will control its associated key.
+     */
+    function apply_key_behavior(key) {
+
+        function __update_key(e) {
+
+            var guac = GuacUI.Client.attachedClient;
+            if (!guac)
+                return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Pull properties of key
+            var keysym  = parseInt(key.getAttribute("data-keysym"));
+            var sticky  = (key.getAttribute("data-sticky") === "true");
+            var pressed = (key.className.indexOf("pressed") !== -1); 
+
+            // If sticky, toggle pressed state
+            if (sticky) {
+                if (pressed) {
+                    GuacUI.removeClass(key, "pressed");
+                    guac.sendKeyEvent(0, keysym);
+                    delete active_sticky_keys[keysym];
+                }
+                else {
+                    GuacUI.addClass(key, "pressed");
+                    guac.sendKeyEvent(1, keysym);
+                    active_sticky_keys[keysym] = key;
+                }
+            }
+
+            // For all non-sticky keys, press and release key immediately
+            else
+                send_keysym(keysym);
+
+        }
+
+        var ignore_mouse = false;
+
+        // Press/release key when clicked
+        key.addEventListener("click", function __mouse_key(e) {
+
+            // Ignore clicks which follow touches
+            if (ignore_mouse)
+                return;
+
+            __update_key(e);
+
+        }, false);
+
+        // Press/release key when tapped 
+        key.addEventListener("touchstart", function __touch_key(e) {
+
+            // Ignore following clicks
+            ignore_mouse = true;
+
+            __update_key(e);
+
+        }, false);
+
+        // Restore handling of mouse events when mouse is used
+        key.addEventListener("mousemove", function __reset_mouse() {
+            ignore_mouse = false;
+        }, false);
+
+    }
+
+    /**
+     * Releases all currently-held sticky keys within the text input UI.
+     */
+    function release_sticky_keys() {
+
+        var guac = GuacUI.Client.attachedClient;
+        if (!guac)
+            return;
+
+        // Release all active sticky keys
+        for (var keysym in active_sticky_keys) {
+            var key = active_sticky_keys[keysym];
+            GuacUI.removeClass(key, "pressed");
+            guac.sendKeyEvent(0, keysym);
+        }
+
+        // Reset set of active keys
+        active_sticky_keys = {};
+
+    }
+
+    // Apply key behavior to all keys within the text input UI
+    var keys = GuacUI.Client.text_input.container.getElementsByClassName("key");
+    for (i=0; i<keys.length; i++)
+        apply_key_behavior(keys[i]);
+
+    /**
+     * Removes all content from the text input target, replacing it with the
+     * given number of padding characters. Padding of the requested size is
+     * added on both sides of the cursor, thus the overall number of characters
+     * added will be twice the number specified.
+     * 
+     * @param {Number} padding The number of characters to pad the text area
+     *                         with.
+     */
+    function reset_text_input_target(padding) {
+
+        var padding_char = String.fromCharCode(GuacUI.Client.TEXT_INPUT_PADDING_CODEPOINT);
+
+        // Pad text area with an arbitrary, non-typable character (so there is something
+        // to delete with backspace or del), and position cursor in middle.
+        GuacUI.Client.text_input.target.value = new Array(padding*2 + 1).join(padding_char);
+        GuacUI.Client.text_input.target.setSelectionRange(padding, padding);
+
+    }
+
+    GuacUI.Client.text_input.target.onfocus = function() {
+        GuacUI.Client.text_input.enabled = true;
+        reset_text_input_target(GuacUI.Client.TEXT_INPUT_PADDING);
+    };
+
+    GuacUI.Client.text_input.target.onblur = function() {
+        GuacUI.Client.text_input.enabled = false;
+        GuacUI.Client.text_input.target.focus();
+    };
+
+    // Track state of composition
+    var composing_text = false;
+
+    GuacUI.Client.text_input.target.addEventListener("compositionstart", function(e) {
+        composing_text = true;
+    }, false);
+
+    GuacUI.Client.text_input.target.addEventListener("compositionend", function(e) {
+        composing_text = false;
+    }, false);
+
+    GuacUI.Client.text_input.target.addEventListener("input", function(e) {
+
+        // Ignore input events during text composition
+        if (composing_text)
+            return;
+
+        var i;
+        var content = GuacUI.Client.text_input.target.value;
+        var expected_length = GuacUI.Client.TEXT_INPUT_PADDING*2;
+
+        // If content removed, update
+        if (content.length < expected_length) {
+
+            // Calculate number of backspaces and send
+            var backspace_count = GuacUI.Client.TEXT_INPUT_PADDING - GuacUI.Client.text_input.target.selectionStart;
+            for (i=0; i<backspace_count; i++)
+                send_keysym(0xFF08);
+
+            // Calculate number of deletes and send
+            var delete_count = expected_length - content.length - backspace_count;
+            for (i=0; i<delete_count; i++)
+                send_keysym(0xFFFF);
+
+        }
+
+        else
+            send_string(content);
+
+        // Reset content
+        reset_text_input_target(GuacUI.Client.TEXT_INPUT_PADDING);
+        e.preventDefault();
+
+    }, false);
+
+    // Do not allow event target contents to be selected during input
+    GuacUI.Client.text_input.target.addEventListener("selectstart", function(e) {
+        e.preventDefault();
+    }, false);
+
+    /*
+     * Zoom
+     */
+
+    GuacUI.Client.auto_fit.onclick =
+    GuacUI.Client.auto_fit.onchange = function() {
+
+        // If auto-fit enabled, zoom out as far as possible
+        if (GuacUI.Client.auto_fit.checked)
+            GuacUI.Client.setScale(0);
+
+        // Otherwise, zoom to 1:1
+        else
+            GuacUI.Client.setScale(1);
+
+    };
+
+    GuacUI.Client.zoom_in.onclick = function() {
+
+        // Zoom in by 10%
+        var guac = GuacUI.Client.attachedClient;
+        if (guac)
+            GuacUI.Client.setScale(guac.getDisplay().getScale() + 0.1);
+
+    };
+
+    GuacUI.Client.zoom_out.onclick = function() {
+
+        // Zoom out by 10%
+        var guac = GuacUI.Client.attachedClient;
+        if (guac)
+            GuacUI.Client.setScale(guac.getDisplay().getScale() - 0.1);
+
     };
 
     // Prevent default on all touch events
@@ -1752,8 +2295,8 @@ GuacUI.Client.attach = function(guac) {
             var element = e.target;
             while (element) {
 
-                // Allow single-touch events on the menu
-                if (element === GuacUI.Client.menu)
+                // Allow single-touch events on the menu and text input
+                if (element === GuacUI.Client.menu || element === GuacUI.Client.text_input.container)
                     return;
 
                 element = element.parentNode;
