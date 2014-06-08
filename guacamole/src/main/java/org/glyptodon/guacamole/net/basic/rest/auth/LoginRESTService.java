@@ -23,10 +23,12 @@
 package org.glyptodon.guacamole.net.basic.rest.auth;
 
 import com.google.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import org.glyptodon.guacamole.GuacamoleException;
@@ -79,16 +81,20 @@ public class LoginRESTService {
      * 
      * @param username The username of the user who is to be authenticated.
      * @param password The password of the user who is to be authenticated.
+     * @param request The HttpServletRequest associated with the login attempt.
      * @return The auth token for the newly logged-in user.
      */
     @POST
     @AuthProviderRESTExposure
     public APIAuthToken login(@QueryParam("username") String username,
-            @QueryParam("password") String password) {
+            @QueryParam("password") String password, 
+            @Context HttpServletRequest request) {
         
         Credentials credentials = new Credentials();
         credentials.setUsername(username);
         credentials.setPassword(password);
+        credentials.setRequest(request);
+        credentials.setSession(request.getSession(true));
         
         UserContext userContext;
         

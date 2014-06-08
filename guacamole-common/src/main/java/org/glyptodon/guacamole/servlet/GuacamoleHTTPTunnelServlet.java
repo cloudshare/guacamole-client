@@ -29,6 +29,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +59,7 @@ public abstract class GuacamoleHTTPTunnelServlet extends HttpServlet {
     /**
      * Logger for this class.
      */
-    private Logger logger = LoggerFactory.getLogger(GuacamoleHTTPTunnelServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(GuacamoleHTTPTunnelServlet.class);
 
     /**
      * The prefix of the query string which denotes a tunnel read operation.
@@ -156,7 +158,7 @@ public abstract class GuacamoleHTTPTunnelServlet extends HttpServlet {
 
                     // Get session
                     HttpSession httpSession = request.getSession(true);
-                    GuacamoleSession session = new GuacamoleSession(httpSession);
+                    TunnelCollection session = new TunnelCollection(httpSession);
 
                     // Attach tunnel to session
                     session.attachTunnel(tunnel);
@@ -254,7 +256,7 @@ public abstract class GuacamoleHTTPTunnelServlet extends HttpServlet {
     protected void doRead(HttpServletRequest request, HttpServletResponse response, String tunnelUUID) throws GuacamoleException {
 
         HttpSession httpSession = request.getSession(false);
-        GuacamoleSession session = new GuacamoleSession(httpSession);
+        TunnelCollection session = new TunnelCollection(httpSession);
 
         // Get tunnel, ensure tunnel exists
         GuacamoleTunnel tunnel = session.getTunnel(tunnelUUID);
@@ -366,7 +368,7 @@ public abstract class GuacamoleHTTPTunnelServlet extends HttpServlet {
     protected void doWrite(HttpServletRequest request, HttpServletResponse response, String tunnelUUID) throws GuacamoleException {
 
         HttpSession httpSession = request.getSession(false);
-        GuacamoleSession session = new GuacamoleSession(httpSession);
+        TunnelCollection session = new TunnelCollection(httpSession);
 
         GuacamoleTunnel tunnel = session.getTunnel(tunnelUUID);
         if (tunnel == null)
@@ -425,6 +427,79 @@ public abstract class GuacamoleHTTPTunnelServlet extends HttpServlet {
 
     }
 
+    /**
+     * Provides abstract access to the tunnels associated with a Guacamole session.
+     *
+     * @author Michael Jumper
+     */
+    private static class TunnelCollection {
+
+        /**
+         * Map of all currently attached tunnels, indexed by tunnel UUID.
+         */
+        private ConcurrentMap<String, GuacamoleTunnel> tunnels;
+
+        /**
+         * Creates a new GuacamoleSession, storing and retrieving tunnels from the
+         * given HttpSession. Note that the true Guacamole session is tied to the
+         * HttpSession provided, thus creating a new GuacamoleSession does not
+         * create a new Guacamole session; it merely creates a new object for
+         * accessing the tunnels of an existing Guacamole session represented by
+         * the provided HttpSession.
+         *
+         * @param session The HttpSession to use as tunnel storage.
+         * @throws GuacamoleException If session is null.
+         */
+        @SuppressWarnings("unchecked")
+        public TunnelCollection(HttpSession session) throws GuacamoleException {
+
+            if (session == null)
+                throw new GuacamoleSecurityException("User has no session.");
+
+            synchronized (session) {
+
+                tunnels = (ConcurrentMap<String, GuacamoleTunnel>) session.getAttribute("GUAC_TUNNELS");
+                if (tunnels == null) {
+                    tunnels = new ConcurrentHashMap<String, GuacamoleTunnel>();
+                    session.setAttribute("GUAC_TUNNELS", tunnels);
+                }
+
+            }
+
+        }
+
+        /**
+         * Attaches the given tunnel to this GuacamoleSession.
+         * @param tunnel The tunnel to attach to this GucacamoleSession.
+         */
+        public void attachTunnel(GuacamoleTunnel tunnel) {
+            tunnels.put(tunnel.getUUID().toString(), tunnel);
+            logger.debug("Attached tunnel {}.", tunnel.getUUID());
+        }
+
+        /**
+         * Detaches the given tunnel to this GuacamoleSession.
+         * @param tunnel The tunnel to detach to this GucacamoleSession.
+         */
+        public void detachTunnel(GuacamoleTunnel tunnel) {
+            tunnels.remove(tunnel.getUUID().toString());
+            logger.debug("Detached tunnel {}.", tunnel.getUUID());
+        }
+
+        /**
+         * Returns the tunnel with the given UUID attached to this GuacamoleSession,
+         * if any.
+         *
+         * @param tunnelUUID The UUID of an attached tunnel.
+         * @return The tunnel corresponding to the given UUID, if attached, or null
+         *         if no such tunnel is attached.
+         */
+        public GuacamoleTunnel getTunnel(String tunnelUUID) {
+            return tunnels.get(tunnelUUID);
+        }
+
+    }
+    
 }
 
 /**
