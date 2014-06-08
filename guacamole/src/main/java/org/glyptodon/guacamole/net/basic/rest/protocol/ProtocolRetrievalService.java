@@ -157,7 +157,7 @@ public class ProtocolRetrievalService {
 
             // If protocol not defined yet, attempt to load from classpath
             if (!protocols.containsKey(protocol)) {
-                InputStream stream = org.glyptodon.guacamole.net.basic.crud.protocols.List.class.getResourceAsStream(
+                InputStream stream = ProtocolRetrievalService.class.getResourceAsStream(
                         "/net/sourceforge/guacamole/net/protocols/"
                         + protocol + ".xml");
 

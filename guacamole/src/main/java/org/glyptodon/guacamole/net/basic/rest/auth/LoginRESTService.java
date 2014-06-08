@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author James Muehlner
  */
 
-@Path("/api/login")
+@Path("/login")
 @Produces(MediaType.APPLICATION_JSON)
 public class LoginRESTService {
     

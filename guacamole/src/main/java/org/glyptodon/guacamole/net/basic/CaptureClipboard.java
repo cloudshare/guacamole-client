@@ -22,6 +22,7 @@
 
 package org.glyptodon.guacamole.net.basic;
 
+import com.google.inject.Singleton;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,6 +39,7 @@ import org.glyptodon.guacamole.properties.GuacamoleProperties;
  *
  * @author Michael Jumper
  */
+@Singleton
 public class CaptureClipboard extends AuthenticatingHttpServlet {
 
     /**

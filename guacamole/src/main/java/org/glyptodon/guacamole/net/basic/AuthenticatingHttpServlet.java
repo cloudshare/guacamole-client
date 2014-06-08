@@ -22,6 +22,7 @@
 
 package org.glyptodon.guacamole.net.basic;
 
+import com.google.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
@@ -38,6 +39,7 @@ import org.glyptodon.guacamole.net.auth.Credentials;
 import org.glyptodon.guacamole.net.auth.UserContext;
 import org.glyptodon.guacamole.net.basic.event.SessionListenerCollection;
 import org.glyptodon.guacamole.net.basic.properties.BasicGuacamoleProperties;
+import org.glyptodon.guacamole.net.basic.rest.auth.TokenUserContextMap;
 import org.glyptodon.guacamole.net.event.AuthenticationFailureEvent;
 import org.glyptodon.guacamole.net.event.AuthenticationSuccessEvent;
 import org.glyptodon.guacamole.net.event.listener.AuthenticationFailureListener;
@@ -89,6 +91,12 @@ public abstract class AuthenticatingHttpServlet extends HttpServlet {
      * The AuthenticationProvider to use to authenticate all requests.
      */
     private AuthenticationProvider authProvider;
+    
+    /**
+     * The map of auth tokens to users for the REST endpoints.
+     */
+    @Inject
+    private TokenUserContextMap tokenUserMap;
 
     @Override
     public void init() throws ServletException {

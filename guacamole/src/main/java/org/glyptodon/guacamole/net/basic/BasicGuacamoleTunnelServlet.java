@@ -22,6 +22,7 @@
 
 package org.glyptodon.guacamole.net.basic;
 
+import com.google.inject.Singleton;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +40,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Jumper
  */
+@Singleton
 public class BasicGuacamoleTunnelServlet extends AuthenticatingHttpServlet {
 
     /**
