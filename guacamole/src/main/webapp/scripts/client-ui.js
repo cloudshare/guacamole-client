@@ -958,21 +958,24 @@ GuacUI.Client.showNotification = function(message) {
  * Connects to the current Guacamole connection, attaching a new Guacamole
  * client to the user interface. If a Guacamole client is already attached,
  * it is replaced.
+ * @param {String} connectionParameters URL encoded parameters to pass to the
+ *                                      back end.
+ * @param {String} authToken The authentication token used to authenticate a
+ *                           a user.
  */
-GuacUI.Client.connect = function() {
-
+GuacUI.Client.connect = function(connectionParameters, authToken) {
     var tunnel;
 
     // If WebSocket available, try to use it.
     if (window.WebSocket)
         tunnel = new Guacamole.ChainedTunnel(
-            new Guacamole.WebSocketTunnel("websocket-tunnel"),
-            new Guacamole.HTTPTunnel("tunnel")
+            new Guacamole.WebSocketTunnel("../websocket-tunnel"),
+            new Guacamole.HTTPTunnel("../tunnel")
         );
 
     // If no WebSocket, then use HTTP.
     else
-        tunnel = new Guacamole.HTTPTunnel("tunnel");
+        tunnel = new Guacamole.HTTPTunnel("../tunnel");
 
     // Instantiate client
     var guac = new Guacamole.Client(tunnel);
@@ -999,10 +1002,11 @@ GuacUI.Client.connect = function() {
     // the sake of authentication.
 
     var connect_string =
-        window.location.search.substring(1)
-        + "&width="  + Math.floor(optimal_width)
-        + "&height=" + Math.floor(optimal_height)
-        + "&dpi="    + Math.floor(optimal_dpi);
+        connectionParameters
+        + "&authToken="+ authToken
+        + "&width="    + Math.floor(optimal_width)
+        + "&height="   + Math.floor(optimal_height)
+        + "&dpi="      + Math.floor(optimal_dpi);
 
     // Add audio mimetypes to connect_string
     GuacUI.Audio.supported.forEach(function(mimetype) {

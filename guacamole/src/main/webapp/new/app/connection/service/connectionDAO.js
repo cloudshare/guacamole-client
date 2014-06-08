@@ -56,9 +56,14 @@ angular.module('connection').factory('connectionDAO', ['$http', 'localStorageUti
      * @returns {promise} A promise for the HTTP call.
      */
     service.saveConnection = function saveConnection(connection) {
+        
+        // Do not try to save the connection history records
+        var connectionToSave = angular.copy(connection);
+        delete connectionToSave.history;
+        
         // This is a new connection
-        if(!connection.identifier) {
-            return $http.post("../api/connection/?token=" + localStorageUtility.get('authToken'), connection).success(
+        if(!connectionToSave.identifier) {
+            return $http.post("../api/connection/?token=" + localStorageUtility.get('authToken'), connectionToSave).success(
                 function setConnectionID(connectionID){
                     // Set the identifier on the new connection
                     connection.identifier = connectionID;
@@ -66,9 +71,9 @@ angular.module('connection').factory('connectionDAO', ['$http', 'localStorageUti
                 });
         } else {
             return $http.post(
-                "../api/connection/" + connection.identifier + 
+                "../api/connection/" + connectionToSave.identifier + 
                 "?token=" + localStorageUtility.get('authToken'), 
-            connection);
+            connectionToSave);
         }
     };
     

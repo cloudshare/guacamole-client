@@ -23,74 +23,17 @@
 /**
  * The controller for the page used to connect to a connection or balancing group.
  */
-angular.module('home').controller('clientController', ['$scope', '$routeParams', 
-        function clientController($scope, $routeParams) {
+angular.module('home').controller('clientController', ['$scope', '$routeParams', 'localStorageUtility',
+        function clientController($scope, $routeParams, localStorageUtility) {
             
-    var tunnel;
-
-     // If WebSocket available, try to use it.
-     if (window.WebSocket)
-         tunnel = new Guacamole.ChainedTunnel(
-             new Guacamole.WebSocketTunnel("websocket-tunnel"),
-             new Guacamole.HTTPTunnel("tunnel")
-         );
-
-     // If no WebSocket, then use HTTP.
-     else
-         tunnel = new Guacamole.HTTPTunnel("tunnel")
-
-     // Instantiate client
-     var guac = new Guacamole.Client(tunnel);
-
-     // Add client to UI
-     guac.getDisplay().className = "software-cursor";
-     GuacUI.Client.display.appendChild(guac.getDisplay());
-
-     // Tie UI to client
-     GuacUI.Client.attach(guac);
-
-     try {
-
-         // Calculate optimal width/height for display
-         var pixel_density = window.devicePixelRatio || 1;
-         var optimal_dpi = pixel_density * 96;
-         var optimal_width = window.innerWidth * pixel_density;
-         var optimal_height = window.innerHeight * pixel_density;
-
-         // Scale width/height to be at least 600x600
-         if (optimal_width < 600 || optimal_height < 600) {
-             var scale = Math.max(600 / optimal_width, 600 / optimal_height);
-             optimal_width = optimal_width * scale;
-             optimal_height = optimal_height * scale;
-         }
-
-         // Get entire query string, and pass to connect().
-         // Normally, only the "id" parameter is required, but
-         // all parameters should be preserved and passed on for
-         // the sake of authentication.
-
-         var connect_string =
-             "id="        + $routeParams.type
-             + "/"        + $routeParams.id
-             + "&width="  + Math.floor(optimal_width)
-             + "&height=" + Math.floor(optimal_height)
-             + "&dpi="    + Math.floor(optimal_dpi);
-
-         // Add audio mimetypes to connect_string
-         GuacUI.Audio.supported.forEach(function(mimetype) {
-             connect_string += "&audio=" + encodeURIComponent(mimetype);
-         });
-
-         // Add video mimetypes to connect_string
-         GuacUI.Video.supported.forEach(function(mimetype) {
-             connect_string += "&video=" + encodeURIComponent(mimetype);
-         });
-
-         guac.connect(connect_string);
-
-     }
-     catch (e) {
-         GuacUI.Client.showError("Cannot Connect", e.message);
-     }
+    /*
+     * Parse the type and id out of the url paramteres, 
+     * as well as any extra parameters if set.
+     */
+    var authToken = localStorageUtility.get('authToken');
+    GuacUI.Client.connect(
+        "id=" + encodeURIComponent($routeParams.type + '/' + $routeParams.id) +
+        ($routeParams.params ? '&' + $routeParams.params : ''), authToken
+    );
 
 }]);
