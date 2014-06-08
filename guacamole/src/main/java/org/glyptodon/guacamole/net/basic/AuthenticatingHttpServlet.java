@@ -298,7 +298,14 @@ public abstract class AuthenticatingHttpServlet extends HttpServlet {
 
                 SessionListenerCollection listeners = new SessionListenerCollection(httpSession);
 
-                // If no cached context, attempt to get new context
+                // If no cached context, try to pull via auth token
+                if (context == null) {
+                    String authToken = request.getParameter("authToken");
+                    if (authToken != null)
+                      context = tokenUserMap.get(authToken);   
+                }
+                
+                // If still no context, attempt to get new context
                 if (context == null) {
 
                     context = authProvider.getUserContext(credentials);
