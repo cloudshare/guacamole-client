@@ -202,5 +202,29 @@
                 "passphrase"        : {"label": "Passphrase"}
             }
         }
+    },
+    "client": {
+        "ctrl"              : "Ctrl",
+        "alt"               : "Alt",
+        "esc"               : "Esc",
+        "tab"               : "Tab",
+        "clipboard"         : "Clipboard",
+        "copiedText"        : "Text copied/cut within Guacamole will appear here. Changes to the text below will affect the remote clipboard.",
+        "inputMethod"       : "Input method",
+        "none"              : "None",
+        "noneDesc"          : "No input method is used. Keyboard input is accepted from a connected, physical keyboard.",
+        "textInput"         : "Text input",
+        "textInputDesc"     : "Allow typing of text, and emulate keyboard events based on the typed text. This is necessary for devices such as mobile phones that lack a physical keyboard.",
+        "osk"               : "On-screen keyboard",
+        "oskDesc"           : "Display and accept input from the built-in Guacamole on-screen keyboard. The on-screen keyboard allows typing of key combinations that may otherwise be impossible (such as Ctrl-Alt-Del).",
+        "mouseMode"         : "Mouse emulation mode",
+        "mouseModeDesc"     : "Determines how the remote mouse behaves with respect to touches.",
+        "touchscreen"       : "Touchscreen",
+        "touchscreenDesc"   : "Tap to click. The click occurs at the location of the touch.",
+        "touchpad"          : "Touchpad",
+        "touchpadDesc"      : "Drag to move the mouse pointer and tap to click. The click occurs at the location of the pointer.",
+        "display"           : "Display",
+        "oneHundredPercent" : "100%",
+        "autoFit"           : "Automatically fit to browser window"
     }
 }
