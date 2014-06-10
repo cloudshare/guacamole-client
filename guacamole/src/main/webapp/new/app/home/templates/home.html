@@ -63,41 +63,4 @@
     <div class="all-connections">
         <div class="list-item" ng-repeat="item in connectionsAndGroups | orderBy : 'name'" ng-include="'nestedGroup.html'"></div>
     </div>
-
-    <!-- The clipboard for this user -->
-    <h2>{{'home.clipboard' | translate}}</h2>
-    <div class="clipboardDiv">
-        <p>{{'home.clipboardDescription' | translate}}</p>
-        <textarea rows="10" cols="40" class="clipboard"></textarea>
-    </div>
-
-    <!-- All the settings for this user -->
-    <h2>{{'home.settings' | translate}}</h2>
-    <div class="settings">
-
-        <dl>
-            <!-- Auto-fit display -->
-            <dt>
-                <input type="checkbox" class="auto-fit"/>
-                {{'home.autoFitDisplay' | translate}}
-            </dt>
-            <dd>
-                <p>{{'home.autoFitDisplay' | translate}}</p>
-            </dd>
-
-            <!-- Enable/disable sound -->
-            <dt>
-                <input type="checkbox" class="disable-sound"/>
-                {{'home.disableSound' | translate}}
-            </dt>
-            <dd>
-                <p>{{'home.disableSoundDescription' | translate}}</p>
-                <p>
-                    <strong>{{'home.disableSoundNote' | translate}}</strong>
-                </p>
-            </dd>
-        </dl>
-
-    </div>
-
 </div>
