@@ -107,8 +107,8 @@
 
                             <webappSourceDir>${project.build.directory}/${project.build.finalName}</webappSourceDir>
 
-                            <cssSourceDir>/new/</cssSourceDir>
-                            <cssTargetDir>/new/</cssTargetDir>
+                            <cssSourceDir>/</cssSourceDir>
+                            <cssTargetDir>/</cssTargetDir>
                             <cssFinalFile>guacamole.css</cssFinalFile>
 
                             <cssSourceFiles>
@@ -120,8 +120,8 @@
                                 <cssSourceInclude>styles/**/*.css</cssSourceInclude>
                             </cssSourceIncludes>
 
-                            <jsSourceDir>/new/</jsSourceDir>
-                            <jsTargetDir>/new/</jsTargetDir>
+                            <jsSourceDir>/</jsSourceDir>
+                            <jsTargetDir>/</jsTargetDir>
                             <jsFinalFile>guacamole.js</jsFinalFile>
                             
                             <jsSourceFiles>

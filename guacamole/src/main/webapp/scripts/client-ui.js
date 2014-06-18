@@ -270,7 +270,7 @@ GuacUI.Client.OnScreenKeyboard = new (function() {
     var keyboard_resize_interval = null;
 
     // On-screen keyboard
-    var keyboard = new Guacamole.OnScreenKeyboard("../layouts/en-us-qwerty.xml");
+    var keyboard = new Guacamole.OnScreenKeyboard("layouts/en-us-qwerty.xml");
     keyboard_container.appendChild(keyboard.getElement());
 
     var last_keyboard_width = 0;
@@ -969,13 +969,13 @@ GuacUI.Client.connect = function(connectionParameters, authToken) {
     // If WebSocket available, try to use it.
     if (window.WebSocket)
         tunnel = new Guacamole.ChainedTunnel(
-            new Guacamole.WebSocketTunnel("../websocket-tunnel"),
-            new Guacamole.HTTPTunnel("../tunnel")
+            new Guacamole.WebSocketTunnel("websocket-tunnel"),
+            new Guacamole.HTTPTunnel("tunnel")
         );
 
     // If no WebSocket, then use HTTP.
     else
-        tunnel = new Guacamole.HTTPTunnel("../tunnel");
+        tunnel = new Guacamole.HTTPTunnel("tunnel");
 
     // Instantiate client
     var guac = new Guacamole.Client(tunnel);
