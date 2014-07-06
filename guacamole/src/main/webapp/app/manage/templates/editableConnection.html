@@ -21,24 +21,31 @@ THE SOFTWARE.
 -->
 
 
+<!-- Dialog container for the modal -->
 <div class="dialog-container">
   <div class="dialog edit">
+      
+    <!-- Connection name -->
     <div class="header">
       <h2>{{connection.name}}</h2>
     </div>
 
+    <!-- Main connection edit section -->
     <div class="body">
       <div class="form">
         <div class="settings section">
           <dl>
             <dd>
               <table class="fields section">
+                  
+                <!-- Edit connection name -->
                 <tr>
                   <th>{{'manage.edit.connection.name' | translate}}</th>
 
                   <td><input type="text" ng-model="connection.name"/></td>
                 </tr>
 
+                <!-- Edit connection location -->
                 <tr>
                   <th>{{'manage.edit.connection.location' | translate}}</th>
 
@@ -47,6 +54,8 @@ THE SOFTWARE.
                   </td>
                 </tr>
 
+                  
+                <!-- Edit connection protocol -->
                 <tr>
                   <th>{{'manage.edit.connection.protocol' | translate}}</th>
                   <td>
@@ -58,6 +67,8 @@ THE SOFTWARE.
 
             <dd>
               <table class="fields section">
+                  
+                <!-- All the different possible editable field types -->
                 <tr ng-repeat="parameter in protocols[connection.protocol].parameters">
                   <th>{{'protocol.' + connection.protocol + '.parameters.' + parameter.name + '.label' | translate}}:</th>
 
@@ -80,11 +91,14 @@ THE SOFTWARE.
               </table>
             </dd>
 
+            <!-- History connection area -->
             <dt>{{'manage.edit.connection.history.usageHistory' | translate}}</dt>
 
             <dd ng-hide="connection.history.length">
               <p>{{'manage.edit.connection.history.connectionNotUsed' | translate}}</p>
             </dd>
+            
+            <!-- History connection list -->
             <dd ng-show="connection.history.length">
                 <table class="history section">
                     <tr>
@@ -107,6 +121,7 @@ THE SOFTWARE.
       </div>
     </div>
 
+    <!-- Control buttons -->
     <div class="footer">
       <button ng-click="save()">{{'manage.edit.connection.save' | translate}}</button>
       <button ng-click="close()">{{'manage.edit.connection.cancel' | translate}}</button>

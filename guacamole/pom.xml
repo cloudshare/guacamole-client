@@ -136,7 +136,7 @@
                                 <jsSourceFile>license.txt</jsSourceFile>
                                 <jsSourceFile>guacamole-common-js/all.js</jsSourceFile>
                                 <jsSourceFile>scripts/lib/blob/blob.js</jsSourceFile>
-                                <jsSourceFile>scripts/filesaver/filesaver.js</jsSourceFile>
+                                <jsSourceFile>scripts/lib/filesaver/filesaver.js</jsSourceFile>
                                 <jsSourceFile>scripts/session.js</jsSourceFile>
                                 <jsSourceFile>scripts/history.js</jsSourceFile>
                                 <jsSourceFile>scripts/service.js</jsSourceFile>
@@ -146,7 +146,6 @@
 
                             <jsSourceIncludes>
                                 <jsSourceInclude>app/**/*.js</jsSourceInclude>
-                                <jsSourceInclude>../scripts/**/*.js</jsSourceInclude>
                             </jsSourceIncludes>
 
                             <!-- Do not minify and include tests -->

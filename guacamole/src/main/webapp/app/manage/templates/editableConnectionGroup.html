@@ -21,24 +21,31 @@ THE SOFTWARE.
 -->
 
 
+<!-- Dialog container for the modal -->
 <div class="dialog-container">
   <div class="dialog edit">
+      
+    <!-- Connection group name -->
     <div class="header">
       <h2>{{connectionGroup.name}}</h2>
     </div>
-
+    
+    <!-- Main connection group edit section -->
     <div class="body">
       <div class="form">
         <div class="settings section">
           <dl>
             <dd>
               <table class="fields section">
+                  
+                <!-- Edit connection group name -->
                 <tr>
                   <th>{{'manage.edit.connectionGroup.name' | translate}}</th>
 
                   <td><input type="text" ng-model="connectionGroup.name"/></td>
                 </tr>
 
+                <!-- Edit connection group location -->
                 <tr>
                   <th>{{'manage.edit.connectionGroup.location' | translate}}</th>
 
@@ -47,6 +54,8 @@ THE SOFTWARE.
                   </td>
                 </tr>
 
+
+                <!-- Edit connection group type -->
                 <tr>
                   <th>{{'manage.edit.connectionGroup.type.label' | translate}}</th>
                   <td>
@@ -60,6 +69,7 @@ THE SOFTWARE.
       </div>
     </div>
 
+    <!-- Control buttons -->
     <div class="footer">
       <button ng-click="save()">{{'manage.edit.connectionGroup.save' | translate}}</button>
       <button ng-click="close()">{{'manage.edit.connectionGroup.cancel' | translate}}</button>
