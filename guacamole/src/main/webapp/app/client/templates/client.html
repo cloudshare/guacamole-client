@@ -23,112 +23,102 @@
    THE SOFTWARE.
 -->
 
-        <div id="main">
+<div id="clientContainer">
 
-            <!-- Display -->
-            <div class="displayOuter">
-                <div class="displayMiddle">
-                    <div id="display">
-                    </div>
+    <div id="main">
+
+        <!-- Display -->
+        <div class="displayOuter">
+            <div class="displayMiddle">
+                <div id="display">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Text input target -->
+    <div id="text-input"><div id="text-input-field"><div id="sent-history"></div><textarea rows="1" id="target"></textarea></div><div id="text-input-buttons"><button class="key" data-keysym="0xFFE3" data-sticky="true">{{'client.ctrl' | translate}}</button><button class="key" data-keysym="0xFFE9" data-sticky="true">{{'client.alt' | translate}}</button><button class="key" data-keysym="0xFF1B">{{'client.esc' | translate}}</button><button class="key" data-keysym="0xFF09">{{'client.tab' | translate}}</button></div></div>
+
+    <!-- Dimensional clone of viewport -->
+    <div id="viewportClone"/>
+
+    <!-- Notification area -->
+    <div id="notificationArea"/>
+
+    <!-- Menu -->
+    <div id="menu">
+        <h2 id="menu-title">Guacamole ${project.version}</h2>
+
+        <h3>{{'client.clipboard' | translate}}</h3>
+        <div class="content" id="clipboard-settings">
+            <p class="description"></p>
+            <textarea rows="10" cols="40" id="clipboard">{{'client.copiedText' | translate}}</textarea>
+        </div>
+
+        <h3></h3>
+        <div class="content" id="keyboard-settings">
+
+            <!-- No IME -->
+            <div class="choice">
+                <label><input name="input-method" type="radio" value="ime-none" checked="checked" id="ime-none"/> {{'client.none' | translate}}</label>
+                <p class="caption"><label for="ime-none">{{'client.noneDesc' | translate}}</label></p>
+            </div>
+
+            <!-- Text input -->
+            <div class="choice">
+                <div class="figure"><label for="ime-text"><img src="images/settings/tablet-keys.png" alt=""/></label></div>
+                <label><input name="input-method" type="radio" value="ime-text" id="ime-text"/> {{'client.textInput' | translate}}</label>
+                <p class="caption"><label for="ime-text">{{'client.textInputDesc' | translate}} </label></p>
+            </div>
+
+            <!-- Guac OSK -->
+            <div class="choice">
+                <label><input name="input-method" type="radio" value="ime-osk" id="ime-osk"/> {{'client.osk' | translate}}</label>
+                <p class="caption"><label for="ime-osk">{{'client.oskDesc' | translate}}</label></p>
+            </div>
+
+        </div>
+
+        <h3>{{'client.mouseMode' | translate}}</h3>
+        <div class="content" id="mouse-settings">
+            <p class="description">{{'client.mouseModeDesc' | translate}}</p>
+
+            <!-- Touchscreen -->
+            <div class="choice">
+                <input name="mouse-mode" type="radio" value="absolute" checked="checked" id="absolute"/>
+                <div class="figure">
+                    <label for="absolute"><img src="images/settings/touchscreen.png" alt="{{'client.touchscreen' | translate}}"/></label>
+                    <p class="caption"><label for="absolute">{{'client.touchscreenDesc' | translate}}</label></p>
+                </div>
+            </div>
+
+            <!-- Touchpad -->
+            <div class="choice">
+                <input name="mouse-mode" type="radio" value="relative" id="relative"/>
+                <div class="figure">
+                    <label for="relative"><img src="images/settings/touchpad.png" alt="{{'client.touchpad' | translate}}"/></label>
+                    <p class="caption"><label for="relative">{{'client.touchpadDesc' | translate}}</label></p>
                 </div>
             </div>
 
         </div>
 
-        <!-- Text input target -->
-        <div id="text-input"><div id="text-input-field"><div id="sent-history"></div><textarea rows="1" id="target"></textarea></div><div id="text-input-buttons"><button class="key" data-keysym="0xFFE3" data-sticky="true">{{'client.ctrl' | translate}}</button><button class="key" data-keysym="0xFFE9" data-sticky="true">{{'client.alt' | translate}}</button><button class="key" data-keysym="0xFF1B">{{'client.esc' | translate}}</button><button class="key" data-keysym="0xFF09">{{'client.tab' | translate}}</button></div></div>
-        
-        <!-- Dimensional clone of viewport -->
-        <div id="viewportClone"/>
-
-        <!-- Notification area -->
-        <div id="notificationArea"/>
-
-        <!-- Menu -->
-        <div id="menu">
-            <h2 id="menu-title">Guacamole ${project.version}</h2>
-
-            <h3>{{'client.clipboard' | translate}}</h3>
-            <div class="content" id="clipboard-settings">
-                <p class="description"></p>
-                <textarea rows="10" cols="40" id="clipboard">{{'client.copiedText' | translate}}</textarea>
+        <h3>{{'client.display' | translate}}</h3>
+        <div class="content">
+            <div id="zoom-settings">
+                <div id="zoom-out"><img src="images/settings/zoom-out.png" alt="-"/></div>
+                <div id="zoom-state">{{'client.oneHundredPercent' | translate}}</div>
+                <div id="zoom-in"><img src="images/settings/zoom-in.png" alt="+"/></div>
             </div>
-
-            <h3></h3>
-            <div class="content" id="keyboard-settings">
-
-                <!-- No IME -->
-                <div class="choice">
-                    <label><input name="input-method" type="radio" value="ime-none" checked="checked" id="ime-none"/> {{'client.none' | translate}}</label>
-                    <p class="caption"><label for="ime-none">{{'client.noneDesc' | translate}}</label></p>
-                </div>
-
-                <!-- Text input -->
-                <div class="choice">
-                    <div class="figure"><label for="ime-text"><img src="images/settings/tablet-keys.png" alt=""/></label></div>
-                    <label><input name="input-method" type="radio" value="ime-text" id="ime-text"/> {{'client.textInput' | translate}}</label>
-                    <p class="caption"><label for="ime-text">{{'client.textInputDesc' | translate}} </label></p>
-                </div>
-
-                <!-- Guac OSK -->
-                <div class="choice">
-                    <label><input name="input-method" type="radio" value="ime-osk" id="ime-osk"/> {{'client.osk' | translate}}</label>
-                    <p class="caption"><label for="ime-osk">{{'client.oskDesc' | translate}}</label></p>
-                </div>
-
-            </div>
-
-            <h3>{{'client.mouseMode' | translate}}</h3>
-            <div class="content" id="mouse-settings">
-                <p class="description">{{'client.mouseModeDesc' | translate}}</p>
-
-                <!-- Touchscreen -->
-                <div class="choice">
-                    <input name="mouse-mode" type="radio" value="absolute" checked="checked" id="absolute"/>
-                    <div class="figure">
-                        <label for="absolute"><img src="images/settings/touchscreen.png" alt="{{'client.touchscreen' | translate}}"/></label>
-                        <p class="caption"><label for="absolute">{{'client.touchscreenDesc' | translate}}</label></p>
-                    </div>
-                </div>
-
-                <!-- Touchpad -->
-                <div class="choice">
-                    <input name="mouse-mode" type="radio" value="relative" id="relative"/>
-                    <div class="figure">
-                        <label for="relative"><img src="images/settings/touchpad.png" alt="{{'client.touchpad' | translate}}"/></label>
-                        <p class="caption"><label for="relative">{{'client.touchpadDesc' | translate}}</label></p>
-                    </div>
-                </div>
-
-            </div>
-
-            <h3>{{'client.display' | translate}}</h3>
-            <div class="content">
-                <div id="zoom-settings">
-                    <div id="zoom-out"><img src="images/settings/zoom-out.png" alt="-"/></div>
-                    <div id="zoom-state">{{'client.oneHundredPercent' | translate}}</div>
-                    <div id="zoom-in"><img src="images/settings/zoom-in.png" alt="+"/></div>
-                </div>
-                <div><label><input type="checkbox" id="auto-fit" checked="checked"/> {{'client.autoFit' | translate}}</label></div>
-            </div>
-
+            <div><label><input type="checkbox" id="auto-fit" checked="checked"/> {{'client.autoFit' | translate}}</label></div>
         </div>
-        
-        <!-- Images which should be preloaded -->
-        <div id="preload">
-            <img src="images/action-icons/guac-close.png"/>
-            <img src="images/progress.png"/>
-        </div>
-        
-        <script type="text/javascript" src="scripts/lib/blob/blob.js"></script>
-        <script type="text/javascript" src="scripts/lib/filesaver/filesaver.js"></script>
 
-        <!-- guacamole-common-js -->
-        <script type="text/javascript" src="guacamole-common-js/all.min.js"></script>
+    </div>
 
-        <!-- guacamole-default-webapp scripts -->
-        <script type="text/javascript" src="scripts/session.js"></script>
-        <script type="text/javascript" src="scripts/history.js"></script>
-        <script type="text/javascript" src="scripts/service.js"></script>
-        <script type="text/javascript" src="scripts/guac-ui.js"></script>
-        <script type="text/javascript" src="scripts/client-ui.js"></script>
+    <!-- Images which should be preloaded -->
+    <div id="preload">
+        <img src="images/action-icons/guac-close.png"/>
+        <img src="images/progress.png"/>
+    </div>
+</div>

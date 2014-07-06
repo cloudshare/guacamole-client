@@ -207,6 +207,7 @@ GuacUI.Client = {
     "main"              : document.getElementById("main"),
     "display"           : document.getElementById("display"),
     "notification_area" : document.getElementById("notificationArea"),
+    "clientContainer"   : document.getElementById("clientContainer"),
 
     /* Text input */
 
@@ -297,11 +298,11 @@ GuacUI.Client.OnScreenKeyboard = new (function() {
     this.show = function() {
 
         // Only add if not already present
-        if (keyboard_container.parentNode === document.body)
+        if (keyboard_container.parentNode === GuacUI.Client.clientContainer)
             return;
 
         // Show keyboard
-        document.body.appendChild(keyboard_container);
+        GuacUI.Client.clientContainer.appendChild(keyboard_container);
 
         // Start periodic update of keyboard size
         keyboard_resize_interval = window.setInterval(
@@ -319,11 +320,11 @@ GuacUI.Client.OnScreenKeyboard = new (function() {
     this.hide = function() {
 
         // Only remove if present
-        if (keyboard_container.parentNode !== document.body)
+        if (keyboard_container.parentNode !== GuacUI.Client.clientContainer)
             return;
 
         // Hide keyboard
-        document.body.removeChild(keyboard_container);
+        GuacUI.Client.clientContainer.removeChild(keyboard_container);
         window.clearInterval(keyboard_resize_interval);
         window.removeEventListener("resize", updateKeyboardSize, true);
 
@@ -421,12 +422,15 @@ GuacUI.Client.ModalStatus = function(title_text, text, classname, reconnect) {
     }, true);
 
     this.show = function() {
-        document.body.appendChild(outer);
+        GuacUI.Client.clientContainer.appendChild(outer);
     };
 
     this.hide = function() {
         window.clearInterval(reconnect_interval);
-        document.body.removeChild(outer);
+        
+        if($.contains(GuacUI.Client.clientContainer, outer)) {
+            GuacUI.Client.clientContainer.removeChild(outer);
+        }
     };
 
 };
@@ -1175,6 +1179,17 @@ GuacUI.Client.setMouseEmulationAbsolute = function(absolute) {
 };
 
 /**
+ * Detach the current Guacamole.Client from the client UI.
+ */
+GuacUI.Client.detach = function detach() {
+    // If a client is already attached, ensure it is disconnected
+    if (GuacUI.Client.attachedClient)
+        GuacUI.Client.attachedClient.disconnect();
+    
+    delete GuacUI.Client.attachedClient;
+};
+
+/**
  * Attaches a Guacamole.Client to the client UI, such that Guacamole events
  * affect the UI, and local events affect the Guacamole.Client. If a client
  * is already attached, it is replaced.
@@ -1403,7 +1418,42 @@ GuacUI.Client.attach = function(guac) {
 };
 
 // One-time UI initialization
-(function() {
+GuacUI.Client.initialize = function() {
+    
+    // Get elements set up
+    $.extend(GuacUI.Client, {
+        /* Main application area */
+
+        "viewport"          : document.getElementById("viewportClone"),
+        "main"              : document.getElementById("main"),
+        "display"           : document.getElementById("display"),
+        "notification_area" : document.getElementById("notificationArea"),
+        "clientContainer"   : document.getElementById("clientContainer"),
+
+        /* Text input */
+
+        "text_input" : {
+            "container" : document.getElementById("text-input"),
+            "sent"      : document.getElementById("sent-history"),
+            "target"    : document.getElementById("target"),
+            "enabled"   : false
+        },
+
+        /* Menu */
+
+        "menu"              : document.getElementById("menu"),
+        "menu_title"        : document.getElementById("menu-title"),
+        "clipboard"         : document.getElementById("clipboard"),
+        "relative_radio"    : document.getElementById("relative"),
+        "absolute_radio"    : document.getElementById("absolute"),
+        "ime_none_radio"    : document.getElementById("ime-none"),
+        "ime_text_radio"    : document.getElementById("ime-text"),
+        "ime_osk_radio"     : document.getElementById("ime-osk"),
+        "zoom_state"        : document.getElementById("zoom-state"),
+        "zoom_out"          : document.getElementById("zoom-out"),
+        "zoom_in"           : document.getElementById("zoom-in"),
+        "auto_fit"          : document.getElementById("auto-fit"),
+    });
 
     var i;
 
@@ -1444,8 +1494,12 @@ GuacUI.Client.attach = function(guac) {
     /*
      * Route document-level keyboard events to the client.
      */
-
-    var keyboard = new Guacamole.Keyboard(document);
+    
+    if(!GuacUI.Client.keyboard) {
+        GuacUI.Client.keyboard = new Guacamole.Keyboard(document);
+    }
+    
+    var keyboard = GuacUI.Client.keyboard;
     var show_keyboard_gesture_possible = true;
 
     function __send_key(pressed, keysym) {
@@ -1553,7 +1607,7 @@ GuacUI.Client.attach = function(guac) {
     }
 
     // Set local clipboard contents on cut 
-    document.body.addEventListener("cut", function handle_cut(e) {
+    GuacUI.Client.clientContainer.addEventListener("cut", function handle_cut(e) {
         var data = get_clipboard_data();
         if (data !== null) {
             e.preventDefault();
@@ -1562,7 +1616,7 @@ GuacUI.Client.attach = function(guac) {
     }, false);
 
     // Set local clipboard contents on copy 
-    document.body.addEventListener("copy", function handle_copy(e) {
+    GuacUI.Client.clientContainer.addEventListener("copy", function handle_copy(e) {
         var data = get_clipboard_data();
         if (data !== null) {
             e.preventDefault();
@@ -1571,7 +1625,7 @@ GuacUI.Client.attach = function(guac) {
     }, false);
 
     // Set remote clipboard contents on paste
-    document.body.addEventListener("paste", function handle_paste(e) {
+    GuacUI.Client.clientContainer.addEventListener("paste", function handle_paste(e) {
 
         // If status of clipboard integration is unknown, attempt to define it
         if (GuacUI.Client.clipboard_integration_enabled === undefined)
@@ -1611,22 +1665,22 @@ GuacUI.Client.attach = function(guac) {
     function __update_layout() {
 
         // Only reflow if size or scroll have changed
-        if (document.body.scrollLeft   !== last_scroll_left
-         || document.body.scrollTop    !== last_scroll_top
-         || document.body.scrollWidth  !== last_scroll_width
-         || document.body.scrollHeight !== last_scroll_height
+        if (GuacUI.Client.clientContainer.scrollLeft   !== last_scroll_left
+         || GuacUI.Client.clientContainer.scrollTop    !== last_scroll_top
+         || GuacUI.Client.clientContainer.scrollWidth  !== last_scroll_width
+         || GuacUI.Client.clientContainer.scrollHeight !== last_scroll_height
          || window.innerWidth          !== last_window_width
          || window.innerHeight         !== last_window_height) {
 
-            last_scroll_top    = document.body.scrollTop;
-            last_scroll_left   = document.body.scrollLeft;
-            last_scroll_width  = document.body.scrollWidth;
-            last_scroll_height = document.body.scrollHeight;
+            last_scroll_top    = GuacUI.Client.clientContainer.scrollTop;
+            last_scroll_left   = GuacUI.Client.clientContainer.scrollLeft;
+            last_scroll_width  = GuacUI.Client.clientContainer.scrollWidth;
+            last_scroll_height = GuacUI.Client.clientContainer.scrollHeight;
             last_window_width  = window.innerWidth;
             last_window_height = window.innerHeight;
 
             // Reset scroll and reposition document such that it's on-screen
-            window.scrollTo(document.body.scrollWidth, document.body.scrollHeight);
+            window.scrollTo(GuacUI.Client.clientContainer.scrollWidth, GuacUI.Client.clientContainer.scrollHeight);
 
             // Determine height of bottom section (currently only text input)
             var bottom = GuacUI.Client.text_input.container;
@@ -1638,15 +1692,15 @@ GuacUI.Client.attach = function(guac) {
 
             // Anchor main to top-left of viewport, sized to fit above bottom
             var main = GuacUI.Client.main;
-            main.style.top = document.body.scrollTop + "px";
-            main.style.left = document.body.scrollLeft + "px";
+            main.style.top = GuacUI.Client.clientContainer.scrollTop + "px";
+            main.style.left = GuacUI.Client.clientContainer.scrollLeft + "px";
             main.style.width = main_width + "px";
             main.style.height = main_height + "px";
 
             // Anchor bottom to bottom of viewport
             if (bottom) {
-                bottom.style.top = (document.body.scrollTop + main_height) + "px";
-                bottom.style.left = document.body.scrollLeft + "px";
+                bottom.style.top = (GuacUI.Client.clientContainer.scrollTop + main_height) + "px";
+                bottom.style.left = GuacUI.Client.clientContainer.scrollLeft + "px";
                 bottom.style.width = window.innerWidth + "px";
             }
 
@@ -1806,7 +1860,7 @@ GuacUI.Client.attach = function(guac) {
      * Pinch-to-zoom
      */
 
-    var guac_pinch = new GuacUI.Client.Pinch(document.body);
+    var guac_pinch = new GuacUI.Client.Pinch(GuacUI.Client.clientContainer);
     var initial_scale = null;
     var initial_center_x = null;
     var initial_center_y = null;
@@ -1850,7 +1904,7 @@ GuacUI.Client.attach = function(guac) {
      * Touch panning/swiping
      */
 
-    var guac_drag = new GuacUI.Client.Drag(document.body);
+    var guac_drag = new GuacUI.Client.Drag(GuacUI.Client.clientContainer);
 
     var is_swipe_right = false;
     var drag_start = 0;
@@ -2311,5 +2365,5 @@ GuacUI.Client.attach = function(guac) {
         e.preventDefault();
 
     }, false);
-
-})();
+    
+};

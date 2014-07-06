@@ -25,6 +25,12 @@
  */
 angular.module('home').controller('clientController', ['$scope', '$routeParams', 'localStorageUtility',
         function clientController($scope, $routeParams, localStorageUtility) {
+      
+    // Store the old title
+    var oldTitle = window.document.title;
+      
+    // Initialize the client
+    GuacUI.Client.initialize();
             
     /*
      * Parse the type and id out of the url paramteres, 
@@ -35,5 +41,15 @@ angular.module('home').controller('clientController', ['$scope', '$routeParams',
         "id=" + encodeURIComponent($routeParams.type + '/' + $routeParams.id) +
         ($routeParams.params ? '&' + $routeParams.params : ''), authToken
     );
-
+    
+    // Detach the current client if the user navigates away from the current page
+    $scope.$on('$locationChangeStart', function(event) {
+        
+        // Detach the client
+        GuacUI.Client.detach();
+        
+        // Restore the old title
+        window.document.title = oldTitle;
+    });
+    
 }]);

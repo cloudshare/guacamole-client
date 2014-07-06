@@ -134,15 +134,19 @@
                                 <jsSourceFile>lib/plugins/angular-translate-loader-static-files.min.js</jsSourceFile>
                                 <jsSourceFile>lib/plugins/modal.js</jsSourceFile>
                                 <jsSourceFile>license.txt</jsSourceFile>
-                                <jsSourceFile>../scripts/lib/blob/blob.js</jsSourceFile>
-                                <jsSourceFile>../scripts/filesaver/filesaver.js</jsSourceFile>
-                                <jsSourceFile>../guacamole-common-js/all.js</jsSourceFile>
-                                <jsSourceFile>../scripts/session.js</jsSourceFile>
-                                <jsSourceFile>../scripts/history.js</jsSourceFile>
+                                <jsSourceFile>guacamole-common-js/all.js</jsSourceFile>
+                                <jsSourceFile>scripts/lib/blob/blob.js</jsSourceFile>
+                                <jsSourceFile>scripts/filesaver/filesaver.js</jsSourceFile>
+                                <jsSourceFile>scripts/session.js</jsSourceFile>
+                                <jsSourceFile>scripts/history.js</jsSourceFile>
+                                <jsSourceFile>scripts/service.js</jsSourceFile>
+                                <jsSourceFile>scripts/guac-ui.js</jsSourceFile>
+                                <jsSourceFile>scripts/client-ui.js</jsSourceFile>
                             </jsSourceFiles>
 
                             <jsSourceIncludes>
                                 <jsSourceInclude>app/**/*.js</jsSourceInclude>
+                                <jsSourceInclude>../scripts/**/*.js</jsSourceInclude>
                             </jsSourceIncludes>
 
                             <!-- Do not minify and include tests -->
