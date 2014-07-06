@@ -131,7 +131,7 @@
                                 <jsSourceFile>lib/plugins/angular-cookies.min.js</jsSourceFile>
                                 <jsSourceFile>lib/plugins/angular-route.js</jsSourceFile>
                                 <jsSourceFile>lib/plugins/angular-translate.js</jsSourceFile>
-                                <jsSourceFile>lib/plugins/angular-translate-loader-static-files.min.js</jsSourceFile>
+                                <jsSourceFile>lib/plugins/angular-translate-loader-static-files.js</jsSourceFile>
                                 <jsSourceFile>lib/plugins/modal.js</jsSourceFile>
                                 <jsSourceFile>license.txt</jsSourceFile>
                                 <jsSourceFile>guacamole-common-js/all.js</jsSourceFile>
