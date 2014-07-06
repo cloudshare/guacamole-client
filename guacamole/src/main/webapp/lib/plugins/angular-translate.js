@@ -1,7 +1,7 @@
 /*!
  * angular-translate - v1.1.1 - 2013-11-24
  * http://github.com/PascalPrecht/angular-translate
- * Copyright (c) 2013 ; Licensed 
+ * Copyright (c) 2013 ; Licensed MIT
  */
 angular.module('pascalprecht.translate', ['ng']).run([
   '$translate',
