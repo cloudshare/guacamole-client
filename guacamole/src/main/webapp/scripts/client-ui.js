@@ -201,43 +201,19 @@ GuacUI.Client = {
     "TEXT_INPUT_PADDING"            : 128, /* characters */
     "TEXT_INPUT_PADDING_CODEPOINT"  : 0x200B,
 
-    /* Main application area */
-
-    "viewport"          : document.getElementById("viewportClone"),
-    "main"              : document.getElementById("main"),
-    "display"           : document.getElementById("display"),
-    "notification_area" : document.getElementById("notificationArea"),
-    "clientContainer"   : document.getElementById("clientContainer"),
-
-    /* Text input */
-
-    "text_input" : {
-        "container" : document.getElementById("text-input"),
-        "sent"      : document.getElementById("sent-history"),
-        "target"    : document.getElementById("target"),
-        "enabled"   : false
-    },
-
-    /* Menu */
-
-    "menu"              : document.getElementById("menu"),
-    "menu_title"        : document.getElementById("menu-title"),
-    "clipboard"         : document.getElementById("clipboard"),
-    "relative_radio"    : document.getElementById("relative"),
-    "absolute_radio"    : document.getElementById("absolute"),
-    "ime_none_radio"    : document.getElementById("ime-none"),
-    "ime_text_radio"    : document.getElementById("ime-text"),
-    "ime_osk_radio"     : document.getElementById("ime-osk"),
-    "zoom_state"        : document.getElementById("zoom-state"),
-    "zoom_out"          : document.getElementById("zoom-out"),
-    "zoom_in"           : document.getElementById("zoom-in"),
-    "auto_fit"          : document.getElementById("auto-fit"),
-
+    /* Settings for zoom */
     "min_zoom"        : 1,
     "max_zoom"        : 3,
 
-    "connectionName"  : "Guacamole",
-    "attachedClient"  : null,
+    /* Current connection parameters */
+    
+    /* The user defined named for this connection */
+    "connectionName"        : "Guacamole", 
+    
+    /* The connection name recieved when connecting, used in the title */
+    "connectionDisplayName" : "Guacamole",
+    "uniqueId"              : null,
+    "attachedClient"        : null,
 
     /* Mouse emulation */
 
@@ -787,9 +763,9 @@ GuacUI.Client.updateThumbnail = function() {
     );
 
     // Save thumbnail to history
-    var id = decodeURIComponent(window.location.search.substring(4));
-    GuacamoleHistory.update(id, thumbnail.toDataURL());
-
+    var uniqueId        = GuacUI.Client.uniqueId;
+    var connectionName  = GuacUI.Client.connectionName;
+    GuacamoleHistory.update(uniqueId, connectionName, thumbnail.toDataURL());
 };
 
 /**
@@ -856,16 +832,16 @@ GuacUI.Client.updateDisplayScale = function() {
 };
 
 /**
- * Updates the document title based on the connection name.
+ * Updates the document title based on the connection display name.
  */
 GuacUI.Client.updateTitle = function () {
     
     if (GuacUI.Client.titlePrefix)
-        document.title = GuacUI.Client.titlePrefix + " " + GuacUI.Client.connectionName;
+        document.title = GuacUI.Client.titlePrefix + " " + GuacUI.Client.connectionDisplayName;
     else
-        document.title = GuacUI.Client.connectionName;
+        document.title = GuacUI.Client.connectionDisplayName;
 
-    GuacUI.Client.menu_title.textContent = GuacUI.Client.connectionName;
+    GuacUI.Client.menu_title.textContent = GuacUI.Client.connectionDisplayName;
 
 };
 
@@ -962,12 +938,14 @@ GuacUI.Client.showNotification = function(message) {
  * Connects to the current Guacamole connection, attaching a new Guacamole
  * client to the user interface. If a Guacamole client is already attached,
  * it is replaced.
+ * @param {String} uniqueId A unique identifier for this connection.
+ * @param {String} connectionName A display name for this connection.
  * @param {String} connectionParameters URL encoded parameters to pass to the
  *                                      back end.
  * @param {String} authToken The authentication token used to authenticate a
  *                           a user.
  */
-GuacUI.Client.connect = function(connectionParameters, authToken) {
+GuacUI.Client.connect = function(uniqueId, connectionName, connectionParameters, authToken) {
     var tunnel;
 
     // If WebSocket available, try to use it.
@@ -983,6 +961,10 @@ GuacUI.Client.connect = function(connectionParameters, authToken) {
 
     // Instantiate client
     var guac = new Guacamole.Client(tunnel);
+
+    // Set the unique ID and name
+    GuacUI.Client.uniqueId          = uniqueId;
+    GuacUI.Client.connectionName    = connectionName;
 
     // Tie UI to client
     GuacUI.Client.attach(guac);
@@ -1182,6 +1164,13 @@ GuacUI.Client.setMouseEmulationAbsolute = function(absolute) {
  * Detach the current Guacamole.Client from the client UI.
  */
 GuacUI.Client.detach = function detach() {
+    
+    // Update the thumbnail
+    GuacUI.Client.updateThumbnail();
+    
+    // Save the clipboard state
+    GuacUI.Client.commitClipboard();
+    
     // If a client is already attached, ensure it is disconnected
     if (GuacUI.Client.attachedClient)
         GuacUI.Client.attachedClient.disconnect();
@@ -1275,7 +1264,7 @@ GuacUI.Client.attach = function(guac) {
      */
 
     guac.onname = function(name) {
-        GuacUI.Client.connectionName = name;
+        GuacUI.Client.connectionDisplayName = name;
         GuacUI.Client.updateTitle();
     };
 
@@ -2307,41 +2296,6 @@ GuacUI.Client.initialize = function() {
     GuacUI.Client.text_input.target.addEventListener("selectstart", function(e) {
         e.preventDefault();
     }, false);
-
-    /*
-     * Zoom
-     */
-
-    GuacUI.Client.auto_fit.onclick =
-    GuacUI.Client.auto_fit.onchange = function() {
-
-        // If auto-fit enabled, zoom out as far as possible
-        if (GuacUI.Client.auto_fit.checked)
-            GuacUI.Client.setScale(0);
-
-        // Otherwise, zoom to 1:1
-        else
-            GuacUI.Client.setScale(1);
-
-    };
-
-    GuacUI.Client.zoom_in.onclick = function() {
-
-        // Zoom in by 10%
-        var guac = GuacUI.Client.attachedClient;
-        if (guac)
-            GuacUI.Client.setScale(guac.getDisplay().getScale() + 0.1);
-
-    };
-
-    GuacUI.Client.zoom_out.onclick = function() {
-
-        // Zoom out by 10%
-        var guac = GuacUI.Client.attachedClient;
-        if (guac)
-            GuacUI.Client.setScale(guac.getDisplay().getScale() - 0.1);
-
-    };
 
     // Prevent default on all touch events
     document.addEventListener("touchstart", function(e) {

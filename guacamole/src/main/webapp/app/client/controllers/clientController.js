@@ -33,13 +33,20 @@ angular.module('home').controller('clientController', ['$scope', '$routeParams',
     GuacUI.Client.initialize();
             
     /*
-     * Parse the type and id out of the url paramteres, 
+     * Parse the type, name, and id out of the url paramteres, 
      * as well as any extra parameters if set.
      */
     var authToken = localStorageUtility.get('authToken');
+    var type      = $routeParams.type;
+    var id        = $routeParams.id;
+    var name      = $routeParams.name;
+    var uniqueId  = encodeURIComponent($routeParams.type + '/' + $routeParams.id);
+    
     GuacUI.Client.connect(
-        "id=" + encodeURIComponent($routeParams.type + '/' + $routeParams.id) +
-        ($routeParams.params ? '&' + $routeParams.params : ''), authToken
+        uniqueId,
+        name,
+        "id=" + uniqueId + ($routeParams.params ? '&' + $routeParams.params : ''), 
+        authToken
     );
     
     // Detach the current client if the user navigates away from the current page

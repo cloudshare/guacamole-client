@@ -42,7 +42,7 @@ angular.module('index').config(['$routeProvider', '$locationProvider',
             templateUrl: 'app/login/templates/login.html',
             controller: 'loginController'
         }).
-        when('/client/:type/:id/:params?', {
+        when('/client/:type/:id/:name/:params?', {
             templateUrl: 'app/client/templates/client.html',
             controller: 'clientController'
         }).

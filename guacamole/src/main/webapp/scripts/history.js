@@ -84,7 +84,7 @@ GuacamoleHistory = new (function() {
      * Updates the thumbnail and access time of the history entry for the
      * connection with the given ID.
      */
-    this.update = function(id, thumbnail) {
+    this.update = function(id, name, thumbnail) {
 
         /* Do nothing if localStorage not present */
         if (!localStorage)
@@ -92,7 +92,7 @@ GuacamoleHistory = new (function() {
 
         // Create updated entry
         var entry = new GuacamoleHistory.Entry(
-            id,
+            name,
             thumbnail,
             new Date().getTime()
         );
@@ -181,18 +181,18 @@ GuacamoleHistory = new (function() {
  * A single entry in the indexed connection usage history.
  * 
  * @constructor
- * @param {String} id The ID of this connection.
+ * @param {String} name The name of this connection.
  * @param {String} thumbnail The URL of the thumbnail to use to represent this
  *                           connection.
  * @param {Number} last_access The time this connection was last accessed, in
  *                             seconds.
  */
-GuacamoleHistory.Entry = function(id, thumbnail, last_access) {
+GuacamoleHistory.Entry = function(name, thumbnail, last_access) {
 
     /**
-     * The ID of the connection associated with this history entry.
+     * The name of the connection associated with this history entry.
      */
-    this.id = id;
+    this.name = name;
 
     /**
      * The thumbnail associated with the connection associated with this history

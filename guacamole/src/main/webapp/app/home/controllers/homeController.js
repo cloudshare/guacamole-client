@@ -23,16 +23,60 @@
 /**
  * The controller for the home page.
  */
-angular.module('home').controller('homeController', ['$scope', '$injector',
+angular.module('home').controller('homeController', ['$scope', '$injector', 
         function homeController($scope, $injector) {
+            
+    // The parameter name for getting the history from local storage
+    var GUAC_HISTORY_STORAGE_KEY = "GUAC_HISTORY";
                                     
     // Get the dependencies commonJS style
-    var connectionGroupService = $injector.get("connectionGroupService");
+    var connectionGroupService  = $injector.get("connectionGroupService");
+    var localStorageUtility     = $injector.get("localStorageUtility");
     
     // All the connections and connection groups in root
     $scope.connectionsAndGroups = [];
     
-    connectionGroupService.getAllGroupsAndConnections($scope.connectionsAndGroups);
+    // All valid recent connections
+    $scope.recentConnections = [];
+    
+    /* Fetch all connections and groups, then find which recent connections
+     * still refer to valid connections and groups.
+     */
+    connectionGroupService.getAllGroupsAndConnections($scope.connectionsAndGroups)
+    .then(function findRecentConnections() {
+        
+        // Try to parse out the recent connections from local storage
+        var recentConnections;
+        try {
+            recentConnections = JSON.parse(localStorageUtility.get(GUAC_HISTORY_STORAGE_KEY));
+        } catch(e) {
+            
+            // The recent history is corrupted - clear it
+            localStorageUtility.clear(GUAC_HISTORY_STORAGE_KEY);
+        }
+        
+        // Figure out which recent connection entries are valid
+        $scope.connectionsAndGroups.forEach(function findValidEntries (connectionOrGroup) {
+            
+            var type = connectionOrGroup.isConnection ? "c" : "cg";
+            
+            // Find the unique ID to index into the recent connections
+            var uniqueId = encodeURIComponent(
+                type + "/" + connectionOrGroup.identifier
+            );
+    
+            /* 
+             * If it's a valid recent connection, add it to the list,
+             * along with enough information to make a connection url.
+             */
+            var recentConnection = recentConnections[uniqueId];
+            if(recentConnection) {
+                recentConnection.type = type;
+                recentConnection.id   = connectionOrGroup.identifier;
+                $scope.recentConnections.push(recentConnection);
+            }
+        });
+    });
     
     /**
      * Toggle the open/closed status of the connectionGroup.
@@ -42,4 +86,5 @@ angular.module('home').controller('homeController', ['$scope', '$injector',
     $scope.toggleExpanded = function toggleExpanded(connectionGroup) {
         connectionGroup.expanded = !connectionGroup.expanded;
     };
+    
 }]);
