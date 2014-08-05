@@ -27,10 +27,12 @@ angular.module('index').controller('indexController', ['$scope', '$injector',
         function indexController($scope, $injector) {
             
     // Get the dependencies commonJS style
-    var permissionDAO           = $injector.get("permissionDAO");
-    var permissionCheckService  = $injector.get("permissionCheckService");
-    var localStorageUtility     = $injector.get("localStorageUtility");
-    var $q                      = $injector.get("$q");
+    var permissionDAO           = $injector.get("permissionDAO"),
+        permissionCheckService  = $injector.get("permissionCheckService"),
+        localStorageUtility     = $injector.get("localStorageUtility"),
+        $q                      = $injector.get("$q"),
+        $document               = $injector.get("$document"),
+        $location               = $injector.get("$location");
     
     /*
      * Safe $apply implementation from Alex Vanston:
@@ -38,7 +40,7 @@ angular.module('index').controller('indexController', ['$scope', '$injector',
      */
     $scope.safeApply = function(fn) {
         var phase = this.$root.$$phase;
-        if(phase == '$apply' || phase == '$digest') {
+        if(phase === '$apply' || phase === '$digest') {
             if(fn && (typeof(fn) === 'function')) {
                 fn();
             }
@@ -82,4 +84,18 @@ angular.module('index').controller('indexController', ['$scope', '$injector',
     
     // Try to load them now
     $scope.loadBasicPermissions();
+    
+    // Create event listeners at the global level
+    var keyboard = new Guacamole.Keyboard($document[0]);
+    
+    // Broadcast keydown events down the scope heirarchy
+    keyboard.onkeydown = function onkeydown(keysym) {
+        var guacKeydownEvent = $scope.$broadcast('guacKeydown', keysym, keyboard);
+        return !guacKeydownEvent.defaultPrevented;
+    };
+    
+    // Broadcast keyup events down the scope heirarchy
+    keyboard.onkeyup = function onkeyup(keysym) {
+        $scope.$broadcast('guacKeyup', keysym, keyboard);
+    };
 }]);

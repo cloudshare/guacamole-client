@@ -23,40 +23,44 @@
 /**
  * The controller for the page used to connect to a connection or balancing group.
  */
-angular.module('home').controller('clientController', ['$scope', '$routeParams', 'localStorageUtility',
-        function clientController($scope, $routeParams, localStorageUtility) {
+angular.module('home').controller('clientController', ['$scope', '$routeParams', 'localStorageUtility', '$injector',
+        function clientController($scope, $routeParams, localStorageUtility, $injector) {
       
     // Store the old title
     var oldTitle = window.document.title;
-      
-    // Initialize the client
-    GuacUI.Client.initialize();
+    
+    var $filter = $injector.get('$filter');
+    
+    // Client settings and state
+    $scope.clientParameters = {scale: 1};
             
     /*
      * Parse the type, name, and id out of the url paramteres, 
      * as well as any extra parameters if set.
      */
-    var authToken = localStorageUtility.get('authToken');
-    var type      = $routeParams.type;
-    var id        = $routeParams.id;
-    var name      = $routeParams.name;
-    var uniqueId  = encodeURIComponent($routeParams.type + '/' + $routeParams.id);
+    $scope.type                 = $routeParams.type;
+    $scope.id                   = $routeParams.id;
+    $scope.connectionName       = $routeParams.name;
+    $scope.connectionParameters = $routeParams.params || '';
     
-    GuacUI.Client.connect(
-        uniqueId,
-        name,
-        "id=" + uniqueId + ($routeParams.params ? '&' + $routeParams.params : ''), 
-        authToken
-    );
-    
-    // Detach the current client if the user navigates away from the current page
-    $scope.$on('$locationChangeStart', function(event) {
+    $scope.$on('guacClientError', function errorListener(event, statusCode, guacClient, reconnectionCallback) {
+        $scope.errorPresent = true;
         
-        // Detach the client
-        GuacUI.Client.detach();
+        var statusTranslationCode = 'client.error.clientErrors.' + statusCode;
         
-        // Restore the old title
-        window.document.title = oldTitle;
+        var translation = $filter('translate')(statusTranslationCode);
+        
+        // No translation for this error exists, use the default error message
+        if (translation === statusTranslationCode)
+            translation = $filter('translate')('client.error.clientErrors.DEFAULT');
+        
+        $scope.errorStatus = translation;
+        
+        // Close the modal and reconnect
+        $scope.reconnect = function reconnect() {
+            reconnectionCallBack();
+            $scope.errorPresent = false;
+        };
     });
     
 }]);

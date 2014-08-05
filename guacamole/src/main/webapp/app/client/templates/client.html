@@ -1,6 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
-
 <!--
    Copyright (C) 2014 Glyptodon LLC
 
@@ -25,17 +22,14 @@
 
 <div id="clientContainer">
 
-    <div id="main">
-
-        <!-- Display -->
-        <div class="displayOuter">
-            <div class="displayMiddle">
-                <div id="display">
-                </div>
-            </div>
-        </div>
-
-    </div>
+    <!-- Client -->
+    <guac-client 
+        client-parameters="clientParameters"
+        type="type"
+        id="id"
+        connection-name="connectionName"
+        connection-parameters="connectionParameters"
+    />
 
     <!-- Text input target -->
     <div id="text-input"><div id="text-input-field"><div id="sent-history"></div><textarea rows="1" id="target"></textarea></div><div id="text-input-buttons"><button class="key" data-keysym="0xFFE3" data-sticky="true">{{'client.ctrl' | translate}}</button><button class="key" data-keysym="0xFFE9" data-sticky="true">{{'client.alt' | translate}}</button><button class="key" data-keysym="0xFF1B">{{'client.esc' | translate}}</button><button class="key" data-keysym="0xFF09">{{'client.tab' | translate}}</button></div></div>
@@ -107,11 +101,11 @@
         <h3>{{'client.display' | translate}}</h3>
         <div class="content">
             <div id="zoom-settings">
-                <div id="zoom-out"><img src="images/settings/zoom-out.png" alt="-"/></div>
-                <div id="zoom-state">{{'client.oneHundredPercent' | translate}}</div>
-                <div id="zoom-in"><img src="images/settings/zoom-in.png" alt="+"/></div>
+                <div ng-click="zoomOut()" id="zoom-out"><img src="images/settings/zoom-out.png" alt="-"/></div>
+                <div id="zoom-state">{{formattedScale()}}</div>
+                <div ng-click="zoomIn()" id="zoom-in"><img src="images/settings/zoom-in.png" alt="+"/></div>
             </div>
-            <div><label><input type="checkbox" id="auto-fit" checked="checked"/> {{'client.autoFit' | translate}}</label></div>
+            <div><label><input ng-model="autoFitEnabled" ng-change="autoFit(autoFitEnabled)" type="checkbox" id="auto-fit" checked="checked"/> {{'client.autoFit' | translate}}</label></div>
         </div>
 
     </div>
@@ -121,4 +115,6 @@
         <img src="images/action-icons/guac-close.png"/>
         <img src="images/progress.png"/>
     </div>
+    
+    <ng-include src="app/client/template/clientError.html"/>
 </div>

@@ -781,23 +781,8 @@ GuacUI.Client.setScale = function(new_scale) {
 
     if (GuacUI.Client.attachedClient)
         GuacUI.Client.attachedClient.getDisplay().scale(new_scale);
-
-    GuacUI.Client.zoom_state.textContent = Math.round(new_scale * 100) + "%";
-
-    // If at minimum zoom level, auto fit is ON
-    if (new_scale === GuacUI.Client.min_zoom) {
-        GuacUI.Client.main.style.overflow = "hidden";
-        GuacUI.Client.auto_fit.checked = true;
-        GuacUI.Client.auto_fit.disabled = (GuacUI.Client.min_zoom >= 1);
-    }
-
-    // If at minimum zoom level, auto fit is OFF
-    else {
-        GuacUI.Client.main.style.overflow = "auto";
-        GuacUI.Client.auto_fit.checked = false;
-        GuacUI.Client.auto_fit.disabled = false;
-    }
-
+    
+    return new_scale;
 };
 
 /**
@@ -1438,10 +1423,6 @@ GuacUI.Client.initialize = function() {
         "ime_none_radio"    : document.getElementById("ime-none"),
         "ime_text_radio"    : document.getElementById("ime-text"),
         "ime_osk_radio"     : document.getElementById("ime-osk"),
-        "zoom_state"        : document.getElementById("zoom-state"),
-        "zoom_out"          : document.getElementById("zoom-out"),
-        "zoom_in"           : document.getElementById("zoom-in"),
-        "auto_fit"          : document.getElementById("auto-fit"),
     });
 
     var i;

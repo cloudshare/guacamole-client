@@ -129,11 +129,11 @@ div.displayMiddle {
     text-align: center;
 }
 
-div#display * {
+div.display * {
     position: relative;
 }
 
-div#display > * {
+div.display > * {
     margin-left: auto;
     margin-right: auto;
 }

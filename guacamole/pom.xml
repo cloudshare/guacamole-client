@@ -140,8 +140,6 @@
                                 <jsSourceFile>scripts/session.js</jsSourceFile>
                                 <jsSourceFile>scripts/history.js</jsSourceFile>
                                 <jsSourceFile>scripts/service.js</jsSourceFile>
-                                <jsSourceFile>scripts/guac-ui.js</jsSourceFile>
-                                <jsSourceFile>scripts/client-ui.js</jsSourceFile>
                             </jsSourceFiles>
 
                             <jsSourceIncludes>
