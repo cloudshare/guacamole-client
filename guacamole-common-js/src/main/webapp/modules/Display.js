@@ -77,6 +77,12 @@ Guacamole.Display = function() {
     // Add display to bounds
     bounds.appendChild(display);
 
+    var isCursorStylingSupported = checkCursorStylingSupported(display);
+
+    // if cursor CSS3 styling supported, hide drawn cursor
+    if (isCursorStylingSupported)
+        cursor.getElement().style.display = 'none';
+
     /**
      * The X coordinate of the hotspot of the mouse cursor. The hotspot is
      * the relative location within the image of the mouse cursor at which
@@ -282,6 +288,16 @@ Guacamole.Display = function() {
         return task;
     }
 
+    /**
+     * Returns whether cursor CSS3 styling is supported.
+     * If CSS3 styling is supported, then the cursor layer is invisible, and 
+     * cursor image is displayed on the browser cursor itself.
+     * 
+     * @return {boolean} Whether cursor CSS3 styling is supported
+     */
+    this.isCursorStylingSupported = function() {
+        return isCursorStylingSupported;
+    };
 
     /**
      * Returns the element which contains the Guacamole display.
@@ -413,6 +429,8 @@ Guacamole.Display = function() {
             cursor.copy(layer, srcx, srcy, srcw, srch, 0, 0);
             guac_display.moveCursor(guac_display.cursorX, guac_display.cursorY);
 
+            if (isCursorStylingSupported) 
+                setCursorImage(cursor.getCanvas().toDataURL('image/png'), hotspotX, hotspotY);
         });
     };
 
@@ -1037,6 +1055,14 @@ Guacamole.Display = function() {
         
     };
 
+    function checkCursorStylingSupported(element) {
+        element.style.cursor = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuM4zml1AAAAAMSURBVBhXY+Dg4AAAADQAGday7cgAAAAASUVORK5CYII=) 12 12, auto";
+        return !!element.style.cursor || element.style.cursor != 'none';
+    }
+
+    function setCursorImage(dataURL, x, y) {
+        display.style.cursor = "url(" + dataURL + ") " + x + " " + y + ", auto";
+    }
 };
 
 /**
