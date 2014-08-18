@@ -1057,7 +1057,7 @@ Guacamole.Display = function() {
 
     function checkCursorStylingSupported(element) {
         element.style.cursor = "url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuM4zml1AAAAAMSURBVBhXY+Dg4AAAADQAGday7cgAAAAASUVORK5CYII=) 12 12, auto";
-        return !!element.style.cursor || element.style.cursor != 'none';
+        return !!element.style.cursor && element.style.cursor != 'none';
     }
 
     function setCursorImage(dataURL, x, y) {
